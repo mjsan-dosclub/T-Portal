@@ -4,8 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { api } from "@/components/api";
 import { Field } from "@/components/field";
-import { GapTable } from "@/components/skills/gap-table";
-import { LevelBar, Meter } from "@/components/skills/level-bar";
+import { Meter } from "@/components/skills/level-bar";
 import { useToast } from "@/components/toast";
 import type { SectionKey } from "@/lib/completeness";
 import { GENDER_LABELS, GENDERS } from "@/lib/validation/student";
@@ -90,15 +89,8 @@ export function ProfileEditor({ profile, roles, catalog }: { profile: Profile; r
           )}
         />
 
-        <section id="skills" className="glass-strong card" aria-labelledby="skills-h" style={{ display: "grid", gap: "0.9rem", scrollMarginTop: "1rem" }}>
-          <SectionHead id="skills" title="Key skills" score={score("skills")} />
-          <TargetRole profile={profile} roles={roles} onSaved={refresh} />
-          <GapTable key={JSON.stringify(profile.ratings)} profile={profile} mode="student" saveUrl="/api/student/me/skills" onSaved={refresh} />
-          <OtherSkills profile={profile} catalog={catalog} onSaved={refresh} />
-        </section>
-
         <ListSection
-          id="tools" title="Technical skills & tools" kind="tools" max={30} addLabel="Add skill / tool" onSaved={refresh}
+          id="skills" title="Key skills & tools" kind="tools" max={30} addLabel="Add skill / tool" onSaved={refresh} score={score("skills")}
           items={profile.tools as never}
           empty="Add languages, frameworks and tools you've used, e.g. Python, React, Git, AWS, Figma."
           fields={[
@@ -224,7 +216,7 @@ export function ProfileEditor({ profile, roles, catalog }: { profile: Profile; r
 
 type S = ReturnType<Profile["sections"]["find"]>;
 
-function useSave() {
+export function useSave() {
   const toast = useToast();
   return async (url: string, body: unknown, ok: string) => {
     const r = await api(url, { method: "PUT", body });
@@ -316,70 +308,6 @@ function About({ profile, onSaved, headline, summary }: { profile: Profile; onSa
       </Field>
       <div><button type="submit" className="btn btn-primary">Save headline & summary</button></div>
     </form>
-  );
-}
-
-function TargetRole({ profile, roles, onSaved }: { profile: Profile; roles: { id: string; name: string }[]; onSaved: () => void }) {
-  const save = useSave();
-  const [roleId, setRoleId] = useState(profile.targetRole?.id ?? "");
-  return (
-    <div style={{ display: "grid", gap: "0.4rem" }}>
-      <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "end" }}>
-        <div className="field" style={{ flex: "1 1 18rem" }}>
-          <label className="label" htmlFor="role">Target role (the job you&apos;re aiming for)</label>
-          <select id="role" className="select" value={roleId} onChange={(e) => setRoleId(e.target.value)}>
-            <option value="">Choose a role…</option>
-            {roles.map((r) => (<option key={r.id} value={r.id}>{r.name}</option>))}
-          </select>
-        </div>
-        <button type="button" className="btn btn-primary" disabled={roleId === (profile.targetRole?.id ?? "")} onClick={async () => { if ((await save("/api/student/me/target-role", { roleId: roleId || null }, "Target role saved")).ok) onSaved(); }}>
-          Save role
-        </button>
-      </div>
-      {profile.targetRole && (
-        <p className="hint">{profile.targetRole.category} · levels L{profile.targetRole.levelMin}–L{profile.targetRole.levelMax}{profile.targetRole.roadmap[0] && <> · First step: {profile.targetRole.roadmap[0].whatYouDo}</>}</p>
-      )}
-    </div>
-  );
-}
-
-function OtherSkills({ profile, catalog, onSaved }: { profile: Profile; catalog: Catalog; onSaved: () => void }) {
-  const save = useSave();
-  const [code, setCode] = useState("");
-  const [level, setLevel] = useState(1);
-  const required = new Set(profile.gap.rows.map((r) => r.code));
-  return (
-    <div style={{ display: "grid", gap: "0.6rem" }}>
-      <h3 style={{ fontSize: "1rem", fontWeight: 600 }}>Other framework skills</h3>
-      {profile.otherSkills.length > 0 && (
-        <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: "0.4rem" }}>
-          {profile.otherSkills.map((s) => (
-            <li key={s.code} style={{ display: "flex", gap: "0.6rem", alignItems: "center", flexWrap: "wrap" }}>
-              <code className="mono chip tone-deep">{s.code}</code> {s.name}
-              <span style={{ marginLeft: "auto" }}><LevelBar current={s.verified ?? s.self} label={s.verified != null ? `L${s.verified} ✓` : `L${s.self}`} /></span>
-            </li>
-          ))}
-        </ul>
-      )}
-      <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "end" }}>
-        <div className="field" style={{ flex: "2 1 16rem" }}>
-          <label className="label" htmlFor="os-skill">Skill</label>
-          <select id="os-skill" className="select" value={code} onChange={(e) => setCode(e.target.value)}>
-            <option value="">Choose a skill…</option>
-            {catalog.filter((c) => !required.has(c.code)).map((c) => (<option key={c.code} value={c.code}>{c.name} ({c.code}) · {c.category}</option>))}
-          </select>
-        </div>
-        <div className="field" style={{ flex: "0 1 8rem" }}>
-          <label className="label" htmlFor="os-level">Your level</label>
-          <select id="os-level" className="select" value={level} onChange={(e) => setLevel(Number(e.target.value))}>
-            {[0, 1, 2, 3, 4, 5, 6].map((l) => (<option key={l} value={l}>L{l}</option>))}
-          </select>
-        </div>
-        <button type="button" className="btn btn-secondary" disabled={!code} onClick={async () => { if ((await save("/api/student/me/skills", { ratings: [{ code, level }] }, "Skill saved")).ok) { setCode(""); onSaved(); } }}>
-          Add / update
-        </button>
-      </div>
-    </div>
   );
 }
 

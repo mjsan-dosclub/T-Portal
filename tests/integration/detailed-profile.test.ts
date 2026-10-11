@@ -7,7 +7,6 @@ import { POST as addPOST } from "@/app/api/student/me/sections/[kind]/route";
 import { DELETE as itemDELETE, PUT as itemPUT } from "@/app/api/student/me/sections/[kind]/[id]/route";
 import { DELETE as resumeDELETE, GET as resumeGET, POST as resumePOST } from "@/app/api/student/me/resume/route";
 import { GET as adminResumeGET } from "@/app/api/students/[id]/resume/route";
-import { PUT as targetRolePUT } from "@/app/api/student/me/target-role/route";
 import { PUT as linksPUT } from "@/app/api/student/me/links/route";
 import { POST as projectsPOST } from "@/app/api/student/me/projects/route";
 import { hashPassword } from "@/server/auth/password";
@@ -135,10 +134,7 @@ describe("Detailed fresher profile (PRF-3)", () => {
     await step(() => call(aboutPUT, { method: "PUT", body: { headline: "Final-year CSE student into cloud", summary: "x".repeat(160) }, cookie: c }));
     await step(() => call(linksPUT, { method: "PUT", body: { linkedinUrl: "https://www.linkedin.com/in/x", githubUrl: "", portfolioUrl: "" }, cookie: c }));
     await step(() => add("certifications", { name: "NPTEL Cloud Computing", issuer: "NPTEL", noExpiry: true, skillCodes: [] }, c));
-    await step(async () => {
-      const role = await db.ontRole.findFirstOrThrow({ where: { name: "Enterprise Architect" } });
-      await call(targetRolePUT, { method: "PUT", body: { roleId: role.id }, cookie: c });
-    });
+    await step(() => add("tools", { name: "Python", experienceMonths: 6 }, c));
     await step(() => call(projectsPOST, { body: { title: "Bus tracker", description: "Live bus tracking for our college.", projectType: "ACADEMIC", skillCodes: [] }, cookie: c }));
     for (let i = 1; i < seen.length; i++) expect(seen[i]!).toBeGreaterThan(seen[i - 1]!);
     expect(seen[0]).toBe(0);

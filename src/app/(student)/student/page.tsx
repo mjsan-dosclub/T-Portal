@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { StatusChip } from "@/components/states";
 import { Meter, ReadinessChip } from "@/components/skills/level-bar";
 import { studentAttendance } from "@/server/attendance";
+import { studentPrograms } from "@/server/internships";
 import { getProfile } from "@/server/profile";
 import { requireStudentPage } from "@/server/student/session";
 import { StudentNav } from "./student-nav";
@@ -18,7 +19,7 @@ export default async function StudentHome() {
       status: { select: { name: true, color: true } }, colourTeam: { select: { name: true } }
     },
   });
-  const [profile, att] = await Promise.all([getProfile(me.studentId), studentAttendance(me.studentId)]);
+  const [profile, att, internships] = await Promise.all([getProfile(me.studentId), studentAttendance(me.studentId), studentPrograms(me.studentId)]);
   const dash = <span className="hint">Not set</span>;
   const rows: [string, React.ReactNode][] = [
     ["Student code", <span key="c" className="mono">{s.studentCode}</span>],
@@ -69,10 +70,27 @@ export default async function StudentHome() {
           ) : (
             <p className="hint">No target role yet.</p>
           )}
-          <div className="hint">Profile {profile.completeness}% complete</div>
-          <Meter value={profile.completeness} label="Profile completeness" />
-          <Link className="btn btn-primary" href="/student/profile">{profile.targetRole ? "Update my profile" : "Choose a target role"}</Link>
+          <Link className="btn btn-primary" href="/student/career-plan">{profile.targetRole ? "Open my career plan" : "Choose a target role"}</Link>
         </section>
+        <section className="glass card" aria-labelledby="prof-h" style={{ display: "grid", gap: "0.6rem" }}>
+          <h2 id="prof-h" style={{ fontSize: "1.1rem", fontWeight: 600 }}>My profile</h2>
+          <div className="stat-num">{profile.completeness}%<span className="hint" style={{ fontSize: "1rem" }}> complete</span></div>
+          <Meter value={profile.completeness} label="Profile completeness" />
+          <p className="hint">Education, key skills, projects, certifications, resume and more, like a job portal.</p>
+          <Link className="btn btn-secondary" href="/student/profile">Update my profile</Link>
+        </section>
+        {internships.length > 0 && (
+          <section className="glass card" aria-labelledby="int-h" style={{ display: "grid", gap: "0.6rem" }}>
+            <h2 id="int-h" style={{ fontSize: "1.1rem", fontWeight: 600 }}>My internships</h2>
+            {internships.map((i) => (
+              <div key={i.assignmentId}>
+                <strong>{i.program.title}</strong>
+                <div className="hint">{i.program.companyName} · {i.program.country} · weekly reports {i.grid.attended}/{i.program.weeks}</div>
+              </div>
+            ))}
+            <Link className="btn btn-secondary" href="/student/internships">Upload weekly report</Link>
+          </section>
+        )}
         <section className="glass card" aria-labelledby="att-h" style={{ display: "grid", gap: "0.6rem" }}>
           <h2 id="att-h" style={{ fontSize: "1.1rem", fontWeight: 600 }}>27-Day Program</h2>
           <div className="stat-num" data-testid="my-attendance">{att.present}<span className="hint" style={{ fontSize: "1rem" }}> / {att.held} sessions attended</span></div>
@@ -94,7 +112,7 @@ export default async function StudentHome() {
         </section>
       </div>
       <p className="hint" style={{ textAlign: "center" }}>
-        Your skills and projects are on <Link href="/student/profile">My profile</Link>. Coming later: resume upload and job preferences.
+        Your job-portal details are on <Link href="/student/profile">My profile</Link>; your target role and skill gap are on <Link href="/student/career-plan">Career plan</Link>.
       </p>
     </div>
   );

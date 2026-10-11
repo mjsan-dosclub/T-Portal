@@ -27,10 +27,7 @@ export type ProfileFacts = {
   headlineLength: number;
   summaryLength: number;
   educationLevels: string[]; // e.g. ["CLASS_10","CLASS_12","UG"]
-  hasRole: boolean;
-  requiredSkills: number;
-  ratedRequired: number;
-  tools: number;
+  tools: number; // the career plan (target role, gap) is separate and doesn't count here (CP-1)
   projects: number;
   internships: number;
   certifications: number;
@@ -67,14 +64,11 @@ export function scoreSections(f: ProfileFacts): SectionScore[] {
       const n = part(lv.has("CLASS_10"), "Class 10", m) + part(lv.has("CLASS_12") || lv.has("DIPLOMA"), "Class 12 or Diploma", m) + part(lv.has("UG") || lv.has("PG"), "your degree (UG/PG)", m);
       return { score: n / 3, missing: m };
     },
-    skills: () => {
-      const m: string[] = [];
-      const n =
-        part(f.hasRole, "a target role", m) +
-        part(f.requiredSkills > 0 && f.ratedRequired >= f.requiredSkills, "ratings for every skill your role needs", m) +
-        part(f.tools >= 3, "at least 3 technical skills / tools", m);
-      return { score: n / 3, missing: m };
-    },
+    skills: () =>
+      f.tools >= 5 ? { score: 1, missing: [] }
+      : f.tools >= 3 ? { score: 0.6, missing: [`${5 - f.tools} more key skill(s) (5 in total)`] }
+      : f.tools >= 1 ? { score: 0.3, missing: [`${5 - f.tools} more key skills (5 in total)`] }
+      : { score: 0, missing: ["at least 5 key skills / tools"] },
     projects: () => (f.projects >= 2 ? { score: 1, missing: [] } : f.projects === 1 ? { score: 0.5, missing: ["a second project"] } : { score: 0, missing: ["a project"] }),
     internships: () => (f.internships >= 1 ? { score: 1, missing: [] } : { score: 0, missing: ["an internship"] }),
     certifications: () => (f.certifications >= 1 ? { score: 1, missing: [] } : { score: 0, missing: ["a certification"] }),

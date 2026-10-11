@@ -14,6 +14,11 @@ Requirements and process: [`docs/PRD.md`](docs/PRD.md) · [`docs/PROJECT_PLAN.md
 
 Students open `/student/activate`, enter their registered **email + mobile**, create a password and set up **Google Authenticator**. Then they sign in at `/student/login` to see their record, and can change their password on Account. There's **no email service**: admins share the *Invitation message* (Students page) on WhatsApp, and forgotten passwords are reset by an admin (student preview → *Reset password*). That gives a one-time password valid for 72 h, and the student must replace it after signing in. Details and the known risk: PRD Appendix B, DECISIONS PH2-5..7.
 
+## Career plan & international internships
+
+- **Career plan** (`/student/career-plan`): target role, skill gap (self vs verified), other framework skills and the role roadmap. It's separate from the job-portal profile, and the profile's *Key skills* % now counts technical skills/tools only (5+ = 100 %). DECISIONS CP-1.
+- **Internships** (`/internships`, admins): add a client program (company, description, resources, duration in days/weeks, start date), assign students within the seat limit, review weekly reports and see attendance. Students upload one report per week at `/student/internships`. Office/PDF/text formats are checked by content; archives and renamed files are rejected; max 10 MB. Attendance = submitted or accepted weeks ÷ weeks due. DECISIONS INT-1..3.
+
 ## Keeping the ontology current
 
 **Skills Ontology → Manage** (Super Admin and Admin): add skills (permanent 3–6 character codes), add or rename subcategories, add or edit roles and their required skills with levels L1–L6, and **retire** outdated skills or roles. Retired items are hidden from the explorers and pickers but kept in history, and can be restored. Only a portal-added skill that no role uses can be deleted. Every change shows on the **Change log** tab and in the audit log. Re-running `npm run db:seed` never overwrites these edits.

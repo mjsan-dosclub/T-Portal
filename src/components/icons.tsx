@@ -11,6 +11,7 @@ export const Icon = {
   admins: () => (<svg viewBox="0 0 24 24" {...P} aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.5 3.2 8 7.5 9.5 4.3-1.5 7.5-5 7.5-9.5V6z" /><path d="m9 12 2 2 4-4" /></svg>),
   account: () => (<svg viewBox="0 0 24 24" {...P} aria-hidden="true"><circle cx="12" cy="8.5" r="3.5" /><path d="M5 20c1-3.8 3.7-5.7 7-5.7s6 1.9 7 5.7" /></svg>),
   attendance: () => (<svg viewBox="0 0 24 24" {...P} aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5" /><path d="M3.5 10h17M8 3v4M16 3v4M9 15l2 2 4-4" /></svg>),
+  internships: () => (<svg viewBox="0 0 24 24" {...P} aria-hidden="true"><rect x="3.5" y="7" width="17" height="13" rx="2.5" /><path d="M9 7V4.5h6V7M3.5 12.5h17M11 12.5v2h2v-2" /></svg>),
   insights: () => (<svg viewBox="0 0 24 24" {...P} aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></svg>),
   help: () => (<svg viewBox="0 0 24 24" {...P} aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.6" /><path d="M12 17h.01" /></svg>),
   logout: () => (<svg viewBox="0 0 24 24" {...P} aria-hidden="true"><path d="M15 4h4v16h-4M10 16l-4-4 4-4M6 12h10" /></svg>),

@@ -78,7 +78,6 @@ export async function getProfile(studentId: string) {
   const required = (s.targetRole?.skills ?? []).map((r) => ({ code: r.skill.code, name: r.skill.name, required: r.level }));
   const gap = computeGap(required, levels);
   const links = [s.linkedinUrl, s.githubUrl, s.portfolioUrl].filter(Boolean).length;
-  const ratedRequired = required.filter((r) => (levels.get(r.code)?.self ?? 0) > 0 || levels.get(r.code)?.verified != null).length;
   const pr = s.profile;
   const languages = (Array.isArray(pr?.languages) ? pr!.languages : []) as { name: string; read: boolean; write: boolean; speak: boolean }[];
   const day = (d: Date | null | undefined) => d?.toISOString().slice(0, 10) ?? null;
@@ -86,7 +85,7 @@ export async function getProfile(studentId: string) {
     gender: !!s.gender, dateOfBirth: !!s.dateOfBirth, cityState: !!(s.city && s.state), languages: languages.length,
     headlineLength: pr?.headline?.length ?? 0, summaryLength: pr?.summary?.length ?? 0,
     educationLevels: s.educations.map((e) => e.level),
-    hasRole: !!s.targetRole, requiredSkills: required.length, ratedRequired, tools: s.tools.length,
+    tools: s.tools.length,
     projects: s.projects.length, internships: s.internships.length, certifications: s.certifications.length, accomplishments: s.accomplishments.length,
     prefRoles: pr?.preferredRoleIds.length ?? 0, prefLocations: pr?.preferredLocations.length ?? 0, jobTypes: pr?.jobTypes.length ?? 0, workModes: pr?.workModes.length ?? 0,
     availableFrom: !!pr?.availableFrom, resume: !!s.resume, links,

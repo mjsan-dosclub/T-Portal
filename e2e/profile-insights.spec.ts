@@ -25,7 +25,7 @@ test("PRF-08 / ATT-04 student builds a profile; admin verifies a level and marks
   const attendedBefore = Number((await page.getByTestId("my-attendance").textContent())!.trim().split(/\s/)[0]);
 
   // Profile: role, self-ratings, project
-  await page.getByRole("navigation", { name: "Student" }).getByRole("link", { name: "My profile" }).click();
+  await page.getByRole("navigation", { name: "Student" }).getByRole("link", { name: "Career plan" }).click();
   await page.getByLabel("Target role (the job you're aiming for)").selectOption({ label: "Enterprise Architect" });
   await page.getByRole("button", { name: "Save role" }).click();
   await expect(page.getByTestId("gap-row")).toHaveCount(5);
@@ -33,6 +33,7 @@ test("PRF-08 / ATT-04 student builds a profile; admin verifies a level and marks
   await page.getByLabel("Your level for Governance").selectOption("3");
   await page.getByTestId("save-levels").click();
   await expect(page.getByTestId("toast").filter({ hasText: "Your levels are saved" })).toBeVisible();
+  await page.getByRole("navigation", { name: "Student" }).getByRole("link", { name: "My profile" }).click();
   await page.getByRole("button", { name: "Add project" }).click();
   const dlg = page.getByRole("dialog", { name: "Add: projects" });
   await dlg.getByLabel("Title").fill("College event portal");
@@ -70,7 +71,7 @@ test("PRF-08 / ATT-04 student builds a profile; admin verifies a level and marks
   await admin.close();
 
   // Student sees the verified level and the extra attended day
-  await page.reload();
+  await page.getByRole("navigation", { name: "Student" }).getByRole("link", { name: "Career plan" }).click();
   await expect(page.getByTestId("gap-table")).toContainText("✓ L3");
   await page.getByRole("navigation", { name: "Student" }).getByRole("link", { name: "My record" }).click();
   await expect(page.getByTestId("my-attendance")).toContainText(String(attendedBefore + 1));

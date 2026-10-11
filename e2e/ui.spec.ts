@@ -53,7 +53,7 @@ test.describe("UI / accessibility", () => {
     test.use({ storageState: statePath("SUPER_ADMIN") });
 
     test("UI-02 axe: no serious or critical violations on every main page", async ({ page }) => {
-      const pages = ["/", "/students", "/students/new", "/students/upload", "/masters/institutions", "/masters/departments", "/ontology", "/ontology/categories", "/ontology/roles", "/ontology/levels", "/ontology/program", "/recycle-bin", "/audit", "/admin/users", "/account", "/help", "/ontology/manage", "/attendance", "/insights"];
+      const pages = ["/", "/students", "/students/new", "/students/upload", "/masters/institutions", "/masters/departments", "/ontology", "/ontology/categories", "/ontology/roles", "/ontology/levels", "/ontology/program", "/recycle-bin", "/audit", "/admin/users", "/account", "/help", "/ontology/manage", "/attendance", "/insights", "/internships"];
       const problems: string[] = [];
       for (const p of pages) {
         await page.goto(p);

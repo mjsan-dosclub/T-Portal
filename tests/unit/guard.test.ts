@@ -74,6 +74,8 @@ describe("Guardrails", () => {
       "/student", "/student/login", "/student/activate", "/student/forgot", "/student/totp", "/student/recovery", "/student/enrol", "/student/account", "/student/change-password",
       // PRF-1 / ATT-1 / INS-1
       "/student/profile", "/students/[id]/profile", "/attendance", "/insights",
+      // CP-1 / INT-1..3: career plan split + international internships
+      "/student/career-plan", "/student/internships", "/internships", "/internships/[id]",
     ]);
     expect(pages.filter((p) => !approved.has(p))).toEqual([]);
     const all = walk(app).map(rel).join("\n");

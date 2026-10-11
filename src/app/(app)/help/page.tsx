@@ -25,6 +25,7 @@ export default async function HelpPage() {
           ["portal", "Student portal access"],
           ["skills", "Verify skills"],
           ["attendance", "Attendance"],
+          ["internships", "International internships"],
         ] as [string, string][])
       : []),
     ...(canExport(me) ? ([["export", "Export"]] as [string, string][]) : []),
@@ -191,7 +192,7 @@ export default async function HelpPage() {
           <GuideSection id="skills" title="Check and verify student skills">
             <Steps
               items={[
-                <>Students build a <strong>job-portal style profile</strong> with 12 sections: personal details, headline &amp; summary, education, key skills &amp; tools, projects, internships, certifications, accomplishments, career preferences, resume (PDF), online profiles. Each section has its own completeness %. Their target role&apos;s skills are rated L0–L6.</>,
+                <>Students build a <strong>job-portal style profile</strong> with 12 sections: personal details, headline &amp; summary, education, key skills &amp; tools, projects, internships, certifications, accomplishments, career preferences, resume (PDF), online profiles. Each section has its own completeness %. Separately, on their <strong>Career plan</strong> they choose a target role and rate its skills L0–L6 (this doesn&apos;t change profile %).</>,
                 <>Open a student: <Kbd>Preview</Kbd> → <Kbd>Skills, projects &amp; attendance</Kbd>. You see the skill gap table, every profile section with its %, and a <Kbd>Download</Kbd> link for the resume (downloads are logged).</>,
                 <>After checking evidence (projects, a short interview or a test), set the <Kbd>Verified</Kbd> level and press <Kbd>Save verified levels</Kbd>. A verified level counts instead of the self-rating, and the student sees ✓.</>,
                 <>To undo, choose <Kbd>Not verified</Kbd> and save.</>,
@@ -204,6 +205,17 @@ export default async function HelpPage() {
                 <>Open <Link href="/attendance">Attendance</Link> and choose the <Kbd>DOS Club batch</Kbd>. The overview shows all 27 days with counts.</>,
                 <>Choose the <Kbd>Workshop day</Kbd>, set the <Kbd>Session date</Kbd>, press <Kbd>Mark all present</Kbd>, then change anyone who was <strong>Absent</strong> or <strong>Excused</strong>.</>,
                 <>Press <Kbd>Save attendance</Kbd>. Students see their attended / held count on their portal home. Excused days don&apos;t count against them.</>,
+              ]}
+            />
+          </GuideSection>
+          <GuideSection id="internships" kicker="New" title="International internships and weekly reports">
+            <Steps
+              items={[
+                <>Open <Link href="/internships">Internships</Link> → <Kbd>+ New program</Kbd>. Enter the client&apos;s basic information: company, program title, description, country/city, work mode, <strong>number of resources</strong> and <strong>duration</strong> in days or weeks. Set a <strong>start date</strong> and status <strong>Open</strong> or <strong>Ongoing</strong> so students can see it (Draft is hidden).</>,
+                <>On the program page press <Kbd>Assign students</Kbd>, search by name, email or code and tick students. You can&apos;t assign more students than resources; <Kbd>Withdraw</Kbd> frees a seat (reports already sent are kept).</>,
+                <>Assigned students see the program on their portal and upload one <strong>weekly work report</strong> per week (PDF, Word, Excel, PowerPoint, CSV, TXT, RTF, OpenDocument; no ZIP or compressed files, max 10 MB).</>,
+                <>The grid shows each student&apos;s weeks: ✓ accepted, ● submitted, ↺ needs revision, ✕ missing. Click a week to <Kbd>Download report</Kbd> (logged) and <Kbd>Accept</Kbd> or ask for a revision with feedback.</>,
+                <><strong>Internship attendance</strong> = weeks with a submitted or accepted report ÷ weeks due so far. Viewers can see programs and download reports but can&apos;t change anything.</>,
               ]}
             />
           </GuideSection>

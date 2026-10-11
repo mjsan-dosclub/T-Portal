@@ -186,6 +186,23 @@
 | PRF-15 | Completeness moves with each section | Each section's score and the overall % rise as sections are filled; admin view and insights show the same % | I |
 | PRF-16 | Browser: student fills personal, education, certification and preferences; section % chips and overall % update; admin sees the full profile | Works end to end | E |
 
+| PRF-17 | Key skills section = technical skills/tools only | 0 → 0 %, 1–2 → 30 %, 3–4 → 60 %, 5+ → 100 %; target role and gap no longer affect completeness (CP-1) | U |
+| CP-01 | Browser: Career plan page | Student picks a target role and rates gap skills on /student/career-plan; the profile page has no target-role picker | E |
+
+## 6g. International internships (INT). INT-1..3.
+
+| ID | Scenario | Expected | Level |
+|---|---|---|---|
+| INT-01 | Create program | Code INT-YYYY-NNN; company, title, description (20+), country, work mode, resources ≥ 1, duration days/weeks (≤ 2 years) validated; Ongoing needs a start date; Viewer can read but not create/edit (403); audited | I |
+| INT-02 | Assign within seat limit | Can't assign more students than resources; re-assigning is idempotent; withdraw frees a seat; resources can't drop below assigned; cancelled/completed programs can't take students; Viewer 403; audited | I |
+| INT-03 | Student visibility | Student sees only own assigned programs that aren't Draft/Cancelled; withdrawn programs disappear; another student's assignment → 404; no session → 401 | I |
+| INT-04 | Weekly report file types | PDF, Word, Excel, PowerPoint, CSV, TXT, RTF, OpenDocument accepted only when content matches the extension; .zip, a zip or xlsx renamed to .docx, an executable renamed to .pdf/.txt, empty and > 10 MB rejected; future weeks and weeks beyond the program rejected; resubmission replaces; late flag set after the due date | I |
+| INT-05 | Review & attendance | Needs revision requires a note and stops counting as attendance; resubmission clears the review; accepted reports are locked (409); Viewer can't review; list shows % reports in and pending reviews | I |
+| INT-06 | Downloads | Student downloads only own reports (others → 404); admin/viewer downloads are audited; always attachment + sandbox CSP + nosniff | I |
+| INT-07 | Week maths | Weeks = ceil(days ÷ 7); due = start + 7 × week; end date | U |
+| INT-08 | Attendance % | (submitted + accepted) ÷ weeks due (early submissions count); revision/missing don't; no start date → no % | U |
+| INT-09 | Browser: admin creates a program, assigns a student; student uploads a weekly report; admin accepts it | Works end to end; attendance shows 100 % | E |
+
 ## 6e. Attendance (ATT). ATT-1.
 
 | ID | Scenario | Expected | Lvl |

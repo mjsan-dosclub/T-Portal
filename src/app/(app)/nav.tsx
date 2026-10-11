@@ -19,6 +19,7 @@ export function Nav({ role, name }: { role: "SUPER_ADMIN" | "ADMIN" | "VIEWER"; 
     { href: "/masters/institutions", label: "Masters", icon: "masters", match: (p) => p.startsWith("/masters") },
     { href: "/ontology", label: "Skills Ontology", icon: "ontology", match: (p) => p.startsWith("/ontology") },
     { href: "/attendance", label: "Attendance", icon: "attendance", match: (p) => p.startsWith("/attendance") },
+    { href: "/internships", label: "Internships", icon: "internships", match: (p) => p.startsWith("/internships") },
     { href: "/insights", label: "Insights", icon: "insights", match: (p) => p.startsWith("/insights") },
   ];
   const admin: Item[] =

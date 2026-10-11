@@ -40,7 +40,6 @@ async function loadCohort(f: InsightFilter) {
     const sections = scoreSections({
       gender: !!s.gender, dateOfBirth: !!s.dateOfBirth, cityState: !!(s.city && s.state), languages: Array.isArray(pr?.languages) ? pr!.languages.length : 0,
       headlineLength: pr?.headline?.length ?? 0, summaryLength: pr?.summary?.length ?? 0, educationLevels: s.educations.map((e) => e.level),
-      hasRole: !!role, requiredSkills: required.length, ratedRequired: required.filter((r) => (levels.get(r.code)?.self ?? 0) > 0 || levels.get(r.code)?.verified != null).length,
       tools: s._count.tools, projects: s._count.projects, internships: s._count.internships, certifications: s._count.certifications, accomplishments: s._count.accomplishments,
       prefRoles: pr?.preferredRoleIds.length ?? 0, prefLocations: pr?.preferredLocations.length ?? 0, jobTypes: pr?.jobTypes.length ?? 0, workModes: pr?.workModes.length ?? 0,
       availableFrom: !!pr?.availableFrom, resume: !!s.resume, links: [s.linkedinUrl, s.githubUrl, s.portfolioUrl].filter(Boolean).length,

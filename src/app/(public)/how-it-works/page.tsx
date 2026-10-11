@@ -35,7 +35,7 @@ export default async function StudentGuide() {
         </div>
       </section>
 
-      <Toc items={[["signin", "Sign in"], ["record", "Your record"], ["correct", "Keep it correct"], ["status", "Your status"], ["skills", "Plan with the skills framework"], ["program", "27-Day Program"], ["privacy", "Your privacy"], ["next", "Coming next"], ["faq", "Questions"]]} />
+      <Toc items={[["signin", "Sign in"], ["record", "Your record"], ["correct", "Keep it correct"], ["status", "Your status"], ["skills", "Plan with the skills framework"], ["program", "27-Day Program"], ["internships", "Internship reports"], ["privacy", "Your privacy"], ["next", "Coming next"], ["faq", "Questions"]]} />
 
       <GuideSection id="signin" kicker="Student portal" title="0. Set up your account and sign in">
         <Steps
@@ -44,7 +44,9 @@ export default async function StudentGuide() {
             <>Install <strong>Google Authenticator</strong> on your phone. Scan the QR code shown, type the 6-digit code, and save your <strong>10 recovery codes</strong> somewhere safe.</>,
             <>Next time: <Link href="/student/login">Sign in</Link> with your email and password, then the current code from Google Authenticator.</>,
             <>Change your password any time from <strong>Account</strong>.</>,
-            <>Build your <strong>My profile</strong> like a job-portal profile: personal details, headline &amp; summary, education (Class 10, 12/Diploma, degree), key skills and tools, projects, internships, <strong>certifications</strong>, accomplishments, career preferences, resume (PDF) and links. Each section shows its own %, and <strong>Profile strength</strong> shows your total. Aim for 80%+.</>,
+            <>Build your <strong>My profile</strong> like a job-portal profile: personal details, headline &amp; summary, education (Class 10, 12/Diploma, degree), key skills and tools (5+ for full marks), projects, internships, <strong>certifications</strong>, accomplishments, career preferences, resume (PDF) and links. Each section shows its own %, and <strong>Profile strength</strong> shows your total. Aim for 80%+.</>,
+            <>Your <strong>Career plan</strong> is separate from your profile: choose a target role, rate yourself on the skills it needs and follow its roadmap. It doesn&apos;t change your profile %.</>,
+            <>Assigned to an <strong>international internship</strong>? Open <strong>Internships</strong> to see the program and upload a <strong>weekly work report</strong> (see section 6).</>,
             <><strong>Forgot your password?</strong> Ask your DOS Club coordinator. They&apos;ll give you a one-time password (valid 72 hours). Sign in with it plus your authenticator code, and you&apos;ll be asked to create a new password.</>,
           ]}
         />
@@ -95,7 +97,7 @@ export default async function StudentGuide() {
         </p>
         <Steps
           items={[
-            <><strong>Pick a target role</strong> you want in 2–3 years (for example a cloud, data, security or AI role). Your coordinator can record it as your target role.</>,
+            <><strong>Pick a target role</strong> you want in 2–3 years (for example a cloud, data, security or AI role) on your <strong>Career plan</strong> page.</>,
             <><strong>Look at the skills that role needs</strong>, and the level for each.</>,
             <><strong>Be honest about your level today</strong> using the six levels below, and note the gaps.</>,
             <><strong>Close one gap at a time</strong> through projects, open-source contributions and DOS Club workshops, then move up a level.</>,
@@ -137,7 +139,18 @@ export default async function StudentGuide() {
         </ol>
       </GuideSection>
 
-      <GuideSection id="privacy" title="6. How we protect your data">
+      <GuideSection id="internships" kicker="International internships" title="6. Weekly reports for your internship">
+        <Steps
+          items={[
+            <>When DOS Club assigns you to a client&apos;s internship, it appears under <strong>Internships</strong> with the company, description, location, duration and dates.</>,
+            <>Every week, press <strong>Upload report</strong> for that week and attach your work report: <strong>PDF, Word, Excel, PowerPoint, CSV, TXT, RTF or OpenDocument</strong>, up to 10 MB. <strong>ZIP and other compressed files aren&apos;t accepted</strong>, and a file renamed to a different extension is rejected.</>,
+            <>Each submitted or accepted report counts as your <strong>attendance</strong> for that week. A report sent after its due date is marked late but still counts.</>,
+            <>Your coordinator reviews each report. If it says <strong>Needs revision</strong>, read the feedback and upload a new version; until then that week doesn&apos;t count. Accepted reports are locked.</>,
+          ]}
+        />
+      </GuideSection>
+
+      <GuideSection id="privacy" title="7. How we protect your data">
         <ul style={{ paddingLeft: "1.2rem", display: "grid", gap: "0.4rem", lineHeight: 1.55 }}>
           <li>Only authorised DOS Club admins can see your record, and each signs in with a password <strong>and</strong> Google Authenticator.</li>
           <li>Admins see only what their role allows. Every change and export is logged.</li>
@@ -146,7 +159,7 @@ export default async function StudentGuide() {
         </ul>
       </GuideSection>
 
-      <GuideSection id="next" kicker="Coming next" title="7. Coming next: a fuller job-portal profile">
+      <GuideSection id="next" kicker="Coming next" title="8. Coming next">
         <p style={{ lineHeight: 1.6 }}>Your full job-portal style profile is already on My profile. Coming later:</p>
         <ul style={{ columns: "16rem", paddingLeft: "1.2rem", lineHeight: 1.7 }}>
           <li>Job and internship listings matched to your target role</li>
