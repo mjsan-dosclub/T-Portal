@@ -1,0 +1,61 @@
+/*
+ * DOS Club design tokens: the ONLY file allowed to contain colour literals (CLAUDE.md §6, GRD-02/03).
+ * Every hex here is a verified descienceosclub.com site token (docs/FACTS.md F3).
+ * Light "liquid glass" theme only (Phase 1, no dark mode).
+ */
+:root {
+  /* Brand (FACTS F3.1–F3.6) */
+  --dos-accent: #1593C3;        /* icons, focus ring, borders, charts. Not for body text (3.50:1) */
+  --dos-accent-dark: #0D6B90;   /* text-safe blue: primary button fill, links (5.96:1 with white) */
+  --dos-primary: #4CAF50;       /* decoration, meters, chart fills */
+  --dos-primary-dark: #2F8A36;  /* large/bold text only (4.37:1) */
+  --dos-primary-soft: #8BD08E;  /* blobs, highlights only */
+  --dos-deep: #0C3346;          /* nav text, headings */
+  --brand-gradient: linear-gradient(135deg, #1593C3 0%, #4CAF50 100%); /* decorative only, never behind text */
+
+  /* Neutrals (FACTS F3.7–F3.12) */
+  --bg: #F4F7F9;
+  --bg-soft: #EAEFF3;
+  --bg-2: #DFE7ED;
+  --surface: #FFFFFF;
+  --text: #10222B;
+  --text-muted: #5B6F79;
+  --hairline: #10222B1F;
+  --stroke: #0C33461F;
+
+  /* Glass: alpha variants of --surface / --dos-deep only (no new hues) */
+  --glass: rgb(255 255 255 / 0.62);
+  --glass-strong: rgb(255 255 255 / 0.86);
+  --glass-border: rgb(255 255 255 / 0.7);
+  --shadow-glass: 0 8px 32px rgb(12 51 70 / 0.08);
+  --shadow-pop: 0 18px 50px rgb(12 51 70 / 0.18);
+  --shadow-btn: 0 6px 18px rgb(13 107 144 / 0.25);
+  --scrim: rgb(12 51 70 / 0.28);
+  --accent-wash: rgb(21 147 195 / 0.10);
+  --primary-wash: rgb(76 175 80 / 0.14);
+  --deep-wash: rgb(12 51 70 / 0.08);
+  --blob-accent: rgb(21 147 195 / 0.16);
+  --blob-primary: rgb(139 208 142 / 0.18);
+  --blob-green: rgb(76 175 80 / 0.12);
+
+  /*
+   * Danger / warning hues are PENDING D3 (docs/DECISIONS.md). Until the PM supplies them,
+   * destructive UI uses --dos-deep with a warning icon + explicit text, never colour alone.
+   * TODO(QUESTION:D3) replace these two aliases with approved hues.
+   */
+  --danger: var(--dos-deep);
+  --danger-wash: var(--deep-wash);
+
+  /* Radius (site scale, FACTS F3.13) */
+  --r-sm: 0.375rem;
+  --r-md: 0.5rem;
+  --r-lg: 0.75rem;
+  --r-xl: 1rem;
+  --r-2xl: 1.5rem;
+  --r-pill: 999px;
+
+  /* Type (FACTS F2) */
+  --font-display: var(--font-space-grotesk), ui-sans-serif, system-ui, sans-serif;
+  --font-body: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Noto Sans", "Noto Sans Tamil", sans-serif;
+  --font-code: var(--font-jetbrains), ui-monospace, monospace;
+}

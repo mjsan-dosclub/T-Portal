@@ -1,0 +1,417 @@
+// DOS Club Talent Portal: Phase 1 schema (PRD §9).
+// Phase 2 tables are intentionally absent; students.userId is a nullable placeholder (PRD §9).
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ───────────────────────── Auth & admins ─────────────────────────
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  VIEWER
+}
+
+model AdminUser {
+  id               String         @id @default(uuid())
+  email            String         @unique
+  name             String
+  role             Role
+  passwordHash     String
+  totpSecretEnc    String?
+  totpEnabled      Boolean        @default(false)
+  totpLastStep     Int?
+  failedAttempts   Int            @default(0)
+  lockedUntil      DateTime?
+  lastLoginAt      DateTime?
+  isActive         Boolean        @default(true)
+  canExport        Boolean        @default(false) // only meaningful for VIEWER (D12)
+  tablePrefs       Json?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  recoveryCodes    RecoveryCode[]
+  sessions         Session[]
+
+  @@map("admin_users")
+}
+
+model RecoveryCode {
+  id       String    @id @default(uuid())
+  adminId  String
+  codeHash String
+  usedAt   DateTime?
+  admin    AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId])
+  @@map("recovery_codes")
+}
+
+model Session {
+  id         String    @id // sha256(token) hex; raw token only lives in the cookie
+  adminId    String
+  mfaPassed  Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime  @default(now())
+  expiresAt  DateTime
+  ip         String?
+  userAgent  String?
+  admin      AdminUser @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId])
+  @@map("sessions")
+}
+
+model RateLimit {
+  key         String    @id // e.g. "login:ip:<ip>" or "login:acct:<id>:<ip>"
+  count       Int       @default(0)
+  windowStart DateTime  @default(now())
+  lockedUntil DateTime?
+
+  @@map("rate_limits")
+}
+
+// ───────────────────────── Master tables ─────────────────────────
+
+model Institution {
+  id        String    @id @default(uuid())
+  name      String
+  nameKey   String    @unique // lower(trim(collapse(name)))
+  shortCode String?
+  city      String?
+  state     String?
+  isPartner Boolean   @default(false)
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  students  Student[]
+
+  @@map("institutions")
+}
+
+enum DegreeLevel {
+  UG
+  PG
+  DIPLOMA
+}
+
+model Degree {
+  id        String      @id @default(uuid())
+  name      String
+  nameKey   String      @unique
+  level     DegreeLevel
+  isActive  Boolean     @default(true)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  students  Student[]
+
+  @@map("degrees")
+}
+
+model Department {
+  id        String            @id @default(uuid())
+  name      String
+  nameKey   String            @unique
+  shortCode String?
+  isActive  Boolean           @default(true)
+  createdAt DateTime          @default(now())
+  updatedAt DateTime          @updatedAt
+  aliases   DepartmentAlias[]
+  students  Student[]
+
+  @@map("departments")
+}
+
+model DepartmentAlias {
+  id           String     @id @default(uuid())
+  alias        String
+  aliasKey     String     @unique // an alias can belong to only one department (MST-06)
+  departmentId String
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@index([departmentId])
+  @@map("department_aliases")
+}
+
+model Batch {
+  id        String    @id @default(uuid())
+  batchCode String
+  codeKey   String    @unique
+  year      Int
+  startDate DateTime? @db.Date
+  endDate   DateTime? @db.Date
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  students  Student[]
+
+  @@map("batches")
+}
+
+model ColourTeam {
+  id        String    @id @default(uuid())
+  name      String
+  nameKey   String    @unique
+  hexColor  String?
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  students  Student[]
+
+  @@map("colour_teams")
+}
+
+model StudentStatus {
+  id            String    @id @default(uuid())
+  name          String
+  nameKey       String    @unique
+  color         String? // token key, e.g. "accent", "primary", "deep", "muted"
+  isActiveState Boolean   @default(true)
+  isDefault     Boolean   @default(false)
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  students      Student[]
+
+  @@map("student_statuses")
+}
+
+// ───────────────────────── Students ─────────────────────────
+
+enum Gender {
+  MALE
+  FEMALE
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+model Student {
+  id             String         @id @default(uuid())
+  studentCode    String         @unique
+  fullName       String
+  email          String         @unique
+  phone          String         @unique
+  gender         Gender?
+  dateOfBirth    DateTime?      @db.Date
+  institutionId  String
+  degreeId       String
+  departmentId   String
+  yearOfStudy    Int?
+  graduationYear Int
+  batchId        String
+  colourTeamId   String?
+  statusId       String
+  city           String?
+  state          String?
+  linkedinUrl    String?
+  githubUrl      String?
+  notes          String?
+  targetRoleId   String? // D5: optional link to ontology role
+  userId         String? // Phase 2 placeholder: future student login. No FK yet.
+  version        Int            @default(1)
+  createdAt      DateTime       @default(now())
+  createdById    String?
+  updatedAt      DateTime       @updatedAt
+  updatedById    String?
+  deletedAt      DateTime?
+  deletedById    String?
+  institution    Institution    @relation(fields: [institutionId], references: [id])
+  degree         Degree         @relation(fields: [degreeId], references: [id])
+  department     Department     @relation(fields: [departmentId], references: [id])
+  batch          Batch          @relation(fields: [batchId], references: [id])
+  colourTeam     ColourTeam?    @relation(fields: [colourTeamId], references: [id])
+  status         StudentStatus  @relation(fields: [statusId], references: [id])
+  targetRole     OntRole?       @relation(fields: [targetRoleId], references: [id])
+
+  @@index([deletedAt])
+  @@index([fullName])
+  @@index([institutionId])
+  @@index([departmentId])
+  @@index([degreeId])
+  @@index([batchId])
+  @@index([statusId])
+  @@index([colourTeamId])
+  @@index([graduationYear])
+  @@index([createdAt])
+  @@map("students")
+}
+
+model CodeCounter {
+  year Int @id
+  last Int @default(0)
+
+  @@map("code_counters")
+}
+
+// ───────────────────────── Uploads ─────────────────────────
+
+enum UploadStatus {
+  PREVIEW
+  IMPORTING
+  COMPLETED
+  FAILED
+}
+
+enum UploadRowStatus {
+  VALID
+  DUPLICATE_FILE
+  DUPLICATE_DB
+  ERROR
+}
+
+model UploadJob {
+  id           String       @id @default(uuid())
+  kind         String // "students" | "master:<type>"
+  fileName     String
+  uploadedById String
+  status       UploadStatus @default(PREVIEW)
+  total        Int          @default(0)
+  valid        Int          @default(0)
+  duplicates   Int          @default(0)
+  errors       Int          @default(0)
+  imported     Int          @default(0)
+  updated      Int          @default(0)
+  skipped      Int          @default(0)
+  failed       Int          @default(0)
+  mapping      Json?
+  failure      String?
+  createdAt    DateTime     @default(now())
+  completedAt  DateTime?
+  rows         UploadRow[]
+
+  @@index([uploadedById, createdAt])
+  @@map("upload_jobs")
+}
+
+model UploadRow {
+  id                 String          @id @default(uuid())
+  jobId              String
+  rowNo              Int
+  raw                Json
+  normalized         Json?
+  status             UploadRowStatus
+  errors             Json?
+  duplicateStudentId String?
+  decision           String? // "skip" | "update" for DUPLICATE_DB rows
+  job                UploadJob       @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, rowNo])
+  @@map("upload_rows")
+}
+
+// ───────────────────────── Audit ─────────────────────────
+
+model AuditLog {
+  id        BigInt   @id @default(autoincrement())
+  actorId   String?
+  action    String
+  entity    String
+  entityId  String?
+  before    Json?
+  after     Json?
+  reason    String?
+  ip        String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([actorId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ───────────────────────── Ontology (read-only, seeded) ─────────────────────────
+
+model OntCategory {
+  id            Int              @id // the leading number, e.g. 1 for "1. Strategy, …"
+  name          String           @unique
+  subcategories OntSubcategory[]
+  roles         OntRole[]
+
+  @@map("ontology_categories")
+}
+
+model OntSubcategory {
+  id         Int         @id @default(autoincrement())
+  code       String      @unique // "1.1"
+  name       String
+  categoryId Int
+  category   OntCategory @relation(fields: [categoryId], references: [id])
+  skills     OntSkill[]
+
+  @@map("ontology_subcategories")
+}
+
+model OntSkill {
+  code          String         @id
+  name          String
+  description   String
+  source        String // stored as-is, not displayed (D11)
+  subcategoryId Int
+  subcategory   OntSubcategory @relation(fields: [subcategoryId], references: [id])
+  roleSkills    OntRoleSkill[]
+
+  @@map("ontology_skills")
+}
+
+model OntRole {
+  id           String           @id @default(uuid()) // surrogate key; source has none (FACTS F1.13)
+  name         String           @unique
+  categoryId   Int
+  track        String
+  levelMin     Int
+  levelMax     Int
+  category     OntCategory      @relation(fields: [categoryId], references: [id])
+  skills       OntRoleSkill[]
+  roadmapSteps OntRoadmapStep[]
+  students     Student[]
+
+  @@map("ontology_roles")
+}
+
+model OntRoleSkill {
+  roleId    String
+  skillCode String
+  level     Int
+  role      OntRole  @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  skill     OntSkill @relation(fields: [skillCode], references: [code])
+
+  @@id([roleId, skillCode])
+  @@map("ontology_role_skills")
+}
+
+model OntRoadmapStep {
+  id         Int     @id @default(autoincrement())
+  roleId     String
+  sort       Int
+  levelNum   Int
+  levelLabel String
+  whatYouDo  String
+  tools      String
+  next       String
+  role       OntRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([roleId, sort])
+  @@map("ontology_roadmap_steps")
+}
+
+model OntLevel {
+  n           Int    @id
+  name        String
+  description String
+
+  @@map("ontology_levels")
+}
+
+model OntWorkshop {
+  n        Int    @id
+  title    String
+  roleText String
+
+  @@map("ontology_workshops")
+}

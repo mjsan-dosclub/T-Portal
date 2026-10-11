@@ -1,0 +1,16 @@
+{
+  "_note": "GRD-06 allowlist. PROJECT_PLAN §7 list + additions recorded in docs/DECISIONS.md (DEP-1). Adding a package here needs a PM decision.",
+  "planned": ["next", "react", "react-dom", "typescript", "prisma", "@prisma/client", "zod", "tailwindcss", "@radix-ui/react-dialog", "otplib", "@node-rs/argon2", "xlsx", "papaparse", "vitest", "@playwright/test", "@axe-core/playwright", "eslint", "eslint-config-next"],
+  "added": {
+    "@prisma/adapter-pg": "Prisma 7 requires a driver adapter for PostgreSQL",
+    "pg": "PostgreSQL driver used by the adapter and the test DB reset",
+    "dotenv": "Prisma 7 no longer loads .env automatically (prisma.config.ts)",
+    "qrcode": "Renders the Google Authenticator QR code server-side as a data URL",
+    "libphonenumber-js": "Validates Indian mobile numbers to E.164 (P3, UPL-05)",
+    "server-only": "Build-time guard that server modules never reach the browser bundle",
+    "embedded-postgres": "Local Postgres for dev/tests without Docker (ENV-1); dev only",
+    "tsx": "Runs TypeScript seed/admin scripts; dev only",
+    "@tailwindcss/turbopack": "Scaffolded by create-next-app 16.4 for Tailwind v4 under Turbopack; dev only",
+    "@types/node": "types", "@types/react": "types", "@types/react-dom": "types", "@types/papaparse": "types", "@types/pg": "types", "@types/qrcode": "types"
+  }
+}

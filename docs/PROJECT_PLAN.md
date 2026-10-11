@@ -78,7 +78,7 @@ Full table in PRD §4; test coverage map in TEST_PLAN "Coverage". Summary:
 | P13 | Status changes without reason | Reason field → audit | STU-09 |
 | P14 | Unclear upload errors | Per-cell reasons + error CSV | UPL-02/12 |
 | P15 | Lost work mid-upload or mid-form | Persisted upload jobs, unsaved-changes guard | UPL-17, STU-24 |
-| P16 | Ontology licence (SFIA 9) | Source tagged per skill; D11 sign-off | ONT-09 |
+| P16 | Ontology ownership | Own framework (D11); source tags hidden | ONT-09 |
 
 ### 4B. Delivery pain points: what goes wrong when an AI builds the app
 
@@ -178,7 +178,7 @@ next, react, react-dom, typescript, prisma, @prisma/client, zod, @tanstack/react
 |---|---|---|---|---|---|
 | R1 | AI-generated code contains confident errors (H1–H14) | H | H | §4B and §5 mechanisms; human review of every PR | PM + reviewer |
 | R2 | Real student PII handled without a lawful basis (DPDP) | M | H | D8 answered before M5; consent source recorded; least privilege | PM / DOS ops |
-| R3 | SFIA licence restricts showing ontology content | M | M | D11 before M6 go-live; `source` column allows hiding SFIA rows | PM |
+| R3 | ~~SFIA licence~~ Closed: D11, own framework | – | – | – | PM |
 | R4 | Glass UI fails contrast and readability | M | M | Tables on `--glass-strong`; UI-07 automated contrast | Claude + reviewer |
 | R5 | Existing membership system (D9) makes upload redundant | M | M | Answer D9 before M5; the upload stays useful for corrections | PM |
 | R6 | Admin locked out (lost phone, no Super Admin available) | L | H | ≥2 Super Admins; runbook break-glass procedure (CLI reset, audited) | PM |
@@ -229,7 +229,7 @@ Waiting for approval.
 | M3 | D4 colour teams | Yes, optional field |
 | M4 | D6 purge, D10 member ID, D12 export, D13 code year | 30 days manual purge; reuse an existing ID if any; Admin+ export; batch year |
 | M5 | D8 consent source, D9 membership system | Must be answered; no default |
-| M6 | D5 target role, D11 SFIA licence | Target role only; licence must be confirmed |
+| M6 | D5 target role | Target role only |
 | M7 | D14 data residency | Mumbai region |
 
 ## 11. UAT script (PM + DOS ops, on staging with fake data)

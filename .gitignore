@@ -11,3 +11,11 @@ test-results/
 *.log
 .DS_Store
 next-env.d.ts
+
+# misc
+*.tsbuildinfo
+.vercel
+*.pem
+
+# local dev credentials (never commit)
+.dev-admin.local

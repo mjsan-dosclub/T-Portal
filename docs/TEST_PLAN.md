@@ -130,7 +130,7 @@
 | ONT-06 | Category drill-down | Each of the 11 categories shows its subcategories; the sum across categories = 51 | E |
 | ONT-07 | 27-Day Program view | 27 workshops in order n=1..27, titles from the source | E |
 | ONT-08 | Ontology pages are read-only | No mutating API exists for ontology tables | I |
-| ONT-09 | Skill source badge | Skills show `SFIA 9` or `New (AI gap-fill)` from data | E |
+| ONT-09 | Source field (D11) | `source` stored for all 165 skills; no source/licence text rendered on ontology pages | E |
 
 ## 7. Dashboard (DSH). M4.
 
@@ -187,7 +187,7 @@
 | P13 status reason | STU-09 |
 | P14 unclear errors | UPL-02, UPL-12 |
 | P15 lost work | UPL-17, STU-24 |
-| P16 licensing | ONT-09 (+ D11 sign-off) |
+| P16 ontology ownership | ONT-09 |
 
 ## Test data rules
 - Fixtures live in `tests/fixtures/`. All fake people use `@example.test` emails and `+9190000xxxxx` phones. Never use real member data in tests.

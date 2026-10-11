@@ -69,7 +69,7 @@ Every server action must check role on the **server**. Hiding a button is not au
 | P13 | Status changes with no reason | Bulk status change accepts an optional reason, stored in the audit log |
 | P14 | Admin cannot tell why a row failed | Every rejected row/cell carries a human-readable reason; the error report is downloadable as CSV with original row numbers |
 | P15 | Losing work in a long form or upload | Upload jobs are persisted server-side (`upload_jobs`), so the admin can leave and resume at the preview step; the form warns on unsaved changes |
-| P16 | Ontology licensing | Skills tagged `SFIA 9` come from SFIA, which has its own licence terms. Licence compliance must be confirmed before go-live (**D11**). |
+| P16 | Ontology ownership | The ontology is DOS Club's own framework for Indian job-market requirements (D11). The source `Source` tags are stored but not displayed. |
 
 ## 5. Functional Requirements
 
@@ -156,7 +156,7 @@ Re-create the five views from `Skills_Ontology_Dashboard_1.html` in the new ligh
 - Proficiency Levels (L1 Foundation → L6 Distinguished)
 - 27-Day Program (27 workshops mapped to roles)
 
-Seed script extracts the `DATA`, `LEVELS`, `WORKSHOPS` constants from the HTML file. **Counts after seed must equal: 11 categories, 51 subcategories, 165 skills, 103 roles, 103 roadmaps, 6 levels, 27 workshops** (FACTS F1). `scripts/guard/verify-ontology.mjs` checks the source file and test ONT-01 checks the database. Roles have no source ID, so generate a surrogate key and keep `name` unique (F1.13). Keep each skill's `source` column so SFIA-derived content can be identified (D11).
+Seed script extracts the `DATA`, `LEVELS`, `WORKSHOPS` constants from the HTML file. **Counts after seed must equal: 11 categories, 51 subcategories, 165 skills, 103 roles, 103 roadmaps, 6 levels, 27 workshops** (FACTS F1). `scripts/guard/verify-ontology.mjs` checks the source file and test ONT-01 checks the database. Roles have no source ID, so generate a surrogate key and keep `name` unique (F1.13). Store each skill's `source` value as-is, but don't display it (D11).
 
 Phase 1 link to students: optional `target_role_id` on student (**D5**). Workshop attendance tracking is Phase 2 unless confirmed.
 
@@ -293,7 +293,7 @@ All test cases (IDs, steps, expected results, automation level, milestone) are i
 | D8 | Who is the data fiduciary / consent source for existing student PII (DPDP Act)? | Confirm students consented at membership signup |
 | D9 | Is there an existing membership system (membership.descienceosclub.com) to sync with instead of uploading? | Investigate; could replace manual upload |
 | D10 | Unique ID: is there an existing DOS member ID to reuse? | Reuse if it exists |
-| D11 | SFIA 9 licence: may SFIA-derived skill names and descriptions be shown in this portal? | Confirm with whoever owns the ontology before M6 goes live |
+| D11 | ~~SFIA licence~~ **Decided 2026-10-11:** DOS Club's own framework; no licence needed; source tags hidden in UI | — |
 | D12 | Who may export student data: Super Admin only, or Admin too? Is Viewer export a per-user permission? | Super Admin + Admin; Viewer only with an explicit flag |
 | D13 | Student code format `DOS-{YYYY}-{00001}`: is YYYY the joining year, the batch year or the creation year? | Batch year |
 | D14 | Hosting region / data residency (DPDP): Mumbai region required? | Yes (ap-south-1 or equivalent) |
