@@ -4,7 +4,9 @@ import { studentAttendance } from "@/server/attendance";
 import { canEdit, requirePageAdmin } from "@/server/page-auth";
 import { getProfile } from "@/server/profile";
 import { HttpError } from "@/server/http";
-import { Meter, LevelBar, ReadinessChip } from "@/components/skills/level-bar";
+import { Meter, ReadinessChip } from "@/components/skills/level-bar";
+import { ProfileView } from "@/components/profile/profile-view";
+import { roleOptions } from "@/server/ontology/queries";
 import { PageHeader } from "../../../page-header";
 import { AdminGap } from "./admin-gap";
 
@@ -19,7 +21,8 @@ export default async function AdminStudentProfile({ params }: PageProps<"/studen
     throw e;
   });
   if (!profile) notFound();
-  const att = await studentAttendance(id);
+  const [att, roles] = await Promise.all([studentAttendance(id), roleOptions()]);
+  const roleNames = new Map(roles.map((r) => [r.id, r.name]));
   return (
     <>
       <PageHeader
@@ -49,41 +52,7 @@ export default async function AdminStudentProfile({ params }: PageProps<"/studen
         {canEdit(admin) && <p className="hint">Set a <strong>verified level</strong> after checking evidence (projects, interview, assessment). It counts instead of the self-rating.</p>}
         <AdminGap profile={profile} editable={canEdit(admin)} />
       </section>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(20rem, 1fr))", gap: "1.25rem", alignItems: "start" }}>
-        <section className="glass card" aria-labelledby="os-h">
-          <h2 id="os-h" style={{ fontSize: "1.1rem", fontWeight: 600, marginBottom: "0.6rem" }}>Other skills</h2>
-          {profile.otherSkills.length === 0 ? <p className="hint">None added.</p> : (
-            <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: "0.4rem" }}>
-              {profile.otherSkills.map((s) => (
-                <li key={s.code} style={{ display: "flex", gap: "0.5rem", alignItems: "center", flexWrap: "wrap" }}>
-                  <code className="mono chip tone-deep">{s.code}</code> {s.name}
-                  <span style={{ marginLeft: "auto" }}><LevelBar current={s.verified ?? s.self} label={s.verified != null ? `L${s.verified} ✓` : `L${s.self} (self)`} /></span>
-                </li>
-              ))}
-            </ul>
-          )}
-          <h2 style={{ fontSize: "1.1rem", fontWeight: 600, margin: "1rem 0 0.6rem" }}>Links</h2>
-          <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: "0.3rem", wordBreak: "break-all" }}>
-            {(["linkedinUrl", "githubUrl", "portfolioUrl"] as const).map((k) => (
-              <li key={k}><span className="hint">{k === "linkedinUrl" ? "LinkedIn" : k === "githubUrl" ? "GitHub" : "Portfolio"}: </span>{profile.links[k] ? <a href={profile.links[k]!} target="_blank" rel="noopener noreferrer">{profile.links[k]}</a> : <span className="hint">—</span>}</li>
-            ))}
-          </ul>
-        </section>
-        <section className="glass card" aria-labelledby="pj-h">
-          <h2 id="pj-h" style={{ fontSize: "1.1rem", fontWeight: 600, marginBottom: "0.6rem" }}>Projects</h2>
-          {profile.projects.length === 0 ? <p className="hint">No projects yet.</p> : (
-            <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: "0.6rem" }}>
-              {profile.projects.map((p) => (
-                <li key={p.id}>
-                  <strong>{p.title}</strong> {p.url && <a href={p.url} target="_blank" rel="noopener noreferrer" className="hint">link ↗</a>}
-                  <p style={{ fontSize: "0.88rem", margin: "0.2rem 0" }}>{p.description}</p>
-                  <div style={{ display: "flex", gap: "0.3rem", flexWrap: "wrap" }}>{p.skillCodes.map((c) => <span key={c} className="chip tone-accent">{c}</span>)}</div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      </div>
+      <ProfileView profile={profile} roleNames={roleNames} resumeHref={`/api/students/${id}/resume`} />
     </>
   );
 }

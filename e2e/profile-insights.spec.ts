@@ -26,7 +26,7 @@ test("PRF-08 / ATT-04 student builds a profile; admin verifies a level and marks
 
   // Profile: role, self-ratings, project
   await page.getByRole("navigation", { name: "Student" }).getByRole("link", { name: "My profile" }).click();
-  await page.getByLabel("The job role you're aiming for").selectOption({ label: "Enterprise Architect" });
+  await page.getByLabel("Target role (the job you're aiming for)").selectOption({ label: "Enterprise Architect" });
   await page.getByRole("button", { name: "Save role" }).click();
   await expect(page.getByTestId("gap-row")).toHaveCount(5);
   await page.getByLabel("Your level for Solution architecture").selectOption("4");
@@ -34,14 +34,14 @@ test("PRF-08 / ATT-04 student builds a profile; admin verifies a level and marks
   await page.getByTestId("save-levels").click();
   await expect(page.getByTestId("toast").filter({ hasText: "Your levels are saved" })).toBeVisible();
   await page.getByRole("button", { name: "Add project" }).click();
-  const dlg = page.getByRole("dialog", { name: "Add a project" });
+  const dlg = page.getByRole("dialog", { name: "Add: projects" });
   await dlg.getByLabel("Title").fill("College event portal");
   await dlg.getByLabel("What did you build and what was your part?").fill("Designed the architecture and APIs for our symposium registrations.");
   await dlg.getByLabel("Link (GitHub, demo…)").fill("https://github.com/example/event-portal");
   await dlg.getByLabel("Skills used (up to 10)").selectOption({ label: "Solution architecture (ARCH)" });
   await dlg.getByRole("button", { name: "Add", exact: true }).click();
-  await dlg.getByRole("button", { name: "Add project" }).click();
-  await expect(page.getByTestId("projects")).toContainText("College event portal");
+  await dlg.getByRole("button", { name: "Save" }).click();
+  await expect(page.getByTestId("list-projects")).toContainText("College event portal");
   await expect(page.getByTestId("completeness")).not.toHaveText("0%");
 
   // Admin: verify ARCH at L3 and mark attendance for the student's batch, day 20

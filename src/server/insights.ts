@@ -1,6 +1,7 @@
 import "server-only";
 import { db } from "@/lib/db";
 import { computeGap, type LevelPair, type Readiness } from "@/lib/gap";
+import { overallCompleteness, scoreSections, SECTIONS } from "@/lib/completeness";
 import { toCsv } from "@/lib/normalize";
 import { audit } from "./audit";
 import type { SessionAdmin } from "./auth/session";
@@ -17,7 +18,11 @@ async function loadCohort(f: InsightFilter) {
       batch: { select: { batchCode: true } }, institution: { select: { name: true } },
       portalUser: { select: { id: true } },
       skills: { select: { skillCode: true, selfLevel: true, verifiedLevel: true } },
-      _count: { select: { projects: true } },
+      gender: true, dateOfBirth: true, city: true, state: true, linkedinUrl: true, githubUrl: true, portfolioUrl: true,
+      profile: { select: { headline: true, summary: true, languages: true, preferredRoleIds: true, preferredLocations: true, jobTypes: true, workModes: true, availableFrom: true } },
+      educations: { select: { level: true } },
+      resume: { select: { studentId: true } },
+      _count: { select: { projects: true, internships: true, certifications: true, accomplishments: true, tools: true } },
     },
   });
   const roleIds = [...new Set(students.map((s) => s.targetRoleId).filter((x): x is string => !!x))];
@@ -31,7 +36,16 @@ async function loadCohort(f: InsightFilter) {
     const levels = new Map<string, LevelPair>(s.skills.map((k) => [k.skillCode, { self: k.selfLevel, verified: k.verifiedLevel }]));
     const required = (role?.skills ?? []).map((r) => ({ code: r.skill.code, name: r.skill.name, required: r.level, category: r.skill.subcategory.category }));
     const gap = computeGap(required, levels);
-    return { s, role, required, gap };
+    const pr = s.profile;
+    const sections = scoreSections({
+      gender: !!s.gender, dateOfBirth: !!s.dateOfBirth, cityState: !!(s.city && s.state), languages: Array.isArray(pr?.languages) ? pr!.languages.length : 0,
+      headlineLength: pr?.headline?.length ?? 0, summaryLength: pr?.summary?.length ?? 0, educationLevels: s.educations.map((e) => e.level),
+      hasRole: !!role, requiredSkills: required.length, ratedRequired: required.filter((r) => (levels.get(r.code)?.self ?? 0) > 0 || levels.get(r.code)?.verified != null).length,
+      tools: s._count.tools, projects: s._count.projects, internships: s._count.internships, certifications: s._count.certifications, accomplishments: s._count.accomplishments,
+      prefRoles: pr?.preferredRoleIds.length ?? 0, prefLocations: pr?.preferredLocations.length ?? 0, jobTypes: pr?.jobTypes.length ?? 0, workModes: pr?.workModes.length ?? 0,
+      availableFrom: !!pr?.availableFrom, resume: !!s.resume, links: [s.linkedinUrl, s.githubUrl, s.portfolioUrl].filter(Boolean).length,
+    });
+    return { s, role, required, gap, sections, completeness: overallCompleteness(sections) };
   });
   return { evaluated };
 }
@@ -97,7 +111,17 @@ export async function insights(f: InsightFilter = {}) {
   }
   const roles = [...roleCounts.values()].sort((a, b) => b.students - a.students || a.name.localeCompare(b.name));
 
-  return { adoption, readiness, skillGaps, heatmap, roles, attendance: await attendanceInsights(f) };
+  // Profile completeness (PRF-3): average overall and per section, plus how many students completed each section.
+  const completeness = {
+    average: total ? Math.round(evaluated.reduce((n, e) => n + e.completeness, 0) / total) : 0,
+    bands: { high: evaluated.filter((e) => e.completeness >= 80).length, mid: evaluated.filter((e) => e.completeness >= 40 && e.completeness < 80).length, low: evaluated.filter((e) => e.completeness < 40).length },
+    sections: SECTIONS.map((sec) => {
+      const scores = evaluated.map((e) => e.sections.find((x) => x.key === sec.key)!.score);
+      return { key: sec.key, label: sec.label, avgPct: total ? Math.round((scores.reduce((a, b) => a + b, 0) / total) * 100) : 0, complete: scores.filter((x) => x === 1).length };
+    }),
+  };
+
+  return { adoption, readiness, skillGaps, heatmap, roles, completeness, attendance: await attendanceInsights(f) };
 }
 
 /** Attendance % per batch = present ÷ (held sessions × students − excused), and per-workshop present counts. */
@@ -131,7 +155,7 @@ export async function readyList(f: InsightFilter & { roleId?: string; level?: "r
     .filter((e) => e.role && want.includes(e.gap.readiness) && (!f.roleId || e.role.id === f.roleId))
     .map((e) => ({
       id: e.s.id, studentCode: e.s.studentCode, fullName: e.s.fullName, batch: e.s.batch.batchCode, institution: e.s.institution.name,
-      role: e.role!.name, readiness: e.gap.readiness, met: e.gap.met, total: e.gap.total, verified: e.gap.rows.filter((r) => r.source === "verified").length,
+      role: e.role!.name, readiness: e.gap.readiness, met: e.gap.met, total: e.gap.total, verified: e.gap.rows.filter((r) => r.source === "verified").length, completeness: e.completeness,
     }))
     .sort((a, b) => (a.readiness === b.readiness ? b.met / b.total - a.met / a.total : a.readiness === "ready" ? -1 : 1) || a.fullName.localeCompare(b.fullName));
 }
@@ -140,7 +164,7 @@ export async function readyListCsv(f: InsightFilter & { roleId?: string; level?:
   const rows = await readyList(f);
   await audit(db, { actorId: actor.id, action: "insights.ready_export", entity: "student", after: { count: rows.length, filter: f }, ip: meta.ip, userAgent: meta.userAgent });
   return toCsv(
-    ["Student code", "Full name", "DOS Club batch", "Institution", "Target role", "Readiness", "Skills met", "Skills required", "Verified skills"],
-    rows.map((r) => [r.studentCode, r.fullName, r.batch, r.institution, r.role, r.readiness === "ready" ? "Ready for role" : "Nearly ready", r.met, r.total, r.verified]),
+    ["Student code", "Full name", "DOS Club batch", "Institution", "Target role", "Readiness", "Skills met", "Skills required", "Verified skills", "Profile complete %"],
+    rows.map((r) => [r.studentCode, r.fullName, r.batch, r.institution, r.role, r.readiness === "ready" ? "Ready for role" : "Nearly ready", r.met, r.total, r.verified, r.completeness]),
   );
 }

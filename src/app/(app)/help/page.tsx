@@ -191,8 +191,8 @@ export default async function HelpPage() {
           <GuideSection id="skills" title="Check and verify student skills">
             <Steps
               items={[
-                <>Students choose a <strong>target role</strong> and rate themselves L0–L6 on its skills in their portal. They can also add projects and links as evidence.</>,
-                <>Open a student: <Kbd>Preview</Kbd> → <Kbd>Skills, projects &amp; attendance</Kbd>. The table shows what the role needs, what the student says, and the gap.</>,
+                <>Students build a <strong>job-portal style profile</strong> with 12 sections: personal details, headline &amp; summary, education, key skills &amp; tools, projects, internships, certifications, accomplishments, career preferences, resume (PDF), online profiles. Each section has its own completeness %. Their target role&apos;s skills are rated L0–L6.</>,
+                <>Open a student: <Kbd>Preview</Kbd> → <Kbd>Skills, projects &amp; attendance</Kbd>. You see the skill gap table, every profile section with its %, and a <Kbd>Download</Kbd> link for the resume (downloads are logged).</>,
                 <>After checking evidence (projects, a short interview or a test), set the <Kbd>Verified</Kbd> level and press <Kbd>Save verified levels</Kbd>. A verified level counts instead of the self-rating, and the student sees ✓.</>,
                 <>To undo, choose <Kbd>Not verified</Kbd> and save.</>,
               ]}
@@ -215,6 +215,7 @@ export default async function HelpPage() {
           items={[
             <>Open <Link href="/insights">Insights</Link>. Filter by batch or institution and press <Kbd>Apply</Kbd>.</>,
             <><strong>Biggest skill gaps</strong> = what to train next: how many students&apos; target roles need a skill they don&apos;t have yet.</>,
+            <><strong>Profile completeness by section</strong> shows which sections students skip (often certifications or resume), so you can nudge them.</>,
             <>The <strong>heatmap</strong> shows, per skill area and batch, how much of the required skill level is already met (darker = more ready).</>,
             <><strong>Ready &amp; nearly ready</strong> lists students who meet all (or at least 80%) of their role&apos;s skills: your placement shortlist. Export it with <Kbd>Export CSV</Kbd> if you have export permission.</>,
           ]}

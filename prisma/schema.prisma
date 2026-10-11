@@ -192,47 +192,54 @@ enum Gender {
 }
 
 model Student {
-  id             String           @id @default(uuid())
-  studentCode    String           @unique
-  fullName       String
-  email          String           @unique
-  phone          String           @unique
-  gender         Gender?
-  dateOfBirth    DateTime?        @db.Date
-  institutionId  String
-  degreeId       String
-  departmentId   String
-  yearOfStudy    Int?
-  graduationYear Int
-  batchId        String
-  colourTeamId   String?
-  statusId       String
-  city           String?
-  state          String?
-  linkedinUrl    String?
-  githubUrl      String?
-  notes          String?
-  targetRoleId   String? // D5: optional link to ontology role
-  userId         String? // Phase 2 placeholder: future student login. No FK yet.
-  version        Int              @default(1)
-  createdAt      DateTime         @default(now())
-  createdById    String?
-  updatedAt      DateTime         @updatedAt
-  updatedById    String?
-  deletedAt      DateTime?
-  deletedById    String?
-  institution    Institution      @relation(fields: [institutionId], references: [id])
-  degree         Degree           @relation(fields: [degreeId], references: [id])
-  department     Department       @relation(fields: [departmentId], references: [id])
-  batch          Batch            @relation(fields: [batchId], references: [id])
-  colourTeam     ColourTeam?      @relation(fields: [colourTeamId], references: [id])
-  status         StudentStatus    @relation(fields: [statusId], references: [id])
-  targetRole     OntRole?         @relation(fields: [targetRoleId], references: [id])
-  portalUser     StudentUser?
-  portfolioUrl   String? // student-editable (PRF-1)
-  skills         StudentSkill[]
-  projects       StudentProject[]
-  attendance     Attendance[]
+  id              String                  @id @default(uuid())
+  studentCode     String                  @unique
+  fullName        String
+  email           String                  @unique
+  phone           String                  @unique
+  gender          Gender?
+  dateOfBirth     DateTime?               @db.Date
+  institutionId   String
+  degreeId        String
+  departmentId    String
+  yearOfStudy     Int?
+  graduationYear  Int
+  batchId         String
+  colourTeamId    String?
+  statusId        String
+  city            String?
+  state           String?
+  linkedinUrl     String?
+  githubUrl       String?
+  notes           String?
+  targetRoleId    String? // D5: optional link to ontology role
+  userId          String? // Phase 2 placeholder: future student login. No FK yet.
+  version         Int                     @default(1)
+  createdAt       DateTime                @default(now())
+  createdById     String?
+  updatedAt       DateTime                @updatedAt
+  updatedById     String?
+  deletedAt       DateTime?
+  deletedById     String?
+  institution     Institution             @relation(fields: [institutionId], references: [id])
+  degree          Degree                  @relation(fields: [degreeId], references: [id])
+  department      Department              @relation(fields: [departmentId], references: [id])
+  batch           Batch                   @relation(fields: [batchId], references: [id])
+  colourTeam      ColourTeam?             @relation(fields: [colourTeamId], references: [id])
+  status          StudentStatus           @relation(fields: [statusId], references: [id])
+  targetRole      OntRole?                @relation(fields: [targetRoleId], references: [id])
+  portalUser      StudentUser?
+  portfolioUrl    String? // student-editable (PRF-1)
+  skills          StudentSkill[]
+  projects        StudentProject[]
+  profile         StudentProfile?
+  educations      StudentEducation[]
+  internships     StudentInternship[]
+  certifications  StudentCertification[]
+  accomplishments StudentAccomplishment[]
+  tools           StudentTool[]
+  resume          StudentResume?
+  attendance      Attendance[]
 
   @@index([deletedAt])
   @@index([fullName])
@@ -510,6 +517,10 @@ model StudentProject {
   description String
   url         String?
   skillCodes  String[]
+  projectType String   @default("ACADEMIC") // ACADEMIC | PERSONAL | INTERNSHIP | OPEN_SOURCE | HACKATHON
+  role        String?
+  startMonth  String? // YYYY-MM
+  endMonth    String? // YYYY-MM; null = ongoing
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
@@ -550,4 +561,129 @@ model Attendance {
   @@id([studentId, workshopN])
   @@index([workshopN])
   @@map("attendance")
+}
+
+// ───────────────────────── Detailed fresher profile (PRF-3) ─────────────────────────
+
+model StudentProfile {
+  studentId          String    @id
+  headline           String?
+  summary            String?
+  hometown           String?
+  languages          Json? // [{ name, read, write, speak }]
+  preferredRoleIds   String[]
+  preferredLocations String[]
+  jobTypes           String[] // FULL_TIME | INTERNSHIP | APPRENTICESHIP
+  workModes          String[] // ONSITE | HYBRID | REMOTE
+  expectedCtcLpa     Float?
+  availableFrom      DateTime? @db.Date
+  willingToRelocate  Boolean?
+  updatedAt          DateTime  @updatedAt
+  student            Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("student_profiles")
+}
+
+model StudentEducation {
+  id             String   @id @default(uuid())
+  studentId      String
+  level          String // CLASS_10 | CLASS_12 | DIPLOMA | UG | PG | DOCTORATE | OTHER
+  board          String? // board (school) or university
+  institution    String
+  course         String?
+  specialization String?
+  medium         String?
+  startYear      Int?
+  endYear        Int?
+  ongoing        Boolean  @default(false)
+  gradingSystem  String // PERCENTAGE | CGPA_10 | CGPA_4 | PASS
+  score          Float?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@map("student_educations")
+}
+
+model StudentInternship {
+  id             String   @id @default(uuid())
+  studentId      String
+  organisation   String
+  role           String
+  location       String?
+  workMode       String? // ONSITE | HYBRID | REMOTE
+  startMonth     String // YYYY-MM
+  endMonth       String? // null = ongoing
+  stipendMonthly Int?
+  description    String
+  skillCodes     String[]
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  student        Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@map("student_internships")
+}
+
+model StudentCertification {
+  id           String    @id @default(uuid())
+  studentId    String
+  name         String
+  issuer       String
+  issueDate    DateTime? @db.Date
+  expiryDate   DateTime? @db.Date
+  noExpiry     Boolean   @default(false)
+  credentialId String?
+  url          String?
+  skillCodes   String[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  student      Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@map("student_certifications")
+}
+
+model StudentAccomplishment {
+  id          String    @id @default(uuid())
+  studentId   String
+  type        String // AWARD | HACKATHON | PUBLICATION | OPEN_SOURCE | VOLUNTEERING | OTHER
+  title       String
+  issuer      String? // organiser / publisher / project
+  date        DateTime? @db.Date
+  url         String?
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  student     Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@map("student_accomplishments")
+}
+
+/// Technical skills / tools (free text, like job portals' "IT skills"), alongside structured ontology ratings.
+model StudentTool {
+  id               String  @id @default(uuid())
+  studentId        String
+  name             String
+  nameKey          String
+  version          String?
+  experienceMonths Int     @default(0)
+  lastUsedYear     Int?
+  student          Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, nameKey])
+  @@map("student_tools")
+}
+
+model StudentResume {
+  studentId  String   @id
+  fileName   String
+  sizeBytes  Int
+  data       Bytes
+  uploadedAt DateTime @default(now())
+  student    Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@map("student_resumes")
 }

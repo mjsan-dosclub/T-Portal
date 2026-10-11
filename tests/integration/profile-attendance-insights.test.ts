@@ -107,7 +107,7 @@ describe("Profile, attendance and insights", () => {
     const s = await db.student.findUniqueOrThrow({ where: { id: ids[0] } });
     expect([s.linkedinUrl, s.githubUrl, s.portfolioUrl]).toEqual([null, "https://github.com/x", null]);
     const prof = await call(profileGET, { cookie: c });
-    expect((prof.json.profile as { completeness: number }).completeness).toBe(25); // links only
+    expect((prof.json.profile as { completeness: number }).completeness).toBe(5); // online profiles section only (PRF-3 weights)
   });
 
   // ── ATT ──

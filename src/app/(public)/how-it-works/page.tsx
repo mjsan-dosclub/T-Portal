@@ -44,7 +44,7 @@ export default async function StudentGuide() {
             <>Install <strong>Google Authenticator</strong> on your phone. Scan the QR code shown, type the 6-digit code, and save your <strong>10 recovery codes</strong> somewhere safe.</>,
             <>Next time: <Link href="/student/login">Sign in</Link> with your email and password, then the current code from Google Authenticator.</>,
             <>Change your password any time from <strong>Account</strong>.</>,
-            <>On <strong>My profile</strong>: choose your target role, rate yourself on its skills, and add projects and links. You&apos;ll see exactly which skills to work on next. Your home page shows your 27-day program attendance.</>,
+            <>Build your <strong>My profile</strong> like a job-portal profile: personal details, headline &amp; summary, education (Class 10, 12/Diploma, degree), key skills and tools, projects, internships, <strong>certifications</strong>, accomplishments, career preferences, resume (PDF) and links. Each section shows its own %, and <strong>Profile strength</strong> shows your total. Aim for 80%+.</>,
             <><strong>Forgot your password?</strong> Ask your DOS Club coordinator. They&apos;ll give you a one-time password (valid 72 hours). Sign in with it plus your authenticator code, and you&apos;ll be asked to create a new password.</>,
           ]}
         />
@@ -147,18 +147,11 @@ export default async function StudentGuide() {
       </GuideSection>
 
       <GuideSection id="next" kicker="Coming next" title="7. Coming next: a fuller job-portal profile">
-        <p style={{ lineHeight: 1.6 }}>Your target role, skill levels, projects and links are already on My profile. Coming later (similar to popular Indian job sites):</p>
+        <p style={{ lineHeight: 1.6 }}>Your full job-portal style profile is already on My profile. Coming later:</p>
         <ul style={{ columns: "16rem", paddingLeft: "1.2rem", lineHeight: 1.7 }}>
-          <li>Profile headline and summary</li>
-          <li>Education history and scores</li>
-          <li>Skills with your self-rated level (L1–L6)</li>
-          <li>Projects with tech used and links</li>
-          <li>Internships and experience</li>
-          <li>Certifications</li>
-          <li>Resume upload</li>
-          <li>GitHub, LinkedIn and portfolio links</li>
-          <li>Preferred roles, locations and availability</li>
-          <li>Workshop attendance</li>
+          <li>Job and internship listings matched to your target role</li>
+          <li>Applying to partner openings with your profile</li>
+          <li>Interview and placement updates</li>
         </ul>
         <p className="hint">Until then, your record is read-only. Ask your coordinator for corrections.</p>
       </GuideSection>

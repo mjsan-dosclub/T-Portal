@@ -78,11 +78,12 @@ export default async function InsightsPage({ searchParams }: PageProps<"/insight
               ["Rated their skills", a.selfRated, pct(a.selfRated, a.total)],
               ["Have verified skills", a.verified, pct(a.verified, a.total)],
               ["Added a project", a.withProject, pct(a.withProject, a.total)],
+              ["Average profile complete", data.completeness.average, data.completeness.average],
             ] as [string, number, number | null][]).map(([label, n, p]) => (
               <section key={label} className="glass card" style={{ padding: "1rem 1.1rem" }}>
                 <div className="hint">{label}</div>
-                <div className="stat-num" style={{ fontSize: "1.8rem" }}>{n.toLocaleString("en-IN")}</div>
-                {p !== null && (<><div className="meter" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={p} aria-label={`${label}: ${p}%`}><span style={{ width: `${p}%` }} /></div><div className="hint" style={{ marginTop: "0.25rem" }}>{p}% of students</div></>)}
+                <div className="stat-num" style={{ fontSize: "1.8rem" }}>{n.toLocaleString("en-IN")}{label.startsWith("Average") ? "%" : ""}</div>
+                {p !== null && (<><div className="meter" role="meter" aria-valuemin={0} aria-valuemax={100} aria-valuenow={p} aria-label={`${label}: ${p}%`}><span style={{ width: `${p}%` }} /></div><div className="hint" style={{ marginTop: "0.25rem" }}>{label.startsWith("Average") ? "across all students" : `${p}% of students`}</div></>)}
               </section>
             ))}
           </div>
@@ -116,6 +117,21 @@ export default async function InsightsPage({ searchParams }: PageProps<"/insight
               )}
             </section>
           </div>
+
+          <section className="glass card" aria-labelledby="pc-h">
+            <h2 id="pc-h" style={{ fontSize: "1.1rem", fontWeight: 600 }}>Profile completeness by section</h2>
+            <p className="hint" style={{ margin: "0.25rem 0 0.8rem" }}>
+              Average completion of each section. Use it to see what students skip. {data.completeness.bands.high} student(s) are 80%+ complete, {data.completeness.bands.mid} are 40–79%, {data.completeness.bands.low} are below 40%.
+            </p>
+            <ol style={{ listStyle: "none", padding: 0, display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(17rem, 1fr))", gap: "0.55rem 1.5rem" }} data-testid="section-completeness">
+              {data.completeness.sections.map((sec) => (
+                <li key={sec.key}>
+                  <div style={{ fontSize: "0.86rem", marginBottom: "0.15rem", display: "flex", justifyContent: "space-between" }}><span>{sec.label}</span><span className="hint">{sec.complete} complete</span></div>
+                  <Bar value={sec.avgPct} max={100} label={`${sec.avgPct}%`} />
+                </li>
+              ))}
+            </ol>
+          </section>
 
           <section className="glass-strong card" aria-labelledby="hm-h">
             <h2 id="hm-h" style={{ fontSize: "1.1rem", fontWeight: 600 }}>Skill readiness by area and batch</h2>
@@ -218,7 +234,7 @@ export default async function InsightsPage({ searchParams }: PageProps<"/insight
             ) : (
               <div className="table-wrap" style={{ marginTop: "0.75rem", maxHeight: "50vh" }}>
                 <table className="dtable" data-testid="ready-list">
-                  <thead><tr><th>Student</th><th>Code</th><th>Batch</th><th>Target role</th><th>Readiness</th><th>Skills met</th><th>Verified</th></tr></thead>
+                  <thead><tr><th>Student</th><th>Code</th><th>Batch</th><th>Target role</th><th>Readiness</th><th>Skills met</th><th>Verified</th><th>Profile</th></tr></thead>
                   <tbody>
                     {ready.slice(0, 200).map((r) => (
                       <tr key={r.id}>
@@ -229,6 +245,7 @@ export default async function InsightsPage({ searchParams }: PageProps<"/insight
                         <td><span className={`chip ${r.readiness === "ready" ? "tone-primary" : "tone-accent"}`}>{r.readiness === "ready" ? "✓ Ready" : "◐ Nearly"}</span></td>
                         <td className="mono">{r.met}/{r.total}</td>
                         <td className="mono">{r.verified}/{r.total}</td>
+                        <td className="mono">{r.completeness}%</td>
                       </tr>
                     ))}
                   </tbody>

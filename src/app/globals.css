@@ -151,3 +151,7 @@ html.no-glass .glass, html.no-glass .glass-strong { background: var(--surface); 
 /* radio/checkbox chips: show keyboard focus on the visible chip */
 label.chip:focus-within { outline: 2px solid var(--dos-accent); outline-offset: 2px; }
 .heat td.cell { text-align: center; font-variant-numeric: tabular-nums; min-width: 4.5rem; border: 2px solid var(--surface); border-radius: var(--r-md); }
+/* Student profile: sticky strength panel + sections */
+.profile-layout { display: grid; grid-template-columns: 17rem minmax(0, 1fr); gap: 1.25rem; align-items: start; }
+.profile-aside { position: sticky; top: 1rem; }
+@media (max-width: 900px) { .profile-layout { grid-template-columns: 1fr; } .profile-aside { position: static; } }

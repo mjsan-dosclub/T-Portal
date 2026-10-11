@@ -40,14 +40,3 @@ export const READINESS_LABEL: Record<Readiness, string> = {
   developing: "Developing",
   "no-role": "No target role",
 };
-
-/** Profile completeness: target role, rated every required skill, ≥1 project, ≥1 link, authenticator done. */
-export function completeness(p: { hasRole: boolean; ratedRequired: number; requiredTotal: number; projects: number; links: number }) {
-  const parts = [
-    p.hasRole,
-    p.requiredTotal > 0 && p.ratedRequired >= p.requiredTotal,
-    p.projects > 0,
-    p.links > 0,
-  ];
-  return Math.round((parts.filter(Boolean).length / parts.length) * 100);
-}

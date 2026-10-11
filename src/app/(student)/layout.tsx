@@ -6,7 +6,7 @@ import { ToastProvider } from "@/components/toast";
 export default function StudentLayout({ children }: LayoutProps<"/">) {
   return (
     <ToastProvider>
-      <div style={{ maxWidth: "58rem", margin: "0 auto", padding: "1rem 1rem 4rem", display: "grid", gap: "1.25rem" }}>
+      <div style={{ maxWidth: "72rem", margin: "0 auto", padding: "1rem 1rem 4rem", display: "grid", gap: "1.25rem" }}>
         <header className="glass" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", padding: "0.75rem 1.25rem", borderRadius: "var(--r-pill)" }}>
           <Link href="/student" style={{ display: "flex", alignItems: "center", gap: "0.65rem", textDecoration: "none" }}>
             <Image src="/brand/logo.png" alt="" width={36} height={36} />

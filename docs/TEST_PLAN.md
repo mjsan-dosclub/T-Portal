@@ -175,8 +175,16 @@
 | PRF-04 | Admin verifies levels | Verified level saved and wins in the gap; can be cleared; Viewer 403; student session can't call it (401) | I |
 | PRF-05 | Projects | Add/edit/delete own; max 10; another student's project → 404; links must be http(s); skills must be active | I |
 | PRF-06 | Links | LinkedIn/GitHub must be on their domain; portfolio any https link; blank clears | I |
-| PRF-07 | Completeness % | Role + all required rated + ≥ 1 project + ≥ 1 link = 100 % (25 % each) | I |
+| PRF-07 | Completeness % (updated by PRF-3) | 12 sections with weights summing to 100; partial credit per rules in `src/lib/completeness.ts`; empty profile = 0 %, full = 100 % | U |
 | PRF-08 | Browser: student chooses role, rates skills, adds a project; admin verifies; student sees ✓ verified | Works end to end | E |
+| PRF-09 | Personal details | Gender/DOB/city/state/hometown/languages saved; implausible DOB rejected; name/email/mobile not editable by the student | I |
+| PRF-10 | Education | Class 10 / 12 / UG entries; score above the grading maximum rejected; end year before start rejected; Pass/Fail needs no score | I |
+| PRF-11 | Internships, certifications, accomplishments | Saved with dates; end before start / expiry before issue rejected; links must be http(s); skills must be active | I |
+| PRF-12 | Technical skills/tools | Duplicate tool name (case-insensitive) → 409; per-section limits enforced; another student's item → 404 | I |
+| PRF-13 | Career preferences | ≤ 3 active roles, ≤ 5 locations, job types, work modes, CTC (LPA), available-from, relocate | I |
+| PRF-14 | Resume | PDF only (file signature), ≤ 2 MB; replace and remove; student can download own; admin download audited; downloads are attachments | I |
+| PRF-15 | Completeness moves with each section | Each section's score and the overall % rise as sections are filled; admin view and insights show the same % | I |
+| PRF-16 | Browser: student fills personal, education, certification and preferences; section % chips and overall % update; admin sees the full profile | Works end to end | E |
 
 ## 6e. Attendance (ATT). ATT-1.
 
@@ -197,6 +205,7 @@
 | INS-04 | Attendance by batch | % = present ÷ (held × students − excused) | I |
 | INS-05 | Ready-list export | Needs export permission (Viewer without flag 403); CSV-injection safe; audited | I |
 | INS-06 | Browser: insights page with a batch filter; axe clean | Renders all sections | E |
+| INS-07 | Profile completeness in insights | Average and per-section % match the students' own profile %; completeness bands add up to the cohort | I |
 
 ## 7. Dashboard (DSH). M4.
 
