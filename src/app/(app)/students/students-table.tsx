@@ -594,6 +594,11 @@ export function StudentPreview({ s, canEditIt, role }: { s: StudentDetail; canEd
         ))}
       </dl>
       <PortalAccess studentId={s.id} canResetAccess={role === "SUPER_ADMIN"} canResetPassword={canEditIt} />
+      {!s.deletedAt && (
+        <Link className="btn btn-secondary" href={`/students/${s.id}/profile`}>
+          Skills, projects &amp; attendance
+        </Link>
+      )}
       {canEditIt && !s.deletedAt && (
         <Link className="btn btn-primary" href={`/students/${s.id}/edit`}>
           Edit student

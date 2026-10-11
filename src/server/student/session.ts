@@ -48,14 +48,15 @@ export type StudentCtx = { req: Request; student: StudentPrincipal; ip: string; 
 
 /** Guard for student APIs: student session + MFA + same origin. While a one-time password is in use, only the
  *  "set new password" endpoint is allowed (PH2-7). */
-export function withStudent(handler: (ctx: StudentCtx) => Promise<Response>, opts: { allowMustChange?: boolean } = {}) {
-  return async (req: Request): Promise<Response> => {
+export function withStudent<P = Record<string, string>>(handler: (ctx: StudentCtx, params: P) => Promise<Response>, opts: { allowMustChange?: boolean } = {}) {
+  return async (req: Request, routeCtx?: { params?: Promise<P> }): Promise<Response> => {
     try {
       const s = await resolveStudentSession(readCookie(req.headers.get("cookie"), STUDENT_COOKIE));
       if (!s || !s.mfaPassed) return json({ error: "Not signed in" }, { status: 401 });
       if (s.principal.mustChangePassword && !opts.allowMustChange) return json({ error: "Set a new password first" }, { status: 403 });
       if (req.method !== "GET" && !sameOrigin(req)) return json({ error: "Request origin not allowed" }, { status: 403 });
-      return await handler({ req, student: s.principal, ip: clientIp(req), userAgent: req.headers.get("user-agent") });
+      const params = (routeCtx?.params ? await routeCtx.params : {}) as P;
+      return await handler({ req, student: s.principal, ip: clientIp(req), userAgent: req.headers.get("user-agent") }, params);
     } catch (err) {
       return errorResponse(err as HttpError);
     }

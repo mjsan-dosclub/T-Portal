@@ -1,0 +1,181 @@
+import "server-only";
+import { z } from "zod";
+import { db } from "@/lib/db";
+import { cleanText } from "@/lib/normalize";
+import { completeness, computeGap, type LevelPair } from "@/lib/gap";
+import { audit } from "./audit";
+import type { SessionAdmin } from "./auth/session";
+import { HttpError } from "./http";
+
+// Student profile & skills (PRF-1, PRF-2). Actor is either an admin id or "student:<userId>".
+
+type Meta = { ip?: string; userAgent?: string | null };
+export const MAX_PROJECTS = 10;
+export const MAX_PROJECT_SKILLS = 10;
+
+const optUrl = (label: string, domain?: string) =>
+  z.preprocess(
+    (v) => (cleanText(v) === "" ? null : cleanText(v)),
+    z
+      .string()
+      .max(300)
+      .refine((s) => {
+        try {
+          const u = new URL(s);
+          return (u.protocol === "https:" || u.protocol === "http:") && (!domain || u.hostname === domain || u.hostname.endsWith("." + domain));
+        } catch {
+          return false;
+        }
+      }, domain ? `${label} must be a ${domain} link` : `${label} must be a web link starting with https://`)
+      .nullable(),
+  );
+
+export const linksSchema = z.object({ linkedinUrl: optUrl("LinkedIn URL", "linkedin.com"), githubUrl: optUrl("GitHub URL", "github.com"), portfolioUrl: optUrl("Portfolio URL") }).strict();
+
+export const ratingsSchema = z.object({
+  ratings: z.array(z.object({ code: z.string().max(10), level: z.coerce.number().int().min(0, "Level must be 0–6").max(6, "Level must be 0–6") })).min(1).max(200),
+});
+
+export const verifySchema = z.object({
+  ratings: z.array(z.object({ code: z.string().max(10), verifiedLevel: z.union([z.coerce.number().int().min(0).max(6), z.null()]) })).min(1).max(200),
+});
+
+export const projectSchema = z
+  .object({
+    title: z.preprocess((v) => cleanText(v), z.string().min(3, "Title is required").max(120)),
+    description: z.preprocess((v) => cleanText(v), z.string().min(10, "Describe the project in a sentence or two").max(1000)),
+    url: optUrl("Project link"),
+    skillCodes: z.array(z.string().max(10)).max(MAX_PROJECT_SKILLS, `Up to ${MAX_PROJECT_SKILLS} skills`).default([]),
+  })
+  .strict();
+
+async function assertActiveSkills(codes: string[]) {
+  const up = [...new Set(codes.map((c) => c.toUpperCase()))];
+  if (!up.length) return up;
+  const found = await db.ontSkill.findMany({ where: { code: { in: up }, isActive: true }, select: { code: true } });
+  const ok = new Set(found.map((f) => f.code));
+  const bad = up.filter((c) => !ok.has(c));
+  if (bad.length) throw new HttpError(400, `Unknown or retired skill(s): ${bad.join(", ")}`, { badCodes: bad });
+  return up;
+}
+
+/** Everything the profile + gap views need, for one student. */
+export async function getProfile(studentId: string) {
+  const s = await db.student.findUnique({
+    where: { id: studentId },
+    select: {
+      id: true, studentCode: true, fullName: true, deletedAt: true, linkedinUrl: true, githubUrl: true, portfolioUrl: true, batchId: true,
+      targetRole: { select: { id: true, name: true, isActive: true, levelMin: true, levelMax: true, category: { select: { name: true } }, skills: { where: { skill: { isActive: true } }, select: { level: true, skill: { select: { code: true, name: true } } } }, roadmapSteps: { orderBy: { sort: "asc" }, select: { levelLabel: true, whatYouDo: true, next: true } } } },
+      skills: { select: { skillCode: true, selfLevel: true, verifiedLevel: true, verifiedAt: true, skill: { select: { name: true, isActive: true } } } },
+      projects: { orderBy: { createdAt: "desc" } },
+    },
+  });
+  if (!s || s.deletedAt) throw new HttpError(404, "Student not found");
+  const levels = new Map<string, LevelPair>(s.skills.map((k) => [k.skillCode, { self: k.selfLevel, verified: k.verifiedLevel }]));
+  const required = (s.targetRole?.skills ?? []).map((r) => ({ code: r.skill.code, name: r.skill.name, required: r.level }));
+  const gap = computeGap(required, levels);
+  const links = [s.linkedinUrl, s.githubUrl, s.portfolioUrl].filter(Boolean).length;
+  const ratedRequired = required.filter((r) => (levels.get(r.code)?.self ?? 0) > 0 || levels.get(r.code)?.verified != null).length;
+  return {
+    student: { id: s.id, studentCode: s.studentCode, fullName: s.fullName, batchId: s.batchId },
+    targetRole: s.targetRole ? { id: s.targetRole.id, name: s.targetRole.name, isActive: s.targetRole.isActive, levelMin: s.targetRole.levelMin, levelMax: s.targetRole.levelMax, category: s.targetRole.category.name, roadmap: s.targetRole.roadmapSteps } : null,
+    gap,
+    otherSkills: s.skills
+      .filter((k) => !required.some((r) => r.code === k.skillCode) && k.skill.isActive && (k.selfLevel > 0 || k.verifiedLevel != null))
+      .map((k) => ({ code: k.skillCode, name: k.skill.name, self: k.selfLevel, verified: k.verifiedLevel })),
+    ratings: Object.fromEntries(s.skills.map((k) => [k.skillCode, { self: k.selfLevel, verified: k.verifiedLevel, verifiedAt: k.verifiedAt?.toISOString() ?? null }])),
+    projects: s.projects.map((p) => ({ id: p.id, title: p.title, description: p.description, url: p.url, skillCodes: p.skillCodes, updatedAt: p.updatedAt.toISOString() })),
+    links: { linkedinUrl: s.linkedinUrl, githubUrl: s.githubUrl, portfolioUrl: s.portfolioUrl },
+    completeness: completeness({ hasRole: !!s.targetRole, ratedRequired, requiredTotal: required.length, projects: s.projects.length, links }),
+  };
+}
+export type Profile = Awaited<ReturnType<typeof getProfile>>;
+
+export async function setTargetRole(studentId: string, roleId: string | null, actorId: string, meta: Meta) {
+  const before = await db.student.findUniqueOrThrow({ where: { id: studentId }, select: { targetRoleId: true } });
+  if (roleId) {
+    const role = await db.ontRole.findUnique({ where: { id: roleId }, select: { isActive: true } });
+    if (!role || !role.isActive) throw new HttpError(400, "Choose an active role", { fields: { roleId: "Unknown or retired role" } });
+  }
+  await db.$transaction(async (tx) => {
+    await tx.student.update({ where: { id: studentId }, data: { targetRoleId: roleId, version: { increment: 1 } } });
+    await audit(tx, { actorId, action: "profile.target_role", entity: "student", entityId: studentId, before: { targetRoleId: before.targetRoleId }, after: { targetRoleId: roleId }, ip: meta.ip, userAgent: meta.userAgent });
+  });
+}
+
+/** Student self-ratings (0–6). Doesn't touch verified levels. */
+export async function saveSelfRatings(studentId: string, raw: unknown, actorId: string, meta: Meta) {
+  const d = ratingsSchema.parse(raw);
+  const codes = await assertActiveSkills(d.ratings.map((r) => r.code));
+  if (codes.length !== d.ratings.length) throw new HttpError(400, "Each skill can appear only once");
+  await db.$transaction(async (tx) => {
+    for (const r of d.ratings) {
+      const code = r.code.toUpperCase();
+      await tx.studentSkill.upsert({ where: { studentId_skillCode: { studentId, skillCode: code } }, create: { studentId, skillCode: code, selfLevel: r.level }, update: { selfLevel: r.level } });
+    }
+    await audit(tx, { actorId, action: "profile.self_ratings", entity: "student", entityId: studentId, after: d.ratings.map((r) => `${r.code.toUpperCase()}=${r.level}`), ip: meta.ip, userAgent: meta.userAgent });
+  });
+}
+
+/** Admin verification (PRF-2). null clears a verified level. */
+export async function verifyLevels(studentId: string, raw: unknown, actor: SessionAdmin, meta: Meta) {
+  const d = verifySchema.parse(raw);
+  const s = await db.student.findUnique({ where: { id: studentId }, select: { deletedAt: true } });
+  if (!s || s.deletedAt) throw new HttpError(404, "Student not found");
+  await assertActiveSkills(d.ratings.map((r) => r.code));
+  const now = new Date();
+  await db.$transaction(async (tx) => {
+    for (const r of d.ratings) {
+      const code = r.code.toUpperCase();
+      const data = r.verifiedLevel === null ? { verifiedLevel: null, verifiedById: null, verifiedAt: null } : { verifiedLevel: r.verifiedLevel, verifiedById: actor.id, verifiedAt: now };
+      await tx.studentSkill.upsert({ where: { studentId_skillCode: { studentId, skillCode: code } }, create: { studentId, skillCode: code, selfLevel: 0, ...data }, update: data });
+    }
+    await audit(tx, { actorId: actor.id, action: "profile.verify_levels", entity: "student", entityId: studentId, after: d.ratings.map((r) => `${r.code.toUpperCase()}=${r.verifiedLevel ?? "cleared"}`), ip: meta.ip, userAgent: meta.userAgent });
+  });
+}
+
+export async function updateLinks(studentId: string, raw: unknown, actorId: string, meta: Meta) {
+  const d = linksSchema.parse(raw);
+  const before = await db.student.findUniqueOrThrow({ where: { id: studentId }, select: { linkedinUrl: true, githubUrl: true, portfolioUrl: true } });
+  await db.$transaction(async (tx) => {
+    await tx.student.update({ where: { id: studentId }, data: { ...d, version: { increment: 1 } } });
+    await audit(tx, { actorId, action: "profile.links", entity: "student", entityId: studentId, before, after: d, ip: meta.ip, userAgent: meta.userAgent });
+  });
+}
+
+export async function addProject(studentId: string, raw: unknown, actorId: string, meta: Meta) {
+  const d = projectSchema.parse(raw);
+  if ((await db.studentProject.count({ where: { studentId } })) >= MAX_PROJECTS) throw new HttpError(400, `You can add up to ${MAX_PROJECTS} projects. Remove one first.`);
+  const skillCodes = await assertActiveSkills(d.skillCodes);
+  return db.$transaction(async (tx) => {
+    const p = await tx.studentProject.create({ data: { studentId, title: d.title, description: d.description, url: d.url, skillCodes } });
+    await audit(tx, { actorId, action: "profile.project_add", entity: "student", entityId: studentId, after: { projectId: p.id, title: d.title }, ip: meta.ip, userAgent: meta.userAgent });
+    return p;
+  });
+}
+
+export async function updateProject(studentId: string, projectId: string, raw: unknown, actorId: string, meta: Meta) {
+  const existing = await db.studentProject.findFirst({ where: { id: projectId, studentId } });
+  if (!existing) throw new HttpError(404, "Project not found"); // also stops editing someone else's project
+  const d = projectSchema.parse(raw);
+  const skillCodes = await assertActiveSkills(d.skillCodes);
+  await db.$transaction(async (tx) => {
+    await tx.studentProject.update({ where: { id: projectId }, data: { title: d.title, description: d.description, url: d.url, skillCodes } });
+    await audit(tx, { actorId, action: "profile.project_update", entity: "student", entityId: studentId, after: { projectId, title: d.title }, ip: meta.ip, userAgent: meta.userAgent });
+  });
+}
+
+export async function deleteProject(studentId: string, projectId: string, actorId: string, meta: Meta) {
+  const existing = await db.studentProject.findFirst({ where: { id: projectId, studentId } });
+  if (!existing) throw new HttpError(404, "Project not found");
+  await db.$transaction(async (tx) => {
+    await tx.studentProject.delete({ where: { id: projectId } });
+    await audit(tx, { actorId, action: "profile.project_delete", entity: "student", entityId: studentId, before: { projectId, title: existing.title }, ip: meta.ip, userAgent: meta.userAgent });
+  });
+}
+
+/** Active skills for pickers (grouped by category for the UI). */
+export async function skillCatalog() {
+  return db.ontSkill.findMany({ where: { isActive: true }, orderBy: [{ subcategory: { categoryId: "asc" } }, { code: "asc" }], select: { code: true, name: true, subcategory: { select: { category: { select: { id: true, name: true } } } } } });
+}
+

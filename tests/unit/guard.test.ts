@@ -72,10 +72,12 @@ describe("Guardrails", () => {
       "/ontology/manage", "/help", "/how-it-works",
       // PH2-1/PH2-5 (DECISIONS): student portal access
       "/student", "/student/login", "/student/activate", "/student/forgot", "/student/totp", "/student/recovery", "/student/enrol", "/student/account", "/student/change-password",
+      // PRF-1 / ATT-1 / INS-1
+      "/student/profile", "/students/[id]/profile", "/attendance", "/insights",
     ]);
     expect(pages.filter((p) => !approved.has(p))).toEqual([]);
     const all = walk(app).map(rel).join("\n");
-    expect(all).not.toMatch(/[/\\](profile|signup|sign-up|register)[/\\]/i); // Phase 2 profile still out of scope
+    expect(all).not.toMatch(/[/\\](signup|sign-up|register)[/\\]/i); // profile allowed since PRF-1
   });
 
   it("GRD-06 dependencies are on the approved list", () => {

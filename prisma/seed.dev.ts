@@ -62,7 +62,34 @@ async function main() {
     });
     made++;
   }
-  console.log(`Dev seed done: ${made} fake students added (total ${existing + made}).`);
+  // Phase 2 demo data (fake): target roles, self-ratings, some verified levels, attendance for the first days.
+  const roles = await db.ontRole.findMany({ where: { isActive: true }, take: 12, orderBy: { name: "asc" }, include: { skills: true } });
+  // Only fake @example.test records get demo data; never touch anything someone typed in by hand.
+  const all = await db.student.findMany({ where: { deletedAt: null, email: { endsWith: "@example.test" } }, select: { id: true, batchId: true }, orderBy: { studentCode: "asc" } });
+  let rated = 0;
+  for (const [i, st] of all.entries()) {
+    if (i % 3 === 2) continue; // a third have no plan yet
+    const role = roles[i % roles.length]!;
+    await db.student.update({ where: { id: st.id }, data: { targetRoleId: role.id } });
+    for (const [j, rs] of role.skills.entries()) {
+      const self = Math.max(0, Math.min(6, rs.level - ((i + j) % 3))); // some met, some 1–2 levels short
+      const verified = i % 5 === 0 ? Math.max(0, self - (j % 2)) : null;
+      await db.studentSkill.upsert({ where: { studentId_skillCode: { studentId: st.id, skillCode: rs.skillCode } }, create: { studentId: st.id, skillCode: rs.skillCode, selfLevel: self, verifiedLevel: verified, verifiedAt: verified === null ? null : new Date() }, update: {} });
+    }
+    rated++;
+  }
+  for (const b of batches) {
+    const daysHeld = b.year === 2025 ? 8 : 3;
+    const members = all.filter((s) => s.batchId === b.id);
+    for (let n = 1; n <= daysHeld; n++) {
+      await db.workshopSession.upsert({ where: { batchId_workshopN: { batchId: b.id, workshopN: n } }, create: { batchId: b.id, workshopN: n, heldOn: new Date(Date.UTC(b.year, 6, n)) }, update: {} });
+      for (const [k, m] of members.entries()) {
+        const status = (k + n) % 9 === 0 ? "EXCUSED" : (k * n) % 5 === 0 ? "ABSENT" : "PRESENT";
+        await db.attendance.upsert({ where: { studentId_workshopN: { studentId: m.id, workshopN: n } }, create: { studentId: m.id, workshopN: n, status }, update: {} });
+      }
+    }
+  }
+  console.log(`Dev seed done: ${made} fake students added (total ${existing + made}); ${rated} with target roles and ratings; attendance for early workshop days.`);
   await db.$disconnect();
 }
 

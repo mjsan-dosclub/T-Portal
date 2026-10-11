@@ -165,6 +165,39 @@
 | STA-11 | WhatsApp invitation message | Contains the first-access link and the how-it-works link; no personal data | I |
 | STA-12 | Browser journey: first access → authenticator → My record → change password → admin resets password → sign in with one-time password + TOTP → forced new password | Works end to end | E |
 
+## 6d. Profile & skills (PRF). PRF-1, PRF-2.
+
+| ID | Scenario | Expected | Lvl |
+|---|---|---|---|
+| PRF-01 | Gap maths | Verified level wins over self; missing = L0; ready = all met; nearly = ≥ 80 %; developing otherwise | U |
+| PRF-02 | Student sets target role | Active roles only; retired/unknown rejected; audited | I |
+| PRF-03 | Student self-ratings | 0–6 saved; level 7, unknown or retired skill rejected; verified level untouched | I |
+| PRF-04 | Admin verifies levels | Verified level saved and wins in the gap; can be cleared; Viewer 403; student session can't call it (401) | I |
+| PRF-05 | Projects | Add/edit/delete own; max 10; another student's project → 404; links must be http(s); skills must be active | I |
+| PRF-06 | Links | LinkedIn/GitHub must be on their domain; portfolio any https link; blank clears | I |
+| PRF-07 | Completeness % | Role + all required rated + ≥ 1 project + ≥ 1 link = 100 % (25 % each) | I |
+| PRF-08 | Browser: student chooses role, rates skills, adds a project; admin verifies; student sees ✓ verified | Works end to end | E |
+
+## 6e. Attendance (ATT). ATT-1.
+
+| ID | Scenario | Expected | Lvl |
+|---|---|---|---|
+| ATT-01 | Save a sheet | Only that batch's students; null clears a mark; session date stored; one audit entry per changed student | I |
+| ATT-02 | Viewer | Can read sheets/overview; save → 403 | I |
+| ATT-03 | Student attendance % | Present ÷ (held days − excused) | I |
+| ATT-04 | Browser: mark all present, mark one absent, save; overview shows counts; student home shows attended / held | Works end to end | E |
+
+## 6f. Insights (INS). INS-1.
+
+| ID | Scenario | Expected | Lvl |
+|---|---|---|---|
+| INS-01 | Adoption counts | Match SQL; deleted students excluded; batch filter applies | I |
+| INS-02 | Readiness + ready list | Ready / nearly / developing / no role classified correctly; list holds only ready + nearly; role filter works | I |
+| INS-03 | Skill gaps + heatmap | Skills ranked by students not meeting the requirement; heatmap share = met ÷ counted pairs | I |
+| INS-04 | Attendance by batch | % = present ÷ (held × students − excused) | I |
+| INS-05 | Ready-list export | Needs export permission (Viewer without flag 403); CSV-injection safe; audited | I |
+| INS-06 | Browser: insights page with a batch filter; axe clean | Renders all sections | E |
+
 ## 7. Dashboard (DSH). M4.
 
 | ID | Scenario | Expected | Lvl |

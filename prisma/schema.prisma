@@ -139,16 +139,17 @@ model DepartmentAlias {
 }
 
 model Batch {
-  id        String    @id @default(uuid())
-  batchCode String
-  codeKey   String    @unique
-  year      Int
-  startDate DateTime? @db.Date
-  endDate   DateTime? @db.Date
-  isActive  Boolean   @default(true)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  students  Student[]
+  id               String            @id @default(uuid())
+  batchCode        String
+  codeKey          String            @unique
+  year             Int
+  startDate        DateTime?         @db.Date
+  endDate          DateTime?         @db.Date
+  isActive         Boolean           @default(true)
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  students         Student[]
+  workshopSessions WorkshopSession[]
 
   @@map("batches")
 }
@@ -191,13 +192,13 @@ enum Gender {
 }
 
 model Student {
-  id             String        @id @default(uuid())
-  studentCode    String        @unique
+  id             String           @id @default(uuid())
+  studentCode    String           @unique
   fullName       String
-  email          String        @unique
-  phone          String        @unique
+  email          String           @unique
+  phone          String           @unique
   gender         Gender?
-  dateOfBirth    DateTime?     @db.Date
+  dateOfBirth    DateTime?        @db.Date
   institutionId  String
   degreeId       String
   departmentId   String
@@ -213,21 +214,25 @@ model Student {
   notes          String?
   targetRoleId   String? // D5: optional link to ontology role
   userId         String? // Phase 2 placeholder: future student login. No FK yet.
-  version        Int           @default(1)
-  createdAt      DateTime      @default(now())
+  version        Int              @default(1)
+  createdAt      DateTime         @default(now())
   createdById    String?
-  updatedAt      DateTime      @updatedAt
+  updatedAt      DateTime         @updatedAt
   updatedById    String?
   deletedAt      DateTime?
   deletedById    String?
-  institution    Institution   @relation(fields: [institutionId], references: [id])
-  degree         Degree        @relation(fields: [degreeId], references: [id])
-  department     Department    @relation(fields: [departmentId], references: [id])
-  batch          Batch         @relation(fields: [batchId], references: [id])
-  colourTeam     ColourTeam?   @relation(fields: [colourTeamId], references: [id])
-  status         StudentStatus @relation(fields: [statusId], references: [id])
-  targetRole     OntRole?      @relation(fields: [targetRoleId], references: [id])
+  institution    Institution      @relation(fields: [institutionId], references: [id])
+  degree         Degree           @relation(fields: [degreeId], references: [id])
+  department     Department       @relation(fields: [departmentId], references: [id])
+  batch          Batch            @relation(fields: [batchId], references: [id])
+  colourTeam     ColourTeam?      @relation(fields: [colourTeamId], references: [id])
+  status         StudentStatus    @relation(fields: [statusId], references: [id])
+  targetRole     OntRole?         @relation(fields: [targetRoleId], references: [id])
   portalUser     StudentUser?
+  portfolioUrl   String? // student-editable (PRF-1)
+  skills         StudentSkill[]
+  projects       StudentProject[]
+  attendance     Attendance[]
 
   @@index([deletedAt])
   @@index([fullName])
@@ -361,6 +366,7 @@ model OntSkill {
   subcategoryId Int
   subcategory   OntSubcategory @relation(fields: [subcategoryId], references: [id])
   roleSkills    OntRoleSkill[]
+  studentSkills StudentSkill[]
 
   @@map("ontology_skills")
 }
@@ -393,6 +399,7 @@ model OntRoleSkill {
   skill     OntSkill @relation(fields: [skillCode], references: [code])
 
   @@id([roleId, skillCode])
+  @@index([skillCode])
   @@map("ontology_role_skills")
 }
 
@@ -420,9 +427,11 @@ model OntLevel {
 }
 
 model OntWorkshop {
-  n        Int    @id
-  title    String
-  roleText String
+  n                Int               @id
+  title            String
+  roleText         String
+  workshopSessions WorkshopSession[]
+  attendances      Attendance[]
 
   @@map("ontology_workshops")
 }
@@ -473,4 +482,72 @@ model StudentSession {
 
   @@index([studentUserId])
   @@map("student_sessions")
+}
+
+// ───────────────────────── Phase 2 steps 2–4: profile, skills, attendance (PRF-1, PRF-2, ATT-1) ─────────────────────────
+
+/// A student's level on one skill. selfLevel 0 = "not yet". verifiedLevel (admin) wins over selfLevel for gaps.
+model StudentSkill {
+  studentId     String
+  skillCode     String
+  selfLevel     Int       @default(0)
+  verifiedLevel Int?
+  verifiedById  String?
+  verifiedAt    DateTime?
+  updatedAt     DateTime  @updatedAt
+  student       Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  skill         OntSkill  @relation(fields: [skillCode], references: [code])
+
+  @@id([studentId, skillCode])
+  @@index([skillCode])
+  @@map("student_skills")
+}
+
+model StudentProject {
+  id          String   @id @default(uuid())
+  studentId   String
+  title       String
+  description String
+  url         String?
+  skillCodes  String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@index([studentId])
+  @@map("student_projects")
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  EXCUSED
+}
+
+/// One workshop day (1–27) held for one DOS Club batch.
+model WorkshopSession {
+  batchId     String
+  workshopN   Int
+  heldOn      DateTime?   @db.Date
+  updatedById String?
+  updatedAt   DateTime    @updatedAt
+  batch       Batch       @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  workshop    OntWorkshop @relation(fields: [workshopN], references: [n])
+
+  @@id([batchId, workshopN])
+  @@map("workshop_sessions")
+}
+
+model Attendance {
+  studentId  String
+  workshopN  Int
+  status     AttendanceStatus
+  markedById String?
+  markedAt   DateTime         @default(now())
+  student    Student          @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  workshop   OntWorkshop      @relation(fields: [workshopN], references: [n])
+
+  @@id([studentId, workshopN])
+  @@index([workshopN])
+  @@map("attendance")
 }

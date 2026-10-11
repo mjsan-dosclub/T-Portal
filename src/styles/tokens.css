@@ -38,6 +38,15 @@
   --blob-primary: rgb(139 208 142 / 0.18);
   --blob-green: rgb(76 175 80 / 0.12);
 
+  /* Sequential ramp for heatmaps: one hue (--dos-accent-dark) light→dark. Max 0.66 so dark text stays ≥ 5.45:1 (INS-1). */
+  --seq-1: rgb(13 107 144 / 0.06);
+  --seq-2: rgb(13 107 144 / 0.18);
+  --seq-3: rgb(13 107 144 / 0.32);
+  --seq-4: rgb(13 107 144 / 0.48);
+  --seq-5: rgb(13 107 144 / 0.66);
+  --bar-track: var(--bg-2);
+  --bar-fill: var(--dos-accent-dark);
+
   /*
    * Danger / warning hues are PENDING D3 (docs/DECISIONS.md). Until the PM supplies them,
    * destructive UI uses --dos-deep with a warning icon + explicit text, never colour alone.

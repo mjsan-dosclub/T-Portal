@@ -146,6 +146,9 @@ export async function bulkStudents(m: Masters, count: number, over: (i: number) 
 export async function resetOntology() {
   const { seedOntology } = await import("@/server/ontology/seed");
   await db.student.updateMany({ where: { targetRoleId: { not: null } }, data: { targetRoleId: null } });
+  await db.studentSkill.deleteMany();
+  await db.attendance.deleteMany();
+  await db.workshopSession.deleteMany();
   await db.ontRoadmapStep.deleteMany();
   await db.ontRoleSkill.deleteMany();
   await db.ontRole.deleteMany();

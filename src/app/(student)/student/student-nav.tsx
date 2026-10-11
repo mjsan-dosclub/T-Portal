@@ -10,6 +10,7 @@ export function StudentNav({ name }: { name: string }) {
   return (
     <nav className="tabs glass" style={{ padding: "0.4rem", borderRadius: "var(--r-pill)", alignItems: "center" }} aria-label="Student">
       <Link href="/student" className="tab" aria-current={p === "/student" ? "page" : undefined}>My record</Link>
+      <Link href="/student/profile" className="tab" aria-current={p === "/student/profile" ? "page" : undefined}>My profile</Link>
       <Link href="/student/account" className="tab" aria-current={p === "/student/account" ? "page" : undefined}>Account</Link>
       <span className="hint" style={{ marginLeft: "auto", padding: "0 0.5rem" }}>{name}</span>
       <button

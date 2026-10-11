@@ -18,6 +18,8 @@ export function Nav({ role, name }: { role: "SUPER_ADMIN" | "ADMIN" | "VIEWER"; 
     ...(editor ? [{ href: "/students/upload", label: "Upload", icon: "upload" as const, match: (p: string) => p.startsWith("/students/upload") }] : []),
     { href: "/masters/institutions", label: "Masters", icon: "masters", match: (p) => p.startsWith("/masters") },
     { href: "/ontology", label: "Skills Ontology", icon: "ontology", match: (p) => p.startsWith("/ontology") },
+    { href: "/attendance", label: "Attendance", icon: "attendance", match: (p) => p.startsWith("/attendance") },
+    { href: "/insights", label: "Insights", icon: "insights", match: (p) => p.startsWith("/insights") },
   ];
   const admin: Item[] =
     role === "SUPER_ADMIN"

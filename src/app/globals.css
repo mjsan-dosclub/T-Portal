@@ -148,3 +148,6 @@ html.no-glass .glass, html.no-glass .glass-strong { background: var(--surface); 
 .flow-node { padding: 0.9rem 1rem; border-radius: var(--r-xl); background: var(--surface); border: 1px solid var(--stroke); text-align: center; }
 .brand-ring { background: var(--brand-gradient); padding: 2px; border-radius: var(--r-pill); }
 @media (max-width: 900px) { .role-grid { grid-template-columns: 1fr !important; } }
+/* radio/checkbox chips: show keyboard focus on the visible chip */
+label.chip:focus-within { outline: 2px solid var(--dos-accent); outline-offset: 2px; }
+.heat td.cell { text-align: center; font-variant-numeric: tabular-nums; min-width: 4.5rem; border: 2px solid var(--surface); border-radius: var(--r-md); }
