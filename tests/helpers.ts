@@ -58,11 +58,11 @@ export function sessionCookieHeader(token: string) {
   return sessionCookie(token);
 }
 
-type Handler = (req: Request, ctx?: { params?: Promise<Record<string, string>> }) => Promise<Response>;
+type Handler<P> = (req: Request, ctx?: { params?: Promise<P> }) => Promise<Response>;
 
-export async function call(
-  handler: Handler,
-  opts: { method?: string; body?: unknown; cookie?: string; origin?: string | null; params?: Record<string, string>; url?: string; ip?: string; form?: FormData } = {},
+export async function call<P = Record<string, string>>(
+  handler: Handler<P>,
+  opts: { method?: string; body?: unknown; cookie?: string; origin?: string | null; params?: P; url?: string; ip?: string; form?: FormData } = {},
 ) {
   const headers = new Headers();
   if (opts.cookie) headers.set("cookie", opts.cookie);
@@ -77,7 +77,7 @@ export async function call(
     body = JSON.stringify(opts.body);
   }
   const req = new Request(opts.url ?? `${ORIGIN}/api/test`, { method: opts.method ?? (opts.body !== undefined || opts.form ? "POST" : "GET"), headers, body });
-  const res = await handler(req, { params: Promise.resolve(opts.params ?? {}) });
+  const res = await handler(req, { params: Promise.resolve((opts.params ?? {}) as P) });
   const text = await res.clone().text();
   let json: Record<string, unknown> = {};
   try {

@@ -22,12 +22,21 @@ export function Modal({ open, onOpenChange, title, description, children, wide }
 }
 
 /** Side drawer (preview, STU-13). */
-export function Drawer({ open, onOpenChange, title, children }: { open: boolean; onOpenChange: (o: boolean) => void; title: string; children: ReactNode }) {
+export function Drawer({ open, onOpenChange, title, children, returnFocusTo }: { open: boolean; onOpenChange: (o: boolean) => void; title: string; children: ReactNode; returnFocusTo?: { current: HTMLElement | null } }) {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
         <Dialog.Overlay className="overlay" />
-        <Dialog.Content className="drawer">
+        <Dialog.Content
+          className="drawer"
+          onCloseAutoFocus={(e) => {
+            // Opened from a row button, not a Dialog.Trigger, so tell Radix where focus goes back (STU-13).
+            if (returnFocusTo?.current) {
+              e.preventDefault();
+              returnFocusTo.current.focus();
+            }
+          }}
+        >
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "1rem", marginBottom: "1rem" }}>
             <Dialog.Title className="display" style={{ fontSize: "1.25rem", fontWeight: 600 }}>
               {title}

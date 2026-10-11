@@ -459,11 +459,9 @@ export function StudentsTable({ options, role, canExport, initialHidden, initial
       {/* Preview drawer (STU-13): read-only; editing needs an explicit Edit click */}
       <Drawer
         open={!!preview}
+        returnFocusTo={previewReturnFocus}
         onOpenChange={(o) => {
-          if (!o) {
-            setPreview(null);
-            previewReturnFocus.current?.focus();
-          }
+          if (!o) setPreview(null);
         }}
         title={preview?.data ? preview.data.fullName : "Student"}
       >

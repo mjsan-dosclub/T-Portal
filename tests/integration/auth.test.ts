@@ -217,19 +217,20 @@ describe("Authentication & RBAC", () => {
     const ad = await signedIn("ADMIN");
     const vw = await signedIn("VIEWER");
     const sel = { mode: "ids", ids: ["00000000-0000-4000-8000-000000000000"] };
-    const cases: { name: string; h: Parameters<typeof call>[0]; body: unknown; params?: Record<string, string>; allowed: string[] }[] = [
-      { name: "create student", h: studentsPOST, body: {}, allowed: ["SUPER_ADMIN", "ADMIN"] },
-      { name: "bulk status", h: bulkStatusPOST, body: { selection: sel, statusId: "00000000-0000-4000-8000-000000000000" }, allowed: ["SUPER_ADMIN", "ADMIN"] },
-      { name: "bulk delete", h: bulkDeletePOST, body: { selection: sel }, allowed: ["SUPER_ADMIN", "ADMIN"] },
-      { name: "restore", h: restorePOST, body: { selection: sel }, allowed: ["SUPER_ADMIN"] },
-      { name: "create master", h: mastersPOST, body: {}, params: { type: "degrees" }, allowed: ["SUPER_ADMIN", "ADMIN"] },
-      { name: "invite admin", h: adminsPOST, body: {}, allowed: ["SUPER_ADMIN"] },
-      { name: "export", h: exportPOST, body: { selection: sel }, allowed: ["SUPER_ADMIN", "ADMIN"] },
-      { name: "upload", h: uploadsPOST, body: {}, allowed: ["SUPER_ADMIN", "ADMIN"] },
+    type Case = { name: string; run: (cookie?: string) => ReturnType<typeof call>; allowed: string[] };
+    const cases: Case[] = [
+      { name: "create student", run: (cookie) => call(studentsPOST, { body: {}, cookie }), allowed: ["SUPER_ADMIN", "ADMIN"] },
+      { name: "bulk status", run: (cookie) => call(bulkStatusPOST, { body: { selection: sel, statusId: "00000000-0000-4000-8000-000000000000" }, cookie }), allowed: ["SUPER_ADMIN", "ADMIN"] },
+      { name: "bulk delete", run: (cookie) => call(bulkDeletePOST, { body: { selection: sel }, cookie }), allowed: ["SUPER_ADMIN", "ADMIN"] },
+      { name: "restore", run: (cookie) => call(restorePOST, { body: { selection: sel }, cookie }), allowed: ["SUPER_ADMIN"] },
+      { name: "create master", run: (cookie) => call(mastersPOST, { body: {}, cookie, params: { type: "degrees" } }), allowed: ["SUPER_ADMIN", "ADMIN"] },
+      { name: "invite admin", run: (cookie) => call(adminsPOST, { body: {}, cookie }), allowed: ["SUPER_ADMIN"] },
+      { name: "export", run: (cookie) => call(exportPOST, { body: { selection: sel }, cookie }), allowed: ["SUPER_ADMIN", "ADMIN"] },
+      { name: "upload", run: (cookie) => call(uploadsPOST, { body: {}, cookie }), allowed: ["SUPER_ADMIN", "ADMIN"] },
     ];
     for (const c of cases) {
       for (const [role, cookie] of [["SUPER_ADMIN", sa.cookie], ["ADMIN", ad.cookie], ["VIEWER", vw.cookie], ["NONE", undefined]] as const) {
-        const r = await call(c.h, { body: c.body, cookie, params: c.params });
+        const r = await c.run(cookie);
         const expected = role === "NONE" ? 401 : c.allowed.includes(role) ? "allowed" : 403;
         if (expected === "allowed") expect([200, 201, 400, 404, 409], `${c.name} as ${role}`).toContain(r.status);
         else expect(r.status, `${c.name} as ${role}`).toBe(expected);
