@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import { generate } from "otplib";
 import { db } from "@/lib/db";
 import { nameKey } from "@/lib/normalize";
@@ -8,7 +9,8 @@ import { newTotpSecret } from "@/server/auth/totp";
 import type { Role } from "@/generated/prisma/enums";
 
 export const ORIGIN = "http://localhost:3000";
-export const PASSWORD = "correct-horse-battery-staple";
+// Generated per run so no credential-looking literal is committed (GRD-07).
+export const PASSWORD = randomBytes(12).toString("base64url");
 
 /** Wipe everything except the seeded ontology/base masters. Audit triggers are disabled only for this test cleanup. */
 export async function resetData() {
