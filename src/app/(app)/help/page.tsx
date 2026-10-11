@@ -23,10 +23,13 @@ export default async function HelpPage() {
           ["masters", "Masters"],
           ["ontology", "Update the ontology"],
           ["portal", "Student portal access"],
+          ["skills", "Verify skills"],
+          ["attendance", "Attendance"],
         ] as [string, string][])
       : []),
     ...(canExport(me) ? ([["export", "Export"]] as [string, string][]) : []),
     ...(sa ? ([["super", "Super Admin tasks"]] as [string, string][]) : []),
+    ["insights", "Insights"],
     ["help", "Problems & answers"],
     ["privacy", "Privacy rules"],
   ];
@@ -182,6 +185,42 @@ export default async function HelpPage() {
           <Tip tone="warn">If a student says &ldquo;couldn&apos;t activate&rdquo; but never set up an account, someone else may have used their email and mobile. A Super Admin should reset their portal access at once and check the audit log.</Tip>
         </GuideSection>
       )}
+
+      {editor && (
+        <>
+          <GuideSection id="skills" title="Check and verify student skills">
+            <Steps
+              items={[
+                <>Students choose a <strong>target role</strong> and rate themselves L0–L6 on its skills in their portal. They can also add projects and links as evidence.</>,
+                <>Open a student: <Kbd>Preview</Kbd> → <Kbd>Skills, projects &amp; attendance</Kbd>. The table shows what the role needs, what the student says, and the gap.</>,
+                <>After checking evidence (projects, a short interview or a test), set the <Kbd>Verified</Kbd> level and press <Kbd>Save verified levels</Kbd>. A verified level counts instead of the self-rating, and the student sees ✓.</>,
+                <>To undo, choose <Kbd>Not verified</Kbd> and save.</>,
+              ]}
+            />
+          </GuideSection>
+          <GuideSection id="attendance" title="Mark workshop attendance">
+            <Steps
+              items={[
+                <>Open <Link href="/attendance">Attendance</Link> and choose the <Kbd>DOS Club batch</Kbd>. The overview shows all 27 days with counts.</>,
+                <>Choose the <Kbd>Workshop day</Kbd>, set the <Kbd>Session date</Kbd>, press <Kbd>Mark all present</Kbd>, then change anyone who was <strong>Absent</strong> or <strong>Excused</strong>.</>,
+                <>Press <Kbd>Save attendance</Kbd>. Students see their attended / held count on their portal home. Excused days don&apos;t count against them.</>,
+              ]}
+            />
+          </GuideSection>
+        </>
+      )}
+
+      <GuideSection id="insights" title="Insights: gaps, readiness and attendance">
+        <Steps
+          items={[
+            <>Open <Link href="/insights">Insights</Link>. Filter by batch or institution and press <Kbd>Apply</Kbd>.</>,
+            <><strong>Biggest skill gaps</strong> = what to train next: how many students&apos; target roles need a skill they don&apos;t have yet.</>,
+            <>The <strong>heatmap</strong> shows, per skill area and batch, how much of the required skill level is already met (darker = more ready).</>,
+            <><strong>Ready &amp; nearly ready</strong> lists students who meet all (or at least 80%) of their role&apos;s skills: your placement shortlist. Export it with <Kbd>Export CSV</Kbd> if you have export permission.</>,
+          ]}
+        />
+        <Tip>Insights are only as good as the data. Encourage students to complete their profiles, and verify levels for students you shortlist.</Tip>
+      </GuideSection>
 
       {canExport(me) && (
         <GuideSection id="export" title="Export to CSV">

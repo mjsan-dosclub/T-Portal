@@ -36,8 +36,9 @@ export const ratingsSchema = z.object({
   ratings: z.array(z.object({ code: z.string().max(10), level: z.coerce.number().int().min(0, "Level must be 0–6").max(6, "Level must be 0–6") })).min(1).max(200),
 });
 
+// verifiedLevel: null clears it. Deliberately no z.coerce here: it turns null into 0 (found by PRF-04).
 export const verifySchema = z.object({
-  ratings: z.array(z.object({ code: z.string().max(10), verifiedLevel: z.union([z.coerce.number().int().min(0).max(6), z.null()]) })).min(1).max(200),
+  ratings: z.array(z.object({ code: z.string().max(10), verifiedLevel: z.union([z.null(), z.number().int().min(0).max(6)]) })).min(1).max(200),
 });
 
 export const projectSchema = z

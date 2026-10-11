@@ -44,6 +44,7 @@ export default async function StudentGuide() {
             <>Install <strong>Google Authenticator</strong> on your phone. Scan the QR code shown, type the 6-digit code, and save your <strong>10 recovery codes</strong> somewhere safe.</>,
             <>Next time: <Link href="/student/login">Sign in</Link> with your email and password, then the current code from Google Authenticator.</>,
             <>Change your password any time from <strong>Account</strong>.</>,
+            <>On <strong>My profile</strong>: choose your target role, rate yourself on its skills, and add projects and links. You&apos;ll see exactly which skills to work on next. Your home page shows your 27-day program attendance.</>,
             <><strong>Forgot your password?</strong> Ask your DOS Club coordinator. They&apos;ll give you a one-time password (valid 72 hours). Sign in with it plus your authenticator code, and you&apos;ll be asked to create a new password.</>,
           ]}
         />
@@ -145,8 +146,8 @@ export default async function StudentGuide() {
         </ul>
       </GuideSection>
 
-      <GuideSection id="next" kicker="Coming next" title="7. Coming next: build your own profile">
-        <p style={{ lineHeight: 1.6 }}>Next, you&apos;ll be able to build a job-portal style profile (similar to the profiles on popular Indian job sites):</p>
+      <GuideSection id="next" kicker="Coming next" title="7. Coming next: a fuller job-portal profile">
+        <p style={{ lineHeight: 1.6 }}>Your target role, skill levels, projects and links are already on My profile. Coming later (similar to popular Indian job sites):</p>
         <ul style={{ columns: "16rem", paddingLeft: "1.2rem", lineHeight: 1.7 }}>
           <li>Profile headline and summary</li>
           <li>Education history and scores</li>
