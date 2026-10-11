@@ -6,7 +6,7 @@ import { api } from "@/components/api";
 import { Field } from "@/components/field";
 
 /** Shared one-field form for password+email, TOTP and recovery code steps. */
-export function CodeForm({ endpoint, kind }: { endpoint: string; kind: "totp" | "recovery" }) {
+export function CodeForm({ endpoint, kind, restartHref = "/login" }: { endpoint: string; kind: "totp" | "recovery"; restartHref?: string }) {
   const router = useRouter();
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -19,7 +19,7 @@ export function CodeForm({ endpoint, kind }: { endpoint: string; kind: "totp" | 
     setBusy(false);
     if (!r.ok) {
       setError(r.error);
-      if (r.status === 401 && r.error.includes("expired")) setTimeout(() => router.push("/login"), 1500);
+      if (r.status === 401 && r.error.includes("expired")) setTimeout(() => router.push(restartHref), 1500);
       return;
     }
     router.replace(r.data.next);

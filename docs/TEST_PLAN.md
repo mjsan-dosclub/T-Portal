@@ -148,6 +148,23 @@
 | HELP-01 | Open `/how-it-works` without signing in | Student guide renders; no personal data; links to sign-in for admins | E |
 | HELP-02 | Open `/help` as Admin and as Viewer | Role-aware admin guide; Viewer sees read-only tasks only | E |
 
+## 6c. Student access, Phase 2 (STA). PH2-5..7 (no email service).
+
+| ID | Scenario | Expected | Lvl |
+|---|---|---|---|
+| STA-01 | First access with registered email + mobile + password | Account created; pre-MFA session; student APIs 401 until Google Authenticator is set up; 10 recovery codes | I |
+| STA-02 | First access with unknown email, wrong mobile, a deleted student, or an already-activated student | Identical error for all; no account created | I |
+| STA-03 | Repeated first-access attempts | Rate-limited (per email 5/hour, per IP 10/15 min) → 429 | I |
+| STA-04 | First access with a password under 12 characters | Rejected; no account | I |
+| STA-05 | Sign-in: password + TOTP; replayed TOTP; 5 wrong passwords | Works; replay rejected; locked 15 min | I |
+| STA-06 | Admin resets a student's password | One-time password shown once; student sessions end; sign-in with it + TOTP → must create a new password (other student APIs 403 until then; can't reuse the one-time password) | I |
+| STA-07 | One-time password older than 72 h | Sign-in rejected with "expired, ask your coordinator" | I |
+| STA-08 | Change password on the Account page | Needs the current password; ≥ 12 characters; audited | I |
+| STA-09 | Student session vs admin APIs, and admin session vs student APIs | Student session gets 401 on admin APIs; admin session gets 401 on student APIs | I |
+| STA-10 | Who can reset | Admin and Super Admin can issue one-time passwords; Viewer can't (403). Only Super Admin can remove the portal account; the student can then do first access again | I |
+| STA-11 | WhatsApp invitation message | Contains the first-access link and the how-it-works link; no personal data | I |
+| STA-12 | Browser journey: first access → authenticator → My record → change password → admin resets password → sign in with one-time password + TOTP → forced new password | Works end to end | E |
+
 ## 7. Dashboard (DSH). M4.
 
 | ID | Scenario | Expected | Lvl |

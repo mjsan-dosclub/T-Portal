@@ -70,10 +70,12 @@ describe("Guardrails", () => {
       "/audit", "/admin/users", "/account",
       // ROUTE-2 (DECISIONS): ontology maintenance + guides
       "/ontology/manage", "/help", "/how-it-works",
+      // PH2-1/PH2-5 (DECISIONS): student portal access
+      "/student", "/student/login", "/student/activate", "/student/forgot", "/student/totp", "/student/recovery", "/student/enrol", "/student/account", "/student/change-password",
     ]);
     expect(pages.filter((p) => !approved.has(p))).toEqual([]);
     const all = walk(app).map(rel).join("\n");
-    expect(all).not.toMatch(/[/\\](student|profile|signup|sign-up|register)[/\\]/i);
+    expect(all).not.toMatch(/[/\\](profile|signup|sign-up|register)[/\\]/i); // Phase 2 profile still out of scope
   });
 
   it("GRD-06 dependencies are on the approved list", () => {

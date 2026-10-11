@@ -1,6 +1,6 @@
 import { execSync } from "node:child_process";
 import { randomBytes } from "node:crypto";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
 import { setup as resetTestDb } from "../tests/global-setup";
 
 const TEST_DB = process.env.TEST_DATABASE_URL ?? "postgresql://dos:dos-local-only@127.0.0.1:54329/dos_test";
@@ -8,6 +8,7 @@ const TEST_DB = process.env.TEST_DATABASE_URL ?? "postgresql://dos:dos-local-onl
 /** Fresh test DB → base seed → small fake dataset → three admins (not yet enrolled) with random passwords. */
 export default async function globalSetup() {
   await resetTestDb();
+  rmSync("e2e/.auth/used-steps.json", { force: true });
   const env = { ...process.env, DATABASE_URL: TEST_DB };
   execSync("npx tsx prisma/seed.dev.ts 120", { env, stdio: "pipe" });
   mkdirSync("e2e/.auth", { recursive: true });

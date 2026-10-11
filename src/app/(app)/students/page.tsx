@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
 import { masterOptions } from "@/server/masters";
+import { invitationMessage } from "@/server/student/invite";
 import { canEdit, canExport, requirePageAdmin } from "@/server/page-auth";
 import { PageHeader } from "../page-header";
 import { StudentsTableClient as StudentsTable } from "./students-table-client";
@@ -25,7 +26,7 @@ export default async function StudentsPage() {
           ) : undefined
         }
       />
-      <StudentsTable options={options} role={admin.role} canExport={canExport(admin)} initialHidden={prefs.hiddenColumns ?? ["degree", "colourTeam"]} initialPageSize={prefs.pageSize} />
+      <StudentsTable options={options} role={admin.role} canExport={canExport(admin)} initialHidden={prefs.hiddenColumns ?? ["degree", "colourTeam"]} initialPageSize={prefs.pageSize} invitationText={canEdit(admin) ? invitationMessage() : undefined} />
     </>
   );
 }

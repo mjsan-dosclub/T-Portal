@@ -30,7 +30,7 @@ export async function dashboardStats() {
     byInstitution: byInstitution.map((b) => ({ label: il.get(b.institutionId) ?? "?", count: b._count })).sort((a, b) => b.count - a.count),
     byStatus: byStatus.map((b) => ({ label: sl.get(b.statusId)?.name ?? "?", color: sl.get(b.statusId)?.color ?? null, count: b._count })).sort((a, b) => b.count - a.count),
     recentUploads: recentUploads.map((u) => ({ ...u, createdAt: u.createdAt.toISOString() })),
-    recentActivity: recentActivity.map((a) => ({ id: a.id.toString(), action: a.action, entity: a.entity, createdAt: a.createdAt.toISOString(), actor: a.actorId ? (nameOf.get(a.actorId) ?? "Unknown") : "System" })),
+    recentActivity: recentActivity.map((a) => ({ id: a.id.toString(), action: a.action, entity: a.entity, createdAt: a.createdAt.toISOString(), actor: a.actorId ? (a.actorId.startsWith("student:") ? "Student (self-service)" : (nameOf.get(a.actorId) ?? "Unknown")) : "System" })),
   };
 }
 
@@ -59,7 +59,7 @@ export async function queryAudit(f: AuditFilter) {
     actors,
     entities: entities.map((e) => e.entity),
     rows: rows.map((r) => ({
-      id: r.id.toString(), actor: r.actorId ? (nameOf.get(r.actorId) ?? r.actorId) : "System", action: r.action, entity: r.entity, entityId: r.entityId,
+      id: r.id.toString(), actor: r.actorId ? (r.actorId.startsWith("student:") ? "Student (self-service)" : (nameOf.get(r.actorId) ?? r.actorId)) : "System", action: r.action, entity: r.entity, entityId: r.entityId,
       before: r.before, after: r.after, reason: r.reason, ip: r.ip, userAgent: r.userAgent, createdAt: r.createdAt.toISOString(),
     })),
   };

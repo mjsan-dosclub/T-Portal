@@ -6,7 +6,7 @@ import { useEffect, useState, type FormEvent } from "react";
 import { api } from "@/components/api";
 import { Field } from "@/components/field";
 
-export function Enrol() {
+export function Enrol({ endpoint = "/api/auth/enrol", home = "/", restartHref = "/login" }: { endpoint?: string; home?: string; restartHref?: string }) {
   const router = useRouter();
   const [qr, setQr] = useState<{ qrDataUrl: string; manualKey: string } | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -17,20 +17,20 @@ export function Enrol() {
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
-    api<{ qrDataUrl: string; manualKey: string }>("/api/auth/enrol", { body: { action: "start" } }).then((r) => (r.ok ? setQr(r.data) : setLoadError(r.error)));
-  }, []);
+    api<{ qrDataUrl: string; manualKey: string }>(endpoint, { body: { action: "start" } }).then((r) => (r.ok ? setQr(r.data) : setLoadError(r.error)));
+  }, [endpoint]);
 
   async function confirm(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
     setError(null);
-    const r = await api<{ recoveryCodes: string[] }>("/api/auth/enrol", { body: { action: "confirm", code } });
+    const r = await api<{ recoveryCodes: string[] }>(endpoint, { body: { action: "confirm", code } });
     setBusy(false);
     if (!r.ok) return setError(r.error);
     setCodes(r.data.recoveryCodes);
   }
 
-  if (loadError) return <div className="banner" role="alert">⚠ {loadError} <a href="/login">Sign in again</a></div>;
+  if (loadError) return <div className="banner" role="alert">⚠ {loadError} <a href={restartHref}>Sign in again</a></div>;
 
   if (codes) {
     return (
@@ -53,7 +53,7 @@ export function Enrol() {
         <label style={{ display: "flex", gap: "0.6rem", alignItems: "center", fontSize: "0.9rem" }}>
           <input type="checkbox" className="checkbox" checked={saved} onChange={(e) => setSaved(e.target.checked)} /> I have saved my recovery codes
         </label>
-        <button type="button" className="btn btn-primary" disabled={!saved} onClick={() => { router.replace("/"); router.refresh(); }}>
+        <button type="button" className="btn btn-primary" disabled={!saved} onClick={() => { router.replace(home); router.refresh(); }}>
           Continue to the portal
         </button>
       </div>

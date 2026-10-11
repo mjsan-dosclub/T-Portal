@@ -227,6 +227,7 @@ model Student {
   colourTeam     ColourTeam?   @relation(fields: [colourTeamId], references: [id])
   status         StudentStatus @relation(fields: [statusId], references: [id])
   targetRole     OntRole?      @relation(fields: [targetRoleId], references: [id])
+  portalUser     StudentUser?
 
   @@index([deletedAt])
   @@index([fullName])
@@ -424,4 +425,52 @@ model OntWorkshop {
   roleText String
 
   @@map("ontology_workshops")
+}
+
+// ───────────────────────── Phase 2: student portal access (PH2-1..4) ─────────────────────────
+// Kept fully separate from admin auth: own table, own sessions, own cookie.
+
+model StudentUser {
+  id                    String                @id @default(uuid())
+  studentId             String                @unique
+  passwordHash          String
+  totpSecretEnc         String?
+  totpEnabled           Boolean               @default(false)
+  totpLastStep          Int?
+  mustChangePassword    Boolean               @default(false) // after an admin-issued one-time password (PH2-7)
+  tempPasswordExpiresAt DateTime?
+  lastLoginAt           DateTime?
+  activatedAt           DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+  student               Student               @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  recoveryCodes         StudentRecoveryCode[]
+  sessions              StudentSession[]
+
+  @@map("student_users")
+}
+
+model StudentRecoveryCode {
+  id            String      @id @default(uuid())
+  studentUserId String
+  codeHash      String
+  usedAt        DateTime?
+  user          StudentUser @relation(fields: [studentUserId], references: [id], onDelete: Cascade)
+
+  @@index([studentUserId])
+  @@map("student_recovery_codes")
+}
+
+model StudentSession {
+  id            String      @id // sha256(token)
+  studentUserId String
+  mfaPassed     Boolean     @default(false)
+  createdAt     DateTime    @default(now())
+  lastSeenAt    DateTime    @default(now())
+  expiresAt     DateTime
+  ip            String?
+  userAgent     String?
+  user          StudentUser @relation(fields: [studentUserId], references: [id], onDelete: Cascade)
+
+  @@index([studentUserId])
+  @@map("student_sessions")
 }

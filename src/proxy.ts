@@ -6,12 +6,20 @@ import { NextResponse, type NextRequest } from "next/server";
 //    always repeated on the server (requirePageAdmin / withAuth). This is only UX.
 
 const PUBLIC_PATHS = ["/login", "/login/totp", "/login/recovery", "/enrol-2fa", "/how-it-works"];
+// Phase 2 student pages that work before sign-in (PH2-5).
+const STUDENT_PUBLIC = ["/student/login", "/student/activate", "/student/forgot", "/student/totp", "/student/recovery", "/student/enrol"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const hasSession = request.cookies.has("dos_session");
-  if (!pathname.startsWith("/api") && !PUBLIC_PATHS.includes(pathname) && !hasSession) {
-    return withSecurityHeaders(NextResponse.redirect(new URL("/login", request.url)), null);
+  if (!pathname.startsWith("/api")) {
+    const isStudentArea = pathname === "/student" || pathname.startsWith("/student/");
+    if (isStudentArea) {
+      if (!STUDENT_PUBLIC.includes(pathname) && !request.cookies.has("dos_student_session")) {
+        return withSecurityHeaders(NextResponse.redirect(new URL("/student/login", request.url)), null);
+      }
+    } else if (!PUBLIC_PATHS.includes(pathname) && !request.cookies.has("dos_session")) {
+      return withSecurityHeaders(NextResponse.redirect(new URL("/login", request.url)), null);
+    }
   }
 
   const nonce = Buffer.from(crypto.randomUUID()).toString("base64");

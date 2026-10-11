@@ -27,7 +27,7 @@ If a fact is not in 1–7, you do not know it. If two sources disagree, **stop a
 
 ## 2. Scope control
 - Build only the current milestone (PROJECT_PLAN §6). No "while I'm here" features or refactors.
-- Phase 2 (student login, job-portal profile, notifications, attendance) is **out of scope**: no routes, tables, components or stubs. PRD Appendix A is context only.
+- Phase 2 **student access** (activation by emailed code, password, Google Authenticator, account page, invites) is in scope since DECISIONS PH2-1. The rest of Phase 2 (job-portal profile, notifications beyond those emails, attendance) is still **out of scope**: no routes, tables or stubs. PRD Appendix A is context only.
 - Routes must match PROJECT_PLAN §7 (test GRD-05). Dependencies must be on the §7 list or approved in DECISIONS (GRD-06).
 - A new dependency needs: why, alternatives, bundle/security impact. Wait for approval.
 - Every DB schema change goes through a migration, noted in the milestone summary.

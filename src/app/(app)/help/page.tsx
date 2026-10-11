@@ -22,6 +22,7 @@ export default async function HelpPage() {
           ["bulk", "Bulk status & delete"],
           ["masters", "Masters"],
           ["ontology", "Update the ontology"],
+          ["portal", "Student portal access"],
         ] as [string, string][])
       : []),
     ...(canExport(me) ? ([["export", "Export"]] as [string, string][]) : []),
@@ -166,6 +167,22 @@ export default async function HelpPage() {
         </>
       )}
 
+      {editor && (
+        <GuideSection id="portal" kicker="Phase 2" title="Student portal access">
+          <p>Students can sign in to see their own record. No email service is used, so you invite them and help with passwords yourself.</p>
+          <Steps
+            items={[
+              <><strong>Invite:</strong> on <Link href="/students">Students</Link> press <Kbd>Invitation message</Kbd> → <Kbd>Copy message</Kbd> and paste it into WhatsApp groups. It contains only links, no personal data.</>,
+              <>Students do <strong>first-time access</strong> themselves with their registered <strong>email and mobile</strong>, create a password and set up Google Authenticator. Keep their mobile numbers correct in the student master, or they can&apos;t activate.</>,
+              <><strong>Check status:</strong> <Kbd>Preview</Kbd> a student. The <em>Student portal</em> line shows whether they activated, have the authenticator, and when they last signed in.</>,
+              <><strong>Forgot password:</strong> confirm it&apos;s really the student (e.g. call their registered mobile), then <Kbd>Preview</Kbd> → <Kbd>Reset password</Kbd> → <Kbd>Confirm</Kbd>. Share the <strong>one-time password</strong> privately; it&apos;s shown once and works for 72 hours. They&apos;ll be made to choose a new password after signing in.</>,
+              ...(sa ? [<><strong>Lost phone and recovery codes:</strong> <Kbd>Reset portal access</Kbd> removes their portal account (logged). They then do first-time access again.</>] : []),
+            ]}
+          />
+          <Tip tone="warn">If a student says &ldquo;couldn&apos;t activate&rdquo; but never set up an account, someone else may have used their email and mobile. A Super Admin should reset their portal access at once and check the audit log.</Tip>
+        </GuideSection>
+      )}
+
       {canExport(me) && (
         <GuideSection id="export" title="Export to CSV">
           <p>
@@ -204,6 +221,7 @@ export default async function HelpPage() {
                 ["Can't delete a master value", "It's used by students. Deactivate it instead."],
                 ["Can't retire a skill", "Active roles still require it. Tick “Also remove it from these roles”, or replace it in those roles first."],
                 ["Signed out unexpectedly", "Sessions end after 30 idle minutes or 8 hours. Sign in again."],
+                ["Student can't do first-time access", "Check their email and mobile in the student master match what they type. If they already activated, use Reset password."],
               ].map(([a, b]) => (
                 <tr key={a}><td style={{ fontWeight: 600, minWidth: "14rem" }}>{a}</td><td>{b}</td></tr>
               ))}

@@ -314,7 +314,22 @@ All test cases (IDs, steps, expected results, automation level, milestone) are i
 
 ---
 
-## Appendix A: Phase 2 student profile (context only, DO NOT BUILD in Phase 1)
+## Appendix B: Phase 2, first slice: student access (BUILT, DECISIONS PH2-1, PH2-5..7)
+
+No email service is available, so no codes are emailed.
+
+1. DOS Club shares a ready-made **WhatsApp/announcement message** (Students → *Invitation message*) with the first-access link.
+2. **First access** (`/student/activate`): the student enters the email **and mobile number on record**, then creates a password (≥ 12 characters). Both must match a student in the master who has no account yet. The error never says which part didn't match, and attempts are rate-limited (PH2-6).
+3. The student then **sets up Google Authenticator** and saves 10 recovery codes. Nothing else works until this is done.
+4. Sign-in: email + password + authenticator code.
+5. **Forgot password:** only an admin can reset it. Admin or Super Admin opens the student preview → *Reset password* → a **one-time password** (shown once, valid 72 h) to share privately. The student signs in with it, enters the authenticator code, and must **create a new password** before anything else (PH2-7).
+6. **Lost phone and recovery codes:** Super Admin → *Reset portal access*; the student repeats first access.
+7. **Account page:** change password, regenerate recovery codes, sign out. **My record:** their details (read-only) and target role.
+8. Student sessions use a separate cookie and table from admins. Every step is audited.
+
+**Known risk (PH2-6):** someone who knows both a member's email and mobile number could claim the account first. Detection: the real student is told "couldn't activate" and an admin resets portal access. Adding email verification later removes this risk.
+
+## Appendix A: Phase 2 student profile (context only, DO NOT BUILD)
 
 So the Phase 1 schema does not block Phase 2, keep `students.user_id` nullable and do not create the tables below yet. Fields modelled on common job-portal profiles (Naukri/Indeed style):
 

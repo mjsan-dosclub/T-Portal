@@ -16,7 +16,7 @@ export const PASSWORD = randomBytes(12).toString("base64url");
 export async function resetData() {
   await db.$executeRawUnsafe(`ALTER TABLE audit_logs DISABLE TRIGGER USER`);
   await db.$executeRawUnsafe(
-    `TRUNCATE students, code_counters, upload_rows, upload_jobs, sessions, recovery_codes, rate_limits, admin_users, audit_logs, department_aliases, departments, institutions, batches, colour_teams RESTART IDENTITY CASCADE`,
+    `TRUNCATE student_sessions, student_recovery_codes, student_users, students, code_counters, upload_rows, upload_jobs, sessions, recovery_codes, rate_limits, admin_users, audit_logs, department_aliases, departments, institutions, batches, colour_teams RESTART IDENTITY CASCADE`,
   );
   await db.$executeRawUnsafe(`ALTER TABLE audit_logs ENABLE TRIGGER USER`);
   await db.studentStatus.updateMany({ data: { isActive: true } });

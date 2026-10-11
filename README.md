@@ -10,6 +10,10 @@ Requirements and process: [`docs/PRD.md`](docs/PRD.md) · [`docs/PROJECT_PLAN.md
 - **Admins:** `/help` (signed in, **How it works** in the left menu). Role-aware step-by-step guide for Super Admin, Admin and Viewer, with screenshots.
 - Refresh the guide screenshots after UI changes: `npm run dev`, then `npm run help:screens`. It uses fake `@example.test` data only and refuses to capture anything else.
 
+## Student portal (Phase 2, first slice)
+
+Students open `/student/activate`, enter their registered **email + mobile**, create a password and set up **Google Authenticator**. Then they sign in at `/student/login` to see their record, and can change their password on Account. There's **no email service**: admins share the *Invitation message* (Students page) on WhatsApp, and forgotten passwords are reset by an admin (student preview → *Reset password*). That gives a one-time password valid for 72 h, and the student must replace it after signing in. Details and the known risk: PRD Appendix B, DECISIONS PH2-5..7.
+
 ## Keeping the ontology current
 
 **Skills Ontology → Manage** (Super Admin and Admin): add skills (permanent 3–6 character codes), add or rename subcategories, add or edit roles and their required skills with levels L1–L6, and **retire** outdated skills or roles. Retired items are hidden from the explorers and pickers but kept in history, and can be restored. Only a portal-added skill that no role uses can be deleted. Every change shows on the **Change log** tab and in the audit log. Re-running `npm run db:seed` never overwrites these edits.

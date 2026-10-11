@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { GuideSection, Steps, Tip, Toc } from "@/components/guide/guide";
 import { db } from "@/lib/db";
 
@@ -30,11 +31,24 @@ export default async function StudentGuide() {
           DOS Club keeps one clean, secure record for every member and uses a skills framework built for <strong>Indian tech jobs</strong> to guide your learning. This page explains what we hold about you, how to keep it correct, and how to use the framework to plan your career.
         </p>
         <div className="banner" style={{ marginTop: "1rem" }}>
-          ℹ Right now the portal is used by DOS Club coordinators. <strong>Student sign-in is coming in Phase 2</strong> (see below). You don&apos;t need an account today.
+          ✓ <strong>You can now sign in</strong> to see your own record. First time? <Link href="/student/activate">Set up your account</Link>. Already set up? <Link href="/student/login">Sign in</Link>.
         </div>
       </section>
 
-      <Toc items={[["record", "Your record"], ["correct", "Keep it correct"], ["status", "Your status"], ["skills", "Plan with the skills framework"], ["program", "27-Day Program"], ["privacy", "Your privacy"], ["next", "Coming next"], ["faq", "Questions"]]} />
+      <Toc items={[["signin", "Sign in"], ["record", "Your record"], ["correct", "Keep it correct"], ["status", "Your status"], ["skills", "Plan with the skills framework"], ["program", "27-Day Program"], ["privacy", "Your privacy"], ["next", "Coming next"], ["faq", "Questions"]]} />
+
+      <GuideSection id="signin" kicker="Student portal" title="0. Set up your account and sign in">
+        <Steps
+          items={[
+            <>Open <Link href="/student/activate">First-time access</Link>. Enter the <strong>email</strong> and <strong>mobile number</strong> you registered with DOS Club, and create a password (at least 12 characters).</>,
+            <>Install <strong>Google Authenticator</strong> on your phone. Scan the QR code shown, type the 6-digit code, and save your <strong>10 recovery codes</strong> somewhere safe.</>,
+            <>Next time: <Link href="/student/login">Sign in</Link> with your email and password, then the current code from Google Authenticator.</>,
+            <>Change your password any time from <strong>Account</strong>.</>,
+            <><strong>Forgot your password?</strong> Ask your DOS Club coordinator. They&apos;ll give you a one-time password (valid 72 hours). Sign in with it plus your authenticator code, and you&apos;ll be asked to create a new password.</>,
+          ]}
+        />
+        <Tip>If first-time access says it couldn&apos;t activate, check that the email and mobile match what you gave DOS Club. If you never activated but it says you have, tell your coordinator straight away.</Tip>
+      </GuideSection>
 
       <GuideSection id="record" title="1. Your DOS Club record">
         <Steps
@@ -131,8 +145,8 @@ export default async function StudentGuide() {
         </ul>
       </GuideSection>
 
-      <GuideSection id="next" kicker="Phase 2" title="7. Coming next: your own student login">
-        <p style={{ lineHeight: 1.6 }}>Later, you&apos;ll be able to sign in and build a job-portal style profile (similar to the profiles on popular Indian job sites):</p>
+      <GuideSection id="next" kicker="Coming next" title="7. Coming next: build your own profile">
+        <p style={{ lineHeight: 1.6 }}>Next, you&apos;ll be able to build a job-portal style profile (similar to the profiles on popular Indian job sites):</p>
         <ul style={{ columns: "16rem", paddingLeft: "1.2rem", lineHeight: 1.7 }}>
           <li>Profile headline and summary</li>
           <li>Education history and scores</li>
@@ -145,12 +159,13 @@ export default async function StudentGuide() {
           <li>Preferred roles, locations and availability</li>
           <li>Workshop attendance</li>
         </ul>
-        <p className="hint">Until then, keep your details up to date through your coordinator.</p>
+        <p className="hint">Until then, your record is read-only. Ask your coordinator for corrections.</p>
       </GuideSection>
 
       <GuideSection id="faq" title="Questions">
         {[
-          ["Do I need to sign up?", "No. There's no student sign-up today. Your coordinator adds you."],
+          ["Do I need to sign up?", "No. Your coordinator adds you to DOS Club. You only do first-time access with your registered email and mobile."],
+          ["I forgot my password.", "Ask your DOS Club coordinator for a one-time password. You'll set a new password after signing in."],
           ["I can't find my student code.", "Ask your DOS Club coordinator; they can look it up by your email or mobile."],
           ["Can I change my target role?", "Yes. Ask your coordinator. You can change it as your interests grow."],
           ["Why does my mobile show +91?", "Numbers are stored in the international format +91XXXXXXXXXX so they're always consistent."],

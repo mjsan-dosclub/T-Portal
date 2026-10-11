@@ -71,9 +71,10 @@ type Props = {
   initialHidden: string[];
   initialPageSize?: number;
   mode?: "live" | "recycle";
+  invitationText?: string;
 };
 
-export function StudentsTable({ options, role, canExport, initialHidden, initialPageSize, mode = "live" }: Props) {
+export function StudentsTable({ options, role, canExport, initialHidden, initialPageSize, mode = "live", invitationText }: Props) {
   const toast = useToast();
   const recycle = mode === "recycle";
   const editor = role !== "VIEWER" && !recycle;
@@ -99,6 +100,7 @@ export function StudentsTable({ options, role, canExport, initialHidden, initial
   const [deleteOpen, setDeleteOpen] = useState<null | { ids?: string[] }>(null);
   const [purgeOpen, setPurgeOpen] = useState(false);
   const [colsOpen, setColsOpen] = useState(false);
+  const [messageOpen, setMessageOpen] = useState(false);
   const previewReturnFocus = useRef<HTMLElement | null>(null);
 
   const queryKey = JSON.stringify(toApi(query, recycle));
@@ -229,6 +231,11 @@ export function StudentsTable({ options, role, canExport, initialHidden, initial
               </fieldset>
             )}
           </div>
+          {editor && invitationText && (
+            <button type="button" className="btn btn-secondary" onClick={() => setMessageOpen(true)}>
+              Invitation message
+            </button>
+          )}
           {canExport && !recycle && (
             <button
               type="button"
@@ -436,6 +443,7 @@ export function StudentsTable({ options, role, canExport, initialHidden, initial
               <button type="button" className="btn btn-secondary btn-sm" onClick={() => setDeleteOpen({})}>
                 Delete
               </button>
+
               {canExport && (
                 <button
                   type="button"
@@ -470,7 +478,7 @@ export function StudentsTable({ options, role, canExport, initialHidden, initial
         ) : !preview?.data ? (
           <div className="skeleton" style={{ height: "12rem" }} />
         ) : (
-          <StudentPreview s={preview.data} canEditIt={editor} />
+          <StudentPreview s={preview.data} canEditIt={editor} role={role} />
         )}
       </Drawer>
 
@@ -505,6 +513,15 @@ export function StudentsTable({ options, role, canExport, initialHidden, initial
           return null;
         }}
       />}
+
+      {messageOpen && invitationText && (
+        <Modal open onOpenChange={(o) => !o && setMessageOpen(false)} title="Invitation message" description="Paste this into WhatsApp groups or announcements. It contains no personal data.">
+          <textarea className="textarea mono" readOnly value={invitationText} style={{ minHeight: "14rem", fontSize: "0.85rem" }} aria-label="Invitation message" data-testid="invitation-text" />
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem", marginTop: "0.75rem" }}>
+            <button type="button" className="btn btn-primary" onClick={async () => { await navigator.clipboard?.writeText(invitationText); toast({ message: "Copied" }); }}>Copy message</button>
+          </div>
+        </Modal>
+      )}
 
       {purgeOpen && <PurgeDialog
         open={purgeOpen}
@@ -542,7 +559,7 @@ function FilterSelect({ id, label, value, onChange, options }: { id: string; lab
 
 const GENDER: Record<string, string> = { MALE: "Male", FEMALE: "Female", OTHER: "Other", PREFER_NOT_TO_SAY: "Prefer not to say" };
 
-export function StudentPreview({ s, canEditIt }: { s: StudentDetail; canEditIt: boolean }) {
+export function StudentPreview({ s, canEditIt, role }: { s: StudentDetail; canEditIt: boolean; role?: string }) {
   const dash = <span className="hint">—</span>;
   const rows: [string, React.ReactNode][] = [
     ["Student code", <span className="mono" key="c">{s.studentCode}</span>],
@@ -576,6 +593,7 @@ export function StudentPreview({ s, canEditIt }: { s: StudentDetail; canEditIt: 
           </div>
         ))}
       </dl>
+      <PortalAccess studentId={s.id} canResetAccess={role === "SUPER_ADMIN"} canResetPassword={canEditIt} />
       {canEditIt && !s.deletedAt && (
         <Link className="btn btn-primary" href={`/students/${s.id}/edit`}>
           Edit student
@@ -688,5 +706,100 @@ function PurgeDialog({ open, onOpenChange, count, onConfirm }: { open: boolean; 
         </div>
       </div>
     </Modal>
+  );
+}
+
+type Portal =
+  | { activated: false }
+  | { activated: true; activatedAt: string; totpEnabled: boolean; lastLoginAt: string | null; pendingOneTimePassword: boolean; oneTimeExpiresAt: string | null };
+
+/** Phase 2: student portal status. Admins can issue a one-time password (PH2-7); Super Admin can reset access entirely. */
+function PortalAccess({ studentId, canResetAccess, canResetPassword }: { studentId: string; canResetAccess: boolean; canResetPassword: boolean }) {
+  const toast = useToast();
+  const [p, setP] = useState<Portal | null>(null);
+  const [confirm, setConfirm] = useState<null | "password" | "access">(null);
+  const [otp, setOtp] = useState<{ oneTimePassword: string; expiresAt: string } | null>(null);
+  const [reload, setReload] = useState(0);
+  useEffect(() => {
+    let live = true;
+    api<Portal>(`/api/students/${studentId}/portal`).then((r) => live && r.ok && setP(r.data));
+    return () => {
+      live = false;
+    };
+  }, [studentId, reload]);
+  if (!p) return null;
+  return (
+    <div className="banner" data-testid="portal-status" style={{ display: "grid", gap: "0.6rem" }}>
+      <div>
+        <strong>Student portal: </strong>
+        {p.activated ? (
+          <>
+            activated {new Date(p.activatedAt).toLocaleDateString("en-IN")}
+            {p.totpEnabled ? " · authenticator on" : " · authenticator not set up yet"}
+            {p.lastLoginAt ? ` · last sign-in ${new Date(p.lastLoginAt).toLocaleDateString("en-IN")}` : ""}
+            {p.pendingOneTimePassword && p.oneTimeExpiresAt ? ` · one-time password waiting (expires ${new Date(p.oneTimeExpiresAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })})` : ""}
+          </>
+        ) : (
+          "not activated yet. The student can do first-time access with their registered email and mobile."
+        )}
+      </div>
+      {otp && (
+        <div style={{ display: "grid", gap: "0.4rem" }} data-testid="student-otp">
+          <span>Share this one-time password with the student privately (shown once, valid 72 hours):</span>
+          <code className="mono" style={{ padding: "0.5rem 0.75rem", background: "var(--surface)", borderRadius: "var(--r-md)", fontSize: "1.05rem" }}>{otp.oneTimePassword}</code>
+          <span className="hint">They sign in with it, enter their authenticator code, and must then choose a new password.</span>
+        </div>
+      )}
+      {p.activated && !otp && (canResetPassword || canResetAccess) && (
+        <div style={{ display: "flex", gap: "0.4rem", flexWrap: "wrap" }}>
+          {confirm === "password" ? (
+            <button
+              type="button"
+              className="btn btn-primary btn-sm"
+              onClick={async () => {
+                const r = await api<{ oneTimePassword: string; expiresAt: string }>(`/api/students/${studentId}/portal/password`, { body: {} });
+                setConfirm(null);
+                if (!r.ok) return toast({ message: r.error });
+                setOtp(r.data);
+                setReload((n) => n + 1);
+              }}
+            >
+              Confirm: issue one-time password
+            </button>
+          ) : confirm === "access" ? (
+            <button
+              type="button"
+              className="btn btn-danger btn-sm"
+              onClick={async () => {
+                const r = await api(`/api/students/${studentId}/portal`, { method: "DELETE", body: { reason: "Reset from preview" } });
+                toast({ message: r.ok ? "Portal access reset. The student can do first-time access again." : r.error });
+                setConfirm(null);
+                setReload((n) => n + 1);
+              }}
+            >
+              Confirm: remove portal account
+            </button>
+          ) : (
+            <>
+              {canResetPassword && (
+                <button type="button" className="btn btn-secondary btn-sm" onClick={() => setConfirm("password")}>
+                  Reset password
+                </button>
+              )}
+              {canResetAccess && (
+                <button type="button" className="btn btn-ghost btn-sm" onClick={() => setConfirm("access")} title="Use when the student lost their phone and recovery codes">
+                  Reset portal access
+                </button>
+              )}
+            </>
+          )}
+          {confirm && (
+            <button type="button" className="btn btn-ghost btn-sm" onClick={() => setConfirm(null)}>
+              Cancel
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
