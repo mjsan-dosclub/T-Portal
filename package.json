@@ -16,7 +16,8 @@
     "admin:create": "tsx scripts/create-super-admin.ts",
     "test": "vitest run",
     "typecheck": "next typegen >/dev/null && tsc --noEmit",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.2.2",
