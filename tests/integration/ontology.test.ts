@@ -46,12 +46,20 @@ describe("Skills Ontology", () => {
     expect(ws.map((w) => w.n)).toEqual(Array.from({ length: 27 }, (_, i) => i + 1));
   });
 
-  it("ONT-08 ontology API is read-only: no mutating handlers exist", () => {
+  it("ONT-08 every mutating ontology handler is guarded for Admin/Super Admin only (updated by ONT-EDIT)", () => {
     const dir = path.join(process.cwd(), "src/app/api/ontology");
     const files: string[] = [];
     const walk = (d: string) => readdirSync(d).forEach((f) => (statSync(path.join(d, f)).isDirectory() ? walk(path.join(d, f)) : files.push(path.join(d, f))));
     walk(dir);
-    for (const f of files) expect(readFileSync(f, "utf8")).not.toMatch(/export const (POST|PUT|PATCH|DELETE)\b|export async function (POST|PUT|PATCH|DELETE)\b/);
+    let mutating = 0;
+    for (const f of files) {
+      for (const m of readFileSync(f, "utf8").matchAll(/export const (POST|PUT|PATCH|DELETE)\s*=\s*withAuth(?:<[^>]*>)?\((\w+)/g)) {
+        mutating++;
+        expect(m[2], `${f} ${m[1]}`).toBe("EDITORS");
+      }
+      expect(readFileSync(f, "utf8")).not.toMatch(/export (async )?function (POST|PUT|PATCH|DELETE)/);
+    }
+    expect(mutating).toBeGreaterThan(5);
   });
 
   it("ONT-09 source is stored for all 165 skills but never selected for display (D11)", async () => {

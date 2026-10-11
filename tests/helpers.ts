@@ -141,3 +141,18 @@ export async function bulkStudents(m: Masters, count: number, over: (i: number) 
   for (let i = 0; i < data.length; i += 1000) await db.student.createMany({ data: data.slice(i, i + 1000) });
   await db.codeCounter.upsert({ where: { year: 2026 }, create: { year: 2026, last: count }, update: { last: count } });
 }
+
+/** Rebuild ontology tables from the reference file (tests that edit the ontology call this afterwards). */
+export async function resetOntology() {
+  const { seedOntology } = await import("@/server/ontology/seed");
+  await db.student.updateMany({ where: { targetRoleId: { not: null } }, data: { targetRoleId: null } });
+  await db.ontRoadmapStep.deleteMany();
+  await db.ontRoleSkill.deleteMany();
+  await db.ontRole.deleteMany();
+  await db.ontSkill.deleteMany();
+  await db.ontSubcategory.deleteMany();
+  await db.ontCategory.deleteMany();
+  await db.ontLevel.deleteMany();
+  await db.ontWorkshop.deleteMany();
+  return seedOntology(db);
+}

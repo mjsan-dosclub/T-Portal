@@ -149,6 +149,8 @@ Rules: a master value **in use cannot be deleted**, only deactivated. Names uniq
 **Bulk status update (FR-STU-STS)** — choose status + optional reason → preview count → confirm → audit entry per student.
 
 ### 5.4 Skills Ontology Module (FR-ONT)
+> **Update 2026-10-11 (DECISIONS ONT-EDIT):** the ontology is no longer read-only. See §5.4.1.
+
 Re-create the five views from `Skills_Ontology_Dashboard_1.html` in the new light theme, data-driven from DB:
 - Overview (Category → Subcategory → Skill → Role → Level flow diagram + stats)
 - Categories (11) with drill-down into **51** subcategories and their skills
@@ -159,6 +161,18 @@ Re-create the five views from `Skills_Ontology_Dashboard_1.html` in the new ligh
 Seed script extracts the `DATA`, `LEVELS`, `WORKSHOPS` constants from the HTML file. **Counts after seed must equal: 11 categories, 51 subcategories, 165 skills, 103 roles, 103 roadmaps, 6 levels, 27 workshops** (FACTS F1). `scripts/guard/verify-ontology.mjs` checks the source file and test ONT-01 checks the database. Roles have no source ID, so generate a surrogate key and keep `name` unique (F1.13). Store each skill's `source` value as-is, but don't display it (D11).
 
 Phase 1 link to students: optional `target_role_id` on student (**D5**). Workshop attendance tracking is Phase 2 unless confirmed.
+
+### 5.4.1 Ontology maintenance (FR-ONT-EDIT)
+- Super Admin and Admin can: add/edit **skills** (code `^[A-Z][A-Z0-9]{2,5}$`, unique and immutable after creation; name; description; subcategory), add/rename **subcategories** under the 11 categories, add/edit **roles** (name, category, track IC/Mgmt/Exec, level range L1–L6) and set each role's **required skills with a level**.
+- **Retire** instead of delete: a retired skill/role is hidden from explorers and pickers but kept with a reason and date. Retiring a skill that active roles still need is blocked unless the admin chooses "also remove it from those roles". Retired items can be restored.
+- **Delete** is allowed only for a skill never linked to any role (e.g. a typo just added).
+- Every change writes an audit entry (`ontology.*`). The manage page shows recent ontology changes.
+- The seed only inserts missing reference data; it never overwrites admin edits.
+- Viewer: read-only.
+
+### 5.4.2 How-it-works guides (HELP-1)
+- `/how-it-works` (public): guide for students. It covers what DOS Club stores, the student code, statuses, how to request corrections, how to use the skills framework (levels, roles, 27-day program) and what Phase 2 adds. No personal data on this page.
+- `/help` (signed in): guide for admins, role-aware (Super Admin / Admin / Viewer), with step-by-step tasks.
 
 ### 5.5 Audit Log (FR-AUD)
 Table: actor, action, entity, entity_id, before (JSON), after (JSON), reason, ip, user_agent, timestamp. Super Admin view with filters. Append-only; no UI delete.

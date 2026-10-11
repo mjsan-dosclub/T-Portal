@@ -11,11 +11,12 @@ const TABS = [
   ["/ontology/program", "27-Day Program"],
 ] as const;
 
-export function OntologyTabs() {
+export function OntologyTabs({ canManage }: { canManage: boolean }) {
   const p = usePathname();
+  const tabs = canManage ? [...TABS, ["/ontology/manage", "Manage"] as const] : TABS;
   return (
     <nav className="tabs glass" style={{ padding: "0.4rem", borderRadius: "var(--r-pill)" }} aria-label="Ontology views">
-      {TABS.map(([href, label]) => (
+      {tabs.map(([href, label]) => (
         <Link key={href} href={href} className="tab" aria-current={p === href ? "page" : undefined}>
           {label}
         </Link>

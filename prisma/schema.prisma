@@ -19,24 +19,24 @@ enum Role {
 }
 
 model AdminUser {
-  id               String         @id @default(uuid())
-  email            String         @unique
-  name             String
-  role             Role
-  passwordHash     String
-  totpSecretEnc    String?
-  totpEnabled      Boolean        @default(false)
-  totpLastStep     Int?
-  failedAttempts   Int            @default(0)
-  lockedUntil      DateTime?
-  lastLoginAt      DateTime?
-  isActive         Boolean        @default(true)
-  canExport        Boolean        @default(false) // only meaningful for VIEWER (D12)
-  tablePrefs       Json?
-  createdAt        DateTime       @default(now())
-  updatedAt        DateTime       @updatedAt
-  recoveryCodes    RecoveryCode[]
-  sessions         Session[]
+  id             String         @id @default(uuid())
+  email          String         @unique
+  name           String
+  role           Role
+  passwordHash   String
+  totpSecretEnc  String?
+  totpEnabled    Boolean        @default(false)
+  totpLastStep   Int?
+  failedAttempts Int            @default(0)
+  lockedUntil    DateTime?
+  lastLoginAt    DateTime?
+  isActive       Boolean        @default(true)
+  canExport      Boolean        @default(false) // only meaningful for VIEWER (D12)
+  tablePrefs     Json?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  recoveryCodes  RecoveryCode[]
+  sessions       Session[]
 
   @@map("admin_users")
 }
@@ -191,13 +191,13 @@ enum Gender {
 }
 
 model Student {
-  id             String         @id @default(uuid())
-  studentCode    String         @unique
+  id             String        @id @default(uuid())
+  studentCode    String        @unique
   fullName       String
-  email          String         @unique
-  phone          String         @unique
+  email          String        @unique
+  phone          String        @unique
   gender         Gender?
-  dateOfBirth    DateTime?      @db.Date
+  dateOfBirth    DateTime?     @db.Date
   institutionId  String
   degreeId       String
   departmentId   String
@@ -213,20 +213,20 @@ model Student {
   notes          String?
   targetRoleId   String? // D5: optional link to ontology role
   userId         String? // Phase 2 placeholder: future student login. No FK yet.
-  version        Int            @default(1)
-  createdAt      DateTime       @default(now())
+  version        Int           @default(1)
+  createdAt      DateTime      @default(now())
   createdById    String?
-  updatedAt      DateTime       @updatedAt
+  updatedAt      DateTime      @updatedAt
   updatedById    String?
   deletedAt      DateTime?
   deletedById    String?
-  institution    Institution    @relation(fields: [institutionId], references: [id])
-  degree         Degree         @relation(fields: [degreeId], references: [id])
-  department     Department     @relation(fields: [departmentId], references: [id])
-  batch          Batch          @relation(fields: [batchId], references: [id])
-  colourTeam     ColourTeam?    @relation(fields: [colourTeamId], references: [id])
-  status         StudentStatus  @relation(fields: [statusId], references: [id])
-  targetRole     OntRole?       @relation(fields: [targetRoleId], references: [id])
+  institution    Institution   @relation(fields: [institutionId], references: [id])
+  degree         Degree        @relation(fields: [degreeId], references: [id])
+  department     Department    @relation(fields: [departmentId], references: [id])
+  batch          Batch         @relation(fields: [batchId], references: [id])
+  colourTeam     ColourTeam?   @relation(fields: [colourTeamId], references: [id])
+  status         StudentStatus @relation(fields: [statusId], references: [id])
+  targetRole     OntRole?      @relation(fields: [targetRoleId], references: [id])
 
   @@index([deletedAt])
   @@index([fullName])
@@ -351,7 +351,12 @@ model OntSkill {
   code          String         @id
   name          String
   description   String
-  source        String // stored as-is, not displayed (D11)
+  source        String // stored as-is, not displayed (D11); "DOS Club" for admin-added skills
+  isActive      Boolean        @default(true) // false = retired (ONT-EDIT)
+  retiredAt     DateTime?
+  retiredReason String?
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @default(now()) @updatedAt
   subcategoryId Int
   subcategory   OntSubcategory @relation(fields: [subcategoryId], references: [id])
   roleSkills    OntRoleSkill[]
@@ -360,16 +365,21 @@ model OntSkill {
 }
 
 model OntRole {
-  id           String           @id @default(uuid()) // surrogate key; source has none (FACTS F1.13)
-  name         String           @unique
-  categoryId   Int
-  track        String
-  levelMin     Int
-  levelMax     Int
-  category     OntCategory      @relation(fields: [categoryId], references: [id])
-  skills       OntRoleSkill[]
-  roadmapSteps OntRoadmapStep[]
-  students     Student[]
+  id            String           @id @default(uuid()) // surrogate key; source has none (FACTS F1.13)
+  name          String           @unique
+  categoryId    Int
+  track         String
+  levelMin      Int
+  levelMax      Int
+  isActive      Boolean          @default(true) // false = retired (ONT-EDIT)
+  retiredAt     DateTime?
+  retiredReason String?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @default(now()) @updatedAt
+  category      OntCategory      @relation(fields: [categoryId], references: [id])
+  skills        OntRoleSkill[]
+  roadmapSteps  OntRoadmapStep[]
+  students      Student[]
 
   @@map("ontology_roles")
 }

@@ -11,11 +11,24 @@ export function saveSecret(role: Role, secret: string) {
 }
 export const statePath = (role: Role) => `e2e/.auth/${role}.json`;
 
-/** Waits for a fresh 30-second step if the current code might already be used (replay protection). */
+/**
+ * Returns a code from a 30-second step that hasn't been used yet. The server rejects a code
+ * reused within its step (AUTH-06 replay protection), so tests wait for the next step when needed.
+ * Used steps are shared across Playwright workers via a file.
+ */
+const USED = "e2e/.auth/used-steps.json";
 export async function freshCode(secret: string) {
-  const left = 30 - (Math.floor(Date.now() / 1000) % 30);
-  if (left < 4) await new Promise((r) => setTimeout(r, (left + 1) * 1000));
-  return generate({ secret });
+  for (;;) {
+    const used: Record<string, number> = existsSync(USED) ? JSON.parse(readFileSync(USED, "utf8")) : {};
+    const now = Date.now() / 1000;
+    const step = Math.floor(now / 30);
+    const left = 30 - (now % 30);
+    if (step > (used[secret] ?? -1) && left > 4) {
+      writeFileSync(USED, JSON.stringify({ ...used, [secret]: step }));
+      return generate({ secret, epoch: Math.floor(now) });
+    }
+    await new Promise((r) => setTimeout(r, (left + 0.5) * 1000));
+  }
 }
 
 export async function passwordStep(page: Page, role: Role) {

@@ -54,6 +54,7 @@ export function Nav({ role, name }: { role: "SUPER_ADMIN" | "ADMIN" | "VIEWER"; 
         {admin.map(link)}
         <div style={{ flex: 1 }} />
         <div className="rail-sep" role="separator" />
+        {link({ href: "/help", label: "How it works", icon: "help" })}
         {link({ href: "/account", label: "Account", icon: "account" })}
         <button type="button" className="rail-link" onClick={logout} style={{ background: "none", border: 0, cursor: "pointer", width: "100%", textAlign: "left" }}>
           {Icon.logout()}
@@ -64,7 +65,7 @@ export function Nav({ role, name }: { role: "SUPER_ADMIN" | "ADMIN" | "VIEWER"; 
         </p>
       </nav>
       <nav className="mobile-nav glass" aria-label="Main (compact)">
-        {[...primary, ...admin, { href: "/account", label: "Account", icon: "account" as const }].map(link)}
+        {[...primary, ...admin, { href: "/help", label: "How it works", icon: "help" as const }, { href: "/account", label: "Account", icon: "account" as const }].map(link)}
       </nav>
     </>
   );

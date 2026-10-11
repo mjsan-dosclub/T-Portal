@@ -101,7 +101,7 @@ export function MasterManager({ type, rows, editable }: { type: MasterType; rows
   }
 
   return (
-    <section style={{ display: "grid", gap: "1rem" }}>
+    <section style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: "1rem" }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "0.75rem" }}>
         <h2 style={{ fontSize: "1.3rem", fontWeight: 600 }}>{label.plural}</h2>
         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", alignItems: "center" }}>

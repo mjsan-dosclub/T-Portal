@@ -120,7 +120,7 @@ export function UploadWizard({ options, initialJobId, recent }: { options: Maste
   const unknownEntries = Object.entries(detail?.unknownValues ?? {}).filter(([, v]) => v && v.length);
 
   return (
-    <div style={{ display: "grid", gap: "1.25rem" }}>
+    <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: "1.25rem" }}>
       <ol className="glass card" style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap", listStyle: "none", padding: "0.85rem 1rem" }} aria-label="Upload steps">
         {STEP_LABELS.map((l, i) => (
           <li key={l} aria-current={step === i + 1 ? "step" : undefined} className={`chip ${step === i + 1 ? "tone-accent" : step > i + 1 ? "tone-primary" : "tone-muted"}`} style={{ padding: "0.35rem 0.85rem", fontSize: "0.85rem" }}>
@@ -130,7 +130,7 @@ export function UploadWizard({ options, initialJobId, recent }: { options: Maste
       </ol>
 
       {busy && (
-        <div className="banner" role="status" aria-live="polite" data-testid="upload-progress">
+        <div className="banner banner-row" role="status" aria-live="polite" data-testid="upload-progress">
           <span className="skeleton" style={{ width: "1rem", height: "1rem", borderRadius: "50%" }} /> {busy}
           {job?.status === "IMPORTING" && <span className="mono">{job.imported + job.updated} done</span>}
         </div>
@@ -331,7 +331,7 @@ export function UploadWizard({ options, initialJobId, recent }: { options: Maste
           </section>
 
           {job.status === "PREVIEW" && (
-            <div className="glass card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", flexWrap: "wrap", position: "sticky", bottom: "1rem" }}>
+            <div className="card" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: "1rem", flexWrap: "wrap", position: "sticky", bottom: "1rem", zIndex: 5, background: "var(--surface)", borderRadius: "var(--r-2xl)", boxShadow: "var(--shadow-pop)" }}>
               <span>
                 <strong>{job.valid.toLocaleString("en-IN")}</strong> new students will be imported, plus any existing students you marked &ldquo;Update&rdquo;. Rows with errors are skipped and listed in the error report.
               </span>

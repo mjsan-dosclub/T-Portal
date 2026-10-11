@@ -129,8 +129,24 @@
 | ONT-05 | Every role skill code exists in the skills table | FK integrity passes | I |
 | ONT-06 | Category drill-down | Each of the 11 categories shows its subcategories; the sum across categories = 51 | E |
 | ONT-07 | 27-Day Program view | 27 workshops in order n=1..27, titles from the source | E |
-| ONT-08 | Ontology pages are read-only | No mutating API exists for ontology tables | I |
+| ONT-08 | Ontology write access (updated by ONT-EDIT) | Viewer gets 403 on every ontology mutation; every mutating ontology handler uses the Admin/Super Admin guard | I |
 | ONT-09 | Source field (D11) | `source` stored for all 165 skills; no source/licence text rendered on ontology pages | E |
+
+| ONT-10 | Add skill with new code + subcategory | Created; appears in category tree; audit `ontology.skill_create` | I |
+| ONT-11 | Add skill with duplicate or malformed code (`ARCH`, `ab`, `TOO-LONG1`) | Rejected 409 / 400 | I |
+| ONT-12 | Retire a skill used by active roles | Blocked with the list of roles; with "remove from roles" it retires and unlinks; retired skill hidden from explorer and pickers; restore brings it back | I |
+| ONT-13 | Re-run the seed after admin edits | Edits and added skills are kept; nothing duplicated | I |
+| ONT-14 | Edit a role's required skills | Replaced set saved; retired/unknown codes and levels outside 1–6 rejected | I |
+| ONT-15 | Delete a skill | Allowed only when never linked to a role; otherwise 409 suggesting retire | I |
+| ONT-16 | Retire a role | Hidden from Role Explorer and the student target-role picker; students already linked keep it | I |
+| ONT-17 | Admin manages the ontology in the UI | Add skill → it appears in Categories; retire → disappears; change log shows both | E |
+
+## 6b. Guides (HELP). HELP-1.
+
+| ID | Scenario | Expected | Lvl |
+|---|---|---|---|
+| HELP-01 | Open `/how-it-works` without signing in | Student guide renders; no personal data; links to sign-in for admins | E |
+| HELP-02 | Open `/help` as Admin and as Viewer | Role-aware admin guide; Viewer sees read-only tasks only | E |
 
 ## 7. Dashboard (DSH). M4.
 

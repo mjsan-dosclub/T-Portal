@@ -10,5 +10,6 @@ export const Icon = {
   audit: () => (<svg viewBox="0 0 24 24" {...P} aria-hidden="true"><path d="M6 3.5h9l3 3V20.5H6z" /><path d="M9 11h6M9 15h6M9 7h3" /></svg>),
   admins: () => (<svg viewBox="0 0 24 24" {...P} aria-hidden="true"><path d="M12 3 4.5 6v5.5c0 4.5 3.2 8 7.5 9.5 4.3-1.5 7.5-5 7.5-9.5V6z" /><path d="m9 12 2 2 4-4" /></svg>),
   account: () => (<svg viewBox="0 0 24 24" {...P} aria-hidden="true"><circle cx="12" cy="8.5" r="3.5" /><path d="M5 20c1-3.8 3.7-5.7 7-5.7s6 1.9 7 5.7" /></svg>),
+  help: () => (<svg viewBox="0 0 24 24" {...P} aria-hidden="true"><circle cx="12" cy="12" r="9" /><path d="M9.6 9.3a2.5 2.5 0 1 1 3.4 2.3c-.6.3-1 .8-1 1.5v.6" /><path d="M12 17h.01" /></svg>),
   logout: () => (<svg viewBox="0 0 24 24" {...P} aria-hidden="true"><path d="M15 4h4v16h-4M10 16l-4-4 4-4M6 12h10" /></svg>),
 };

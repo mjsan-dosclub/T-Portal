@@ -68,6 +68,8 @@ describe("Guardrails", () => {
       "/login", "/login/totp", "/login/recovery", "/enrol-2fa", "/", "/students", "/students/new", "/students/[id]/edit", "/students/upload",
       "/recycle-bin", "/masters", "/masters/[type]", "/ontology", "/ontology/categories", "/ontology/roles", "/ontology/levels", "/ontology/program",
       "/audit", "/admin/users", "/account",
+      // ROUTE-2 (DECISIONS): ontology maintenance + guides
+      "/ontology/manage", "/help", "/how-it-works",
     ]);
     expect(pages.filter((p) => !approved.has(p))).toEqual([]);
     const all = walk(app).map(rel).join("\n");

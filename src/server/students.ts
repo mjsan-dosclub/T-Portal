@@ -182,8 +182,9 @@ async function assertMasters(d: StudentData, existing?: Pick<StudentData, "insti
     else if (!row.isActive && value !== prev) fields[field] = "This value is inactive";
   }
   if (d.targetRoleId) {
-    const role = await db.ontRole.findUnique({ where: { id: d.targetRoleId }, select: { id: true } });
+    const role = await db.ontRole.findUnique({ where: { id: d.targetRoleId }, select: { id: true, isActive: true } });
     if (!role) fields.targetRoleId = "Unknown role";
+    else if (!role.isActive && d.targetRoleId !== existing?.targetRoleId) fields.targetRoleId = "This role has been retired";
   }
   if (Object.keys(fields).length) throw new HttpError(400, "Some selections are not valid", { fields });
 }

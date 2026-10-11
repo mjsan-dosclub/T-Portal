@@ -39,6 +39,9 @@ export function LoginForm() {
       <p className="hint" style={{ textAlign: "center" }}>
         No public sign-up. Ask a Super Admin for an account.
       </p>
+      <p className="hint" style={{ textAlign: "center" }}>
+        Student? <a href="/how-it-works">See how the portal works for you</a>
+      </p>
     </form>
   );
 }

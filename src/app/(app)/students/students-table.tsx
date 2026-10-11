@@ -270,7 +270,7 @@ export function StudentsTable({ options, role, canExport, initialHidden, initial
 
       {/* Select-all banner (P12) */}
       {selectable && pageAllSelected && total > rows.length && (
-        <div className="banner" role="status" data-testid="select-all-banner">
+        <div className="banner banner-row" role="status" data-testid="select-all-banner">
           {allMatching ? (
             <>
               <span>

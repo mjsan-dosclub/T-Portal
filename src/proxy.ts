@@ -5,7 +5,7 @@ import { NextResponse, type NextRequest } from "next/server";
 // 2) Cheap redirect to /login when there's no session cookie. Real authorisation is
 //    always repeated on the server (requirePageAdmin / withAuth). This is only UX.
 
-const PUBLIC_PATHS = ["/login", "/login/totp", "/login/recovery", "/enrol-2fa"];
+const PUBLIC_PATHS = ["/login", "/login/totp", "/login/recovery", "/enrol-2fa", "/how-it-works"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -57,7 +57,8 @@ function withSecurityHeaders(res: NextResponse, nonce: string | null) {
 export const config = {
   matcher: [
     {
-      source: "/((?!_next/static|_next/image|favicon.ico|brand/).*)",
+      // Static files in public/ (brand/, help/ screenshots) need no session or CSP nonce.
+      source: "/((?!_next/static|_next/image|favicon.ico|brand/|help/).*)",
       missing: [
         { type: "header", key: "next-router-prefetch" },
         { type: "header", key: "purpose", value: "prefetch" },

@@ -20,7 +20,7 @@ export default async function EditStudentPage({ params }: PageProps<"/students/[
   if (!student || student.deletedAt) notFound();
   const [options, roles] = await Promise.all([
     masterOptions([student.institutionId, student.degreeId, student.departmentId, student.batchId, student.statusId, student.colourTeamId].filter((x): x is string => !!x)),
-    roleOptions(),
+    roleOptions(student.targetRoleId),
   ]);
   return (
     <>

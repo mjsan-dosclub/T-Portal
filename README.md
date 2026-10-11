@@ -4,6 +4,16 @@ Admin portal for Descience Open Source Club. It provides the student master with
 
 Requirements and process: [`docs/PRD.md`](docs/PRD.md) · [`docs/PROJECT_PLAN.md`](docs/PROJECT_PLAN.md) · [`docs/TEST_PLAN.md`](docs/TEST_PLAN.md) · [`docs/FACTS.md`](docs/FACTS.md) · [`docs/DECISIONS.md`](docs/DECISIONS.md) · guardrails for AI work: [`CLAUDE.md`](CLAUDE.md)
 
+## Guides for users
+
+- **Students:** `/how-it-works`. Public, no sign-in needed, no personal data. Share this link with members. It explains their record, how to get corrections, the skills framework (levels, roles, 27-day program) and what Phase 2 adds.
+- **Admins:** `/help` (signed in, **How it works** in the left menu). Role-aware step-by-step guide for Super Admin, Admin and Viewer, with screenshots.
+- Refresh the guide screenshots after UI changes: `npm run dev`, then `npm run help:screens`. It uses fake `@example.test` data only and refuses to capture anything else.
+
+## Keeping the ontology current
+
+**Skills Ontology → Manage** (Super Admin and Admin): add skills (permanent 3–6 character codes), add or rename subcategories, add or edit roles and their required skills with levels L1–L6, and **retire** outdated skills or roles. Retired items are hidden from the explorers and pickers but kept in history, and can be restored. Only a portal-added skill that no role uses can be deleted. Every change shows on the **Change log** tab and in the audit log. Re-running `npm run db:seed` never overwrites these edits.
+
 ## Stack (resolved versions)
 
 Next.js 16.4 (App Router, Turbopack) · React 19.3 · TypeScript (strict) · PostgreSQL 18 · Prisma 7.10 (`@prisma/adapter-pg`) · Zod 4 · otplib 13 (TOTP) · @node-rs/argon2 (argon2id) · SheetJS 0.20.3 + Papa Parse · Radix Dialog · Tailwind v4 · Vitest 5 · Playwright 1.64 + axe.
