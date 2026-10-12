@@ -1,5 +1,5 @@
 import { execSync } from "node:child_process";
-import { readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 
@@ -90,12 +90,14 @@ describe("Guardrails", () => {
     expect(deps.filter((d) => !ok.has(d))).toEqual([]);
   });
 
-  it("GRD-07 basic secret scan of tracked files finds nothing; secret files are git-ignored", () => {
-    const tracked = execSync("git ls-files", { cwd: ROOT, encoding: "utf8" }).split("\n").filter(Boolean);
+  it("GRD-07 basic secret scan of tracked and to-be-committed files finds nothing; secret files are git-ignored", () => {
+    // Includes new, not-yet-added files (anything not git-ignored), so the scan catches problems before the commit, not in CI.
+    const tracked = execSync("git ls-files --cached --others --exclude-standard", { cwd: ROOT, encoding: "utf8" }).split("\n").filter(Boolean);
     const patterns = [/-----BEGIN [A-Z ]*PRIVATE KEY-----/, /AKIA[0-9A-Z]{16}/, /(APP_ENCRYPTION_KEY|RECOVERY_PEPPER|PASSWORD|SECRET)\s*=\s*["']?[A-Za-z0-9+/=_-]{16,}/, /postgres(ql)?:\/\/[^:\s]+:[^@\s]+@(?!127\.0\.0\.1|localhost)/];
     const hits: string[] = [];
     for (const f of tracked) {
       if (/\.(png|ico|jpg|woff2?)$/.test(f) || f === "package-lock.json" || f.startsWith("reference/")) continue;
+      if (!existsSync(path.join(ROOT, f))) continue; // deleted but not yet staged
       const text = readFileSync(path.join(ROOT, f), "utf8");
       for (const p of patterns) if (p.test(text)) hits.push(`${f}: ${p}`);
     }

@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { poolConfig } from "@/lib/db-config";
 
 const PEM = "-----BEGIN CERTIFICATE-----\nMIIBfake\n-----END CERTIFICATE-----";
-const URL_ = "postgresql://u:p@aws-0-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=require";
+const URL_ = "postgresql://u@aws-0-ap-south-1.pooler.supabase.com:6543/postgres?sslmode=require"; // no password: GRD-07
 
 describe("Database connection settings (DEP-1)", () => {
   afterEach(() => {
