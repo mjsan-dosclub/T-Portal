@@ -196,7 +196,7 @@
 | INT-01 | Create program | Code INT-YYYY-NNN; company, title, description (20+), country, work mode, resources ≥ 1, duration days/weeks (≤ 2 years) validated; Ongoing needs a start date; Viewer can read but not create/edit (403); audited | I |
 | INT-02 | Assign within seat limit | Can't assign more students than resources; re-assigning is idempotent; withdraw frees a seat; resources can't drop below assigned; cancelled/completed programs can't take students; Viewer 403; audited | I |
 | INT-03 | Student visibility | Student sees only own assigned programs that aren't Draft/Cancelled; withdrawn programs disappear; another student's assignment → 404; no session → 401 | I |
-| INT-04 | Weekly report file types | PDF, Word, Excel, PowerPoint, CSV, TXT, RTF, OpenDocument accepted only when content matches the extension; .zip, a zip or xlsx renamed to .docx, an executable renamed to .pdf/.txt, empty and > 10 MB rejected; future weeks and weeks beyond the program rejected; resubmission replaces; late flag set after the due date | I |
+| INT-04 | Weekly report file types | PDF, Word, Excel, PowerPoint, CSV, TXT, RTF, OpenDocument accepted only when content matches the extension; .zip, a zip or xlsx renamed to .docx, an executable renamed to .pdf/.txt, empty and > 4 MB rejected; future weeks and weeks beyond the program rejected; resubmission replaces; late flag set after the due date | I |
 | INT-05 | Review & attendance | Needs revision requires a note and stops counting as attendance; resubmission clears the review; accepted reports are locked (409); Viewer can't review; list shows % reports in and pending reviews | I |
 | INT-06 | Downloads | Student downloads only own reports (others → 404); admin/viewer downloads are audited; always attachment + sandbox CSP + nosniff | I |
 | INT-07 | Week maths | Weeks = ceil(days ÷ 7); due = start + 7 × week; end date | U |
@@ -257,6 +257,8 @@
 | SEC-08 | Error responses | No stack traces, SQL or PII in production error bodies | I |
 | SEC-09 | Rate limit on login and upload endpoints | Enforced; returns 429 | I |
 | SEC-10 | `npm audit --omit=dev` | 0 high/critical (or each one documented with a mitigation) | U |
+| SEC-11 | Supabase Data API lockdown (DEP-1) | Every `public` table has Row Level Security enabled with no policies, so the anon/authenticated API roles can read nothing; new migrations must enable it too | I |
+| SEC-12 | Database TLS (DEP-1) | With `DATABASE_CA_CERT` the server certificate is verified (`rejectUnauthorized`), PEM or base64 accepted, `sslmode` in the URL can't weaken it; pool stays small on Vercel | U |
 
 ---
 

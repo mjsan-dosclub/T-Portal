@@ -21,7 +21,7 @@ export function studentTemplate(format: "csv" | "xlsx", year = new Date().getUTC
     ["3. institution / degree / department / batch / colour_team / status must match a value in Masters (department aliases like CSE also work)."],
     ["4. Phone: Indian mobile, e.g. 98765 43210 or +91 98765 43210. Format the column as Text in Excel."],
     ["5. Dates: YYYY-MM-DD or DD-MM-YYYY. Gender: Male, Female, Other, Prefer not to say."],
-    ["6. Maximum 10,000 rows and 5 MB per file. Only the first sheet is read."],
+    ["6. Maximum 10,000 rows and 4 MB per file. Only the first sheet is read."],
   ]);
   XLSX.utils.book_append_sheet(wb, help, "Help");
   const body = XLSX.write(wb, { type: "buffer", bookType: "xlsx" }) as Buffer;

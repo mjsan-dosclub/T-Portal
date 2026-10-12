@@ -146,7 +146,7 @@ describe("International internships (INT-1..3)", () => {
     expect((await up(Buffer.from("MZ\x90\x00 program"), "report.txt")).status).toBe(400);
     expect((await up(pdf(), "report.png")).status).toBe(400);
     expect((await up(Buffer.alloc(0), "empty.pdf")).status).toBe(400);
-    expect((await up(pdf(10 * 1024 * 1024), "big.pdf")).status).toBe(413);
+    expect((await up(pdf(4 * 1024 * 1024), "big.pdf")).status).toBe(413);
 
     expect((await up(pdf(), "week1.pdf", 1)).status).toBe(201);
     expect((await up(xlsx, "week2-hours.xlsx", 2)).status).toBe(201);

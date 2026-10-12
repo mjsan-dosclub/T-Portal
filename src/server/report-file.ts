@@ -2,7 +2,7 @@ import "server-only";
 import { HttpError } from "./http";
 
 // Weekly report file check (INT-3): extension AND content must agree. No compressed archives or programs.
-export const REPORT_MAX_BYTES = 10 * 1024 * 1024;
+export const REPORT_MAX_BYTES = 4 * 1024 * 1024; // Vercel caps a request body at 4.5 MB (DEP-1)
 export const ALLOWED_EXT = ["pdf", "doc", "docx", "xls", "xlsx", "csv", "txt", "ppt", "pptx", "rtf", "odt", "ods", "odp"] as const;
 export type ReportExt = (typeof ALLOWED_EXT)[number];
 export const ACCEPT_ATTR = ALLOWED_EXT.map((e) => "." + e).join(",");
@@ -42,7 +42,7 @@ function isText(b: Buffer) {
 /** Returns the verified extension or throws a friendly 400. */
 export function checkReportFile(name: string, buf: Buffer): ReportExt {
   if (!buf.length) throw new HttpError(400, "The file is empty");
-  if (buf.length > REPORT_MAX_BYTES) throw new HttpError(413, "Report must be 10 MB or smaller");
+  if (buf.length > REPORT_MAX_BYTES) throw new HttpError(413, "Report must be 4 MB or smaller");
   const ext = (name.toLowerCase().split(".").pop() ?? "") as ReportExt;
   if (BLOCKED_EXT.has(ext)) throw new HttpError(400, "Compressed files and programs aren't allowed. Upload the document itself (PDF, Word, Excel, PowerPoint, CSV or text).");
   if (!(ALLOWED_EXT as readonly string[]).includes(ext)) throw new HttpError(400, `Allowed file types: ${ALLOWED_EXT.join(", ")}`);

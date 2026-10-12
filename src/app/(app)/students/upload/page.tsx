@@ -12,7 +12,7 @@ export default async function UploadPage({ searchParams }: PageProps<"/students/
   const [options, recent] = await Promise.all([masterOptions(), recentUploads(admin, 8)]);
   return (
     <>
-      <PageHeader title="Upload students" subtitle="Bulk add DOS Club members from Excel (.xlsx) or CSV. Up to 10,000 rows / 5 MB per file." />
+      <PageHeader title="Upload students" subtitle="Bulk add DOS Club members from Excel (.xlsx) or CSV. Up to 10,000 rows / 4 MB per file." />
       <UploadWizard
         options={options}
         initialJobId={typeof sp.job === "string" ? sp.job : undefined}

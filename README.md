@@ -14,6 +14,10 @@ Requirements and process: [`docs/PRD.md`](docs/PRD.md) · [`docs/PROJECT_PLAN.md
 
 Students open `/student/activate`, enter their registered **email + mobile**, create a password and set up **Google Authenticator**. Then they sign in at `/student/login` to see their record, and can change their password on Account. There's **no email service**: admins share the *Invitation message* (Students page) on WhatsApp, and forgotten passwords are reset by an admin (student preview → *Reset password*). That gives a one-time password valid for 72 h, and the student must replace it after signing in. Details and the known risk: PRD Appendix B, DECISIONS PH2-5..7.
 
+## Going live
+
+Vercel + Supabase (Mumbai), step by step: **[docs/DEPLOY.md](docs/DEPLOY.md)**. Production commands run from your laptop with `.env.production.local`: `npm run prod:migrate`, `npm run prod:seed`, `npm run prod:admin -- --email … --name "…"`.
+
 ## Career plan & international internships
 
 - **Career plan** (`/student/career-plan`): target role, skill gap (self vs verified), other framework skills and the role roadmap. It's separate from the job-portal profile, and the profile's *Key skills* % now counts technical skills/tools only (5+ = 100 %). DECISIONS CP-1.

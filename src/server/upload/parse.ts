@@ -3,7 +3,7 @@ import Papa from "papaparse";
 import * as XLSX from "xlsx";
 import { HttpError } from "@/server/http";
 
-export const MAX_BYTES = 5 * 1024 * 1024; // P6
+export const MAX_BYTES = 4 * 1024 * 1024; // P6; Vercel caps a request body at 4.5 MB (DEP-1)
 const XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 const CSV_MIMES = new Set(["text/csv", "application/csv", "text/plain", "application/vnd.ms-excel", "text/x-csv", ""]);
 
@@ -17,7 +17,7 @@ export type ParsedSheet = {
 /** Extension + declared MIME + magic bytes must all agree (UPL-10). */
 export function sniff(fileName: string, mime: string, buf: Buffer): "xlsx" | "csv" {
   if (buf.length === 0) throw new HttpError(400, "The file is empty");
-  if (buf.length > MAX_BYTES) throw new HttpError(413, "File is larger than 5 MB");
+  if (buf.length > MAX_BYTES) throw new HttpError(413, "File is larger than 4 MB");
   const ext = fileName.toLowerCase().split(".").pop();
   const isZip = buf.length > 4 && buf[0] === 0x50 && buf[1] === 0x4b && buf[2] === 0x03 && buf[3] === 0x04;
   if (ext === "xlsx") {

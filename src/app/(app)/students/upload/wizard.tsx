@@ -160,7 +160,7 @@ export function UploadWizard({ options, initialJobId, recent }: { options: Maste
               style={{ display: "grid", placeItems: "center", gap: "0.35rem", marginTop: "0.75rem", padding: "2rem 1rem", border: "2px dashed var(--stroke)", borderRadius: "var(--r-xl)", background: "var(--glass-strong)", cursor: "pointer", textAlign: "center" }}
             >
               <span className="display" style={{ fontWeight: 600 }}>Drop a file here or choose one</span>
-              <span className="hint">.xlsx or .csv · max 5 MB · max 10,000 rows</span>
+              <span className="hint">.xlsx or .csv · max 4 MB · max 10,000 rows</span>
             </label>
             <input id="upload-file" ref={fileRef} type="file" accept=".xlsx,.csv" className="sr-only" onChange={(e) => void onFile(e.target.files?.[0])} disabled={!!busy} data-testid="upload-input" />
             {uploadError && (

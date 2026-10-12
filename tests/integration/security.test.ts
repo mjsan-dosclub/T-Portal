@@ -87,4 +87,12 @@ describe("Security", () => {
     }
     expect(up).toBe(429);
   });
+
+  it("SEC-11 every table in the public schema has Row Level Security on (Supabase Data API sees nothing)", async () => {
+    const rows = await db.$queryRaw<{ relname: string; relrowsecurity: boolean }[]>`
+      SELECT c.relname, c.relrowsecurity FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE n.nspname = 'public' AND c.relkind IN ('r', 'p')`;
+    expect(rows.length).toBeGreaterThan(30);
+    expect(rows.filter((r) => !r.relrowsecurity).map((r) => r.relname), "add ENABLE ROW LEVEL SECURITY to the migration").toEqual([]);
+  });
 });

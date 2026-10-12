@@ -143,7 +143,7 @@ export default async function StudentGuide() {
         <Steps
           items={[
             <>When DOS Club assigns you to a client&apos;s internship, it appears under <strong>Internships</strong> with the company, description, location, duration and dates.</>,
-            <>Every week, press <strong>Upload report</strong> for that week and attach your work report: <strong>PDF, Word, Excel, PowerPoint, CSV, TXT, RTF or OpenDocument</strong>, up to 10 MB. <strong>ZIP and other compressed files aren&apos;t accepted</strong>, and a file renamed to a different extension is rejected.</>,
+            <>Every week, press <strong>Upload report</strong> for that week and attach your work report: <strong>PDF, Word, Excel, PowerPoint, CSV, TXT, RTF or OpenDocument</strong>, up to 4 MB. <strong>ZIP and other compressed files aren&apos;t accepted</strong>, and a file renamed to a different extension is rejected.</>,
             <>Each submitted or accepted report counts as your <strong>attendance</strong> for that week. A report sent after its due date is marked late but still counts.</>,
             <>Your coordinator reviews each report. If it says <strong>Needs revision</strong>, read the feedback and upload a new version; until then that week doesn&apos;t count. Accepted reports are locked.</>,
           ]}

@@ -118,7 +118,7 @@ export default async function HelpPage() {
               items={[
                 <>Go to <Link href="/students/upload">Upload</Link> and download the <Kbd>Excel template (.xlsx)</Kbd> or <Kbd>CSV template</Kbd>. Keep the header row exactly as it is.</>,
                 <>Fill one student per row. Institution, degree, department and batch must match names in Masters. Department short codes and aliases like <em>CSE</em> also work. Format the phone column as <strong>Text</strong> in Excel so numbers don&apos;t turn into 9.18E+11.</>,
-                <>Drop the file onto the upload box (max 10,000 rows / 5 MB). The portal checks every row and shows <strong>Valid</strong>, <strong>Already exists</strong>, <strong>Duplicate in file</strong> and <strong>Errors</strong>, with the reason next to each cell.</>,
+                <>Drop the file onto the upload box (max 10,000 rows / 4 MB). The portal checks every row and shows <strong>Valid</strong>, <strong>Already exists</strong>, <strong>Duplicate in file</strong> and <strong>Errors</strong>, with the reason next to each cell.</>,
                 <>If a value isn&apos;t recognised (e.g. &ldquo;Comp Sci&rdquo;), use <Kbd>Map unknown values</Kbd> to pick the right master value, or reject it, then <Kbd>Apply mapping &amp; re-check</Kbd>.</>,
                 <>For students who already exist, choose <Kbd>Skip</Kbd> or <Kbd>Update existing</Kbd> (per row, or <Kbd>Update all</Kbd>).</>,
                 <>Press <Kbd>Import now</Kbd>. Afterwards press <Kbd>Download error report</Kbd> for rows that need fixing, fix them in your sheet, and upload just those rows again.</>,
@@ -213,7 +213,7 @@ export default async function HelpPage() {
               items={[
                 <>Open <Link href="/internships">Internships</Link> → <Kbd>+ New program</Kbd>. Enter the client&apos;s basic information: company, program title, description, country/city, work mode, <strong>number of resources</strong> and <strong>duration</strong> in days or weeks. Set a <strong>start date</strong> and status <strong>Open</strong> or <strong>Ongoing</strong> so students can see it (Draft is hidden).</>,
                 <>On the program page press <Kbd>Assign students</Kbd>, search by name, email or code and tick students. You can&apos;t assign more students than resources; <Kbd>Withdraw</Kbd> frees a seat (reports already sent are kept).</>,
-                <>Assigned students see the program on their portal and upload one <strong>weekly work report</strong> per week (PDF, Word, Excel, PowerPoint, CSV, TXT, RTF, OpenDocument; no ZIP or compressed files, max 10 MB).</>,
+                <>Assigned students see the program on their portal and upload one <strong>weekly work report</strong> per week (PDF, Word, Excel, PowerPoint, CSV, TXT, RTF, OpenDocument; no ZIP or compressed files, max 4 MB).</>,
                 <>The grid shows each student&apos;s weeks: ✓ accepted, ● submitted, ↺ needs revision, ✕ missing. Click a week to <Kbd>Download report</Kbd> (logged) and <Kbd>Accept</Kbd> or ask for a revision with feedback.</>,
                 <><strong>Internship attendance</strong> = weeks with a submitted or accepted report ÷ weeks due so far. Viewers can see programs and download reports but can&apos;t change anything.</>,
               ]}
