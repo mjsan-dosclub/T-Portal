@@ -25,3 +25,6 @@ next-env.d.ts
 
 # Playwright
 /e2e/.auth/
+
+# Supabase CA certificate (public, but keep it out of the repo)
+*.crt
