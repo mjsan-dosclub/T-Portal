@@ -42,7 +42,7 @@ export async function passwordStep(page: Page, role: Role) {
 export async function enrolViaUi(page: Page, role: Role) {
   await passwordStep(page, role);
   await expect(page).toHaveURL(/\/enrol-2fa$/);
-  const key = (await page.getByTestId("manual-key").textContent())!.replace(/\s/g, "");
+  const key = await manualKey(page);
   expect(key).toMatch(/^[A-Z2-7]{16,}$/);
   saveSecret(role, key);
   await page.getByLabel("6-digit code").fill(await freshCode(key));
@@ -51,4 +51,11 @@ export async function enrolViaUi(page: Page, role: Role) {
   await page.getByLabel("I have saved my recovery codes").check();
   await page.getByRole("button", { name: "Continue to the portal" }).click();
   await expect(page).toHaveURL(/\/$/);
+}
+
+/** The authenticator key loads after the page renders (shows "…" first); wait for the real Base32 key. */
+export async function manualKey(page: Page) {
+  const el = page.getByTestId("manual-key");
+  await expect(el).toHaveText(/^[A-Z2-7 ]{16,}$/, { timeout: 15_000 });
+  return (await el.textContent())!.replace(/\s/g, "");
 }

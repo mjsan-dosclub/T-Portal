@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { freshCode, statePath } from "./util";
+import { freshCode, manualKey, statePath } from "./util";
 
 // Fake dev-seed student: index 6 → student7@example.test, +919000010006.
 const STUDENT = { email: "student7@example.test", phone: "90000 10006" };
@@ -12,7 +12,7 @@ test("PRF-16 student fills personal, education, certification and preferences; %
   await page.getByLabel("Create a password").fill(PW);
   await page.getByLabel("Type the password again").fill(PW);
   await page.getByRole("button", { name: "Create password & continue" }).click();
-  const key = (await page.getByTestId("manual-key").textContent())!.replace(/\s/g, "");
+  const key = await manualKey(page);
   await page.getByLabel("6-digit code").fill(await freshCode(key));
   await page.getByRole("button", { name: "Verify and turn on" }).click();
   await page.getByLabel("I have saved my recovery codes").check();

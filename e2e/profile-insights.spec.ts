@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { freshCode, statePath } from "./util";
+import { freshCode, manualKey, statePath } from "./util";
 
 // Fake dev-seed student: index 4 → student5@example.test, +919000010004.
 const STUDENT = { email: "student5@example.test", phone: "90000 10004" };
@@ -15,7 +15,7 @@ test("PRF-08 / ATT-04 student builds a profile; admin verifies a level and marks
   await page.getByLabel("Type the password again").fill(PW);
   await page.getByRole("button", { name: "Create password & continue" }).click();
   await expect(page).toHaveURL(/\/student\/enrol$/);
-  const key = (await page.getByTestId("manual-key").textContent())!.replace(/\s/g, "");
+  const key = await manualKey(page);
   await page.getByLabel("6-digit code").fill(await freshCode(key));
   await page.getByRole("button", { name: "Verify and turn on" }).click();
   await page.getByLabel("I have saved my recovery codes").check();

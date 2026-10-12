@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "@playwright/test";
-import { freshCode, statePath } from "./util";
+import { freshCode, manualKey, statePath } from "./util";
 
 // Fake student from the dev seed (seed.dev.ts): student4@example.test has phone +919000010003.
 const STUDENT = { email: "student4@example.test", phone: "90000 10003" };
@@ -28,7 +28,7 @@ test("STA-12 first access → authenticator → my record → change password �
 
   // 2. Google Authenticator
   await expect(page).toHaveURL(/\/student\/enrol$/);
-  const key = (await page.getByTestId("manual-key").textContent())!.replace(/\s/g, "");
+  const key = await manualKey(page);
   await page.getByLabel("6-digit code").fill(await freshCode(key));
   await page.getByRole("button", { name: "Verify and turn on" }).click();
   await expect(page.getByTestId("recovery-codes").locator("li")).toHaveCount(10);
