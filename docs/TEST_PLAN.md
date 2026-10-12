@@ -202,6 +202,7 @@
 | INT-07 | Week maths | Weeks = ceil(days ÷ 7); due = start + 7 × week; end date | U |
 | INT-08 | Attendance % | (submitted + accepted) ÷ weeks due (early submissions count); revision/missing don't; no start date → no % | U |
 | INT-09 | Browser: admin creates a program, assigns a student; student uploads a weekly report; admin accepts it | Works end to end; attendance shows 100 % | E |
+| INT-10 | Partner-college privilege (INT-4) | Assign picker lists partner-college students first and flags them; *Partner colleges only* returns just them; program roster flags them; non-partner students can still be assigned | I |
 
 ## 6e. Attendance (ATT). ATT-1.
 

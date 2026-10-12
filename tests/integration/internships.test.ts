@@ -209,4 +209,21 @@ describe("International internships (INT-1..3)", () => {
     expect(await db.auditLog.count({ where: { action: "internship.report_download", actorId: viewer.admin.id } })).toBe(1);
     expect((await call(adminFileGET, { cookie: viewer.cookie, params: { id: "not-a-uuid" } })).status).toBe(404);
   });
+
+  it("INT-10 partner-college students are listed first and flagged; 'partner only' filter; others can still be assigned", async () => {
+    const partner = await db.institution.create({ data: { name: "Partner College of Engineering", nameKey: "partner college of engineering", isPartner: true } });
+    await db.student.updateMany({ where: { id: { in: [ids[2]!, ids[3]!] } }, data: { institutionId: partner.id } });
+    const id = await newProgram({ seats: 4 });
+    const url = (q: string) => `http://localhost:3000/api/x?${q}`;
+    const all = (await call(candidatesGET, { cookie: editor.cookie, params: { id }, url: url("q=") })).json.students as { id: string; partner: boolean }[];
+    expect(all.map((s) => s.partner)).toEqual([true, true, false, false]);
+    expect(all.slice(0, 2).map((s) => s.id).sort()).toEqual([ids[2], ids[3]].sort());
+    const only = (await call(candidatesGET, { cookie: editor.cookie, params: { id }, url: url("q=&partner=1") })).json.students as { partner: boolean }[];
+    expect(only.length).toBe(2);
+    expect(only.every((s) => s.partner)).toBe(true);
+
+    expect((await call(assignPOST, { body: { studentIds: [ids[0], ids[2]] }, cookie: editor.cookie, params: { id } })).json).toEqual({ assigned: 2, alreadyAssigned: 0 });
+    const roster = (await call(oneGET, { cookie: editor.cookie, params: { id } })).json.assignments as { student: { id: string; partner: boolean } }[];
+    expect(Object.fromEntries(roster.map((a) => [a.student.id, a.student.partner]))).toEqual({ [ids[0]!]: false, [ids[2]!]: true });
+  });
 });

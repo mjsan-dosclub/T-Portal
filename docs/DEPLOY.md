@@ -25,7 +25,7 @@ Do the steps in order. Total time: about 30–45 minutes.
    ```
 4. The **CI** workflow (`.github/workflows/ci.yml`) runs lint, typecheck, guards, all tests, build and E2E on every push. Check the **Actions** tab is green.
 
-What is *not* pushed (git-ignored): `.env`, `.env.production.local`, `.dev-admin.local`, `.pgdata/`, test sign-in state.
+What is *not* pushed (git-ignored): `.env`, `.env.prod.local`, `.dev-admin.local`, `.pgdata/`, test sign-in state.
 
 ## 2. Supabase: database
 
@@ -47,9 +47,9 @@ What is *not* pushed (git-ignored): `.env`, `.env.production.local`, `.dev-admin
 
 1. In the project folder:
    ```bash
-   cp .env.production.example .env.production.local
+   cp .env.production.example .env.prod.local
    ```
-2. Fill in `.env.production.local`:
+2. Fill in `.env.prod.local`:
    - `DATABASE_URL`, `DIRECT_URL` from step 2.2
    - `DATABASE_CA_CERT` = the base64 text from step 2.3
    - `APP_ENCRYPTION_KEY`, `RECOVERY_PEPPER`: **new** values, run this twice:
@@ -77,8 +77,8 @@ What is *not* pushed (git-ignored): `.env`, `.env.production.local`, `.dev-admin
    |---|---|
    | `DATABASE_URL` | transaction pooler URI (port 6543) |
    | `DATABASE_CA_CERT` | base64 certificate |
-   | `APP_ENCRYPTION_KEY` | same as `.env.production.local` |
-   | `RECOVERY_PEPPER` | same as `.env.production.local` |
+   | `APP_ENCRYPTION_KEY` | same as `.env.prod.local` |
+   | `RECOVERY_PEPPER` | same as `.env.prod.local` |
    | `APP_ORIGIN` | `https://<project>.vercel.app` (or your custom domain) |
 
    `DIRECT_URL` is **not** needed on Vercel.

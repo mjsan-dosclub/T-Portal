@@ -15,9 +15,13 @@ import { STATUS_TONE } from "../programs-list";
 
 type Assignment = ProgramDetail["assignments"][number];
 type Report = Assignment["reports"][number];
-type Candidate = { id: string; studentCode: string; fullName: string; institution: string; batch: string; activated: boolean; assigned: boolean };
+type Candidate = { id: string; studentCode: string; fullName: string; institution: string; partner: boolean; batch: string; activated: boolean; assigned: boolean };
 
 const kb = (n: number) => (n < 1024 * 1024 ? `${Math.max(1, Math.round(n / 1024))} KB` : `${(n / 1024 / 1024).toFixed(1)} MB`);
+/** Partner-college students are privileged for internships (INT-4). Text + icon, never colour alone. */
+function PartnerBadge() {
+  return <span className="chip tone-primary" style={{ marginLeft: "0.35rem" }} data-testid="partner-badge">★ Partner college</span>;
+}
 const when = (iso: string) => new Date(iso).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" });
 
 export function ProgramDetailView({ data, editable }: { data: ProgramDetail; editable: boolean }) {
@@ -71,7 +75,7 @@ export function ProgramDetailView({ data, editable }: { data: ProgramDetail; edi
                 {active.map((a) => (
                   <tr key={a.id} data-testid={`assignment-${a.student.studentCode}`}>
                     <td>
-                      <Link href={`/students/${a.student.id}/profile`} style={{ fontWeight: 600 }}>{a.student.fullName}</Link>
+                      <Link href={`/students/${a.student.id}/profile`} style={{ fontWeight: 600 }}>{a.student.fullName}</Link>{a.student.partner && <PartnerBadge />}
                       <div className="hint"><span className="mono">{a.student.studentCode}</span> · {a.student.institution} · {a.student.batch}</div>
                       {!a.student.activated && <span className="chip tone-muted" style={{ marginTop: "0.25rem" }}>Portal not activated</span>}
                     </td>
@@ -148,6 +152,7 @@ export function ProgramDetailView({ data, editable }: { data: ProgramDetail; edi
 function AssignModal({ programId, seatsLeft, onClose }: { programId: string; seatsLeft: number; onClose: (changed: boolean) => void }) {
   const toast = useToast();
   const [q, setQ] = useState("");
+  const [partnerOnly, setPartnerOnly] = useState(false);
   const [result, setResult] = useState<{ q: string; list: Candidate[] } | null>(null);
   const [picked, setPicked] = useState<Map<string, Candidate>>(new Map());
   const [err, setErr] = useState<string | null>(null);
@@ -156,7 +161,7 @@ function AssignModal({ programId, seatsLeft, onClose }: { programId: string; sea
   useEffect(() => {
     const ctl = new AbortController();
     const t = setTimeout(() => {
-      api<{ students: Candidate[] }>(`/api/internships/${programId}/candidates?q=${encodeURIComponent(q)}`, { signal: ctl.signal })
+      api<{ students: Candidate[] }>(`/api/internships/${programId}/candidates?q=${encodeURIComponent(q)}${partnerOnly ? "&partner=1" : ""}`, { signal: ctl.signal })
         .then((r) => r.ok && setResult({ q, list: r.data.students }))
         .catch(() => {});
     }, 250);
@@ -164,7 +169,7 @@ function AssignModal({ programId, seatsLeft, onClose }: { programId: string; sea
       clearTimeout(t);
       ctl.abort();
     };
-  }, [q, programId]);
+  }, [q, partnerOnly, programId]);
 
   function toggle(c: Candidate) {
     const m = new Map(picked);
@@ -182,13 +187,16 @@ function AssignModal({ programId, seatsLeft, onClose }: { programId: string; sea
   }
 
   return (
-    <Modal open wide onOpenChange={(o) => !o && onClose(false)} title="Assign students" description={`${seatsLeft} seat(s) left. Students who haven't activated the portal can be assigned; they'll see the program once they sign in.`}>
+    <Modal open wide onOpenChange={(o) => !o && onClose(false)} title="Assign students" description={`${seatsLeft} seat(s) left. Partner-college students are listed first. Students who haven't activated the portal can be assigned; they'll see the program once they sign in.`}>
       <div style={{ display: "grid", gap: "0.75rem" }}>
         {err && <div className="banner" role="alert" style={{ background: "var(--danger-wash)" }}>⚠ {err}</div>}
         <div className="field">
           <label className="label" htmlFor="as-q">Search by name, email or student code</label>
           <input id="as-q" className="input" value={q} onChange={(e) => setQ(e.target.value)} autoComplete="off" />
         </div>
+        <label style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          <input type="checkbox" className="checkbox" checked={partnerOnly} onChange={(e) => setPartnerOnly(e.target.checked)} /> Partner colleges only
+        </label>
         <div className="table-wrap" style={{ maxHeight: "45vh" }}>
           {!result ? (
             <p className="hint" style={{ padding: "0.75rem" }}>Loading…</p>
@@ -210,7 +218,7 @@ function AssignModal({ programId, seatsLeft, onClose }: { programId: string; sea
                         onChange={() => toggle(c)}
                       />
                     </td>
-                    <td><span style={{ fontWeight: 600 }}>{c.fullName}</span> <span className="hint mono">{c.studentCode}</span>{c.assigned && <span className="chip tone-primary" style={{ marginLeft: "0.35rem" }}>Assigned</span>}</td>
+                    <td><span style={{ fontWeight: 600 }}>{c.fullName}</span> <span className="hint mono">{c.studentCode}</span>{c.partner && <PartnerBadge />}{c.assigned && <span className="chip tone-primary" style={{ marginLeft: "0.35rem" }}>Assigned</span>}</td>
                     <td className="hint">{c.institution} · {c.batch}</td>
                     <td>{c.activated ? <span className="chip tone-primary">Active</span> : <span className="chip tone-muted">Not activated</span>}</td>
                   </tr>

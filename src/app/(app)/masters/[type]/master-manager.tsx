@@ -18,7 +18,7 @@ const FIELDS: Record<MasterType, FieldDef[]> = {
     { key: "shortCode", label: "Short code" },
     { key: "city", label: "City" },
     { key: "state", label: "State" },
-    { key: "isPartner", label: "Academic partner", kind: "bool" },
+    { key: "isPartner", label: "Academic partner", kind: "bool", hint: "Partner-college students get priority for international internships: they're listed first and badged when you assign students." },
   ],
   degrees: [
     { key: "name", label: "Name", required: true, hint: "e.g. B.E., B.Tech, MCA" },
@@ -178,9 +178,12 @@ export function MasterManager({ type, rows, editable }: { type: MasterType; rows
               const setV = (nv: unknown) => setEditing((e) => (e ? { ...e, values: { ...e.values, [d.key]: nv } } : e));
               if (d.kind === "bool")
                 return (
-                  <label key={d.key} style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-                    <input type="checkbox" className="checkbox" checked={!!v} onChange={(e) => setV(e.target.checked)} /> {d.label}
-                  </label>
+                  <div key={d.key} style={{ display: "grid", gap: "0.2rem" }}>
+                    <label style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+                      <input type="checkbox" className="checkbox" checked={!!v} onChange={(e) => setV(e.target.checked)} aria-describedby={d.hint ? `${id}-hint` : undefined} /> {d.label}
+                    </label>
+                    {d.hint && <span className="hint" id={`${id}-hint`}>{d.hint}</span>}
+                  </div>
                 );
               return (
                 <Field key={d.key} id={id} label={d.label} required={d.required} error={errors[d.key]} hint={d.hint}>

@@ -35,6 +35,8 @@ describe("Guardrails", () => {
         });
     }
     expect(hits).toEqual([]);
+    // Next.js auto-loads .env.production(.local) in production mode; live settings must never sit there (DEP-1).
+    for (const f of [".env.production", ".env.production.local"]) expect(existsSync(path.join(ROOT, f)), `${f} would leak live settings into local builds; use .env.prod.local`).toBe(false);
   });
 
   it("GRD-03 every hex in tokens.css is a verified site token from FACTS.md", () => {
@@ -102,7 +104,9 @@ describe("Guardrails", () => {
       for (const p of patterns) if (p.test(text)) hits.push(`${f}: ${p}`);
     }
     expect(hits).toEqual([]);
-    for (const f of [".env", ".env.local", ".dev-admin.local", ".pgdata/PG_VERSION"]) {
+    // Next.js auto-loads .env.production(.local) in production mode; live settings must never sit there (DEP-1).
+    for (const f of [".env.production", ".env.production.local"]) expect(existsSync(path.join(ROOT, f)), `${f} would leak live settings into local builds; use .env.prod.local`).toBe(false);
+    for (const f of [".env", ".env.local", ".env.prod.local", ".dev-admin.local", ".pgdata/PG_VERSION"]) {
       expect(execSync(`git check-ignore -q ${f} && echo ignored || echo tracked`, { cwd: ROOT, encoding: "utf8" }).trim(), f).toBe("ignored");
     }
   });

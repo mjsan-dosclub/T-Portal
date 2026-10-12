@@ -21,9 +21,9 @@
     "verify": "npm run lint && npm run typecheck && npm run guard && npm test",
     "verify:all": "npm run verify && npm run build && npm run test:e2e",
     "help:screens": "tsx scripts/capture-help-screens.ts",
-    "prod:migrate": "node --env-file=.env.production.local ./node_modules/prisma/build/index.js migrate deploy",
-    "prod:seed": "tsx --env-file=.env.production.local prisma/seed.ts",
-    "prod:admin": "tsx --env-file=.env.production.local scripts/create-super-admin.ts"
+    "prod:migrate": "node --env-file=.env.prod.local ./node_modules/prisma/build/index.js migrate deploy",
+    "prod:seed": "tsx --env-file=.env.prod.local prisma/seed.ts",
+    "prod:admin": "tsx --env-file=.env.prod.local scripts/create-super-admin.ts"
   },
   "dependencies": {
     "@node-rs/argon2": "^2.2.2",

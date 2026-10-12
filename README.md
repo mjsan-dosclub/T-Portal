@@ -16,7 +16,7 @@ Students open `/student/activate`, enter their registered **email + mobile**, cr
 
 ## Going live
 
-Vercel + Supabase (Mumbai), step by step: **[docs/DEPLOY.md](docs/DEPLOY.md)**. Production commands run from your laptop with `.env.production.local`: `npm run prod:migrate`, `npm run prod:seed`, `npm run prod:admin -- --email … --name "…"`.
+Vercel + Supabase (Mumbai), step by step: **[docs/DEPLOY.md](docs/DEPLOY.md)**. Production commands run from your laptop with `.env.prod.local`: `npm run prod:migrate`, `npm run prod:seed`, `npm run prod:admin -- --email … --name "…"`.
 
 ## Career plan & international internships
 

@@ -78,7 +78,7 @@ export async function getProgram(id: string) {
       assignments: {
         orderBy: { assignedAt: "asc" },
         include: {
-          student: { select: { id: true, studentCode: true, fullName: true, email: true, institution: { select: { name: true } }, batch: { select: { batchCode: true } }, portalUser: { select: { id: true } } } },
+          student: { select: { id: true, studentCode: true, fullName: true, email: true, institution: { select: { name: true, isPartner: true } }, batch: { select: { batchCode: true } }, portalUser: { select: { id: true } } } },
           reports: { select: { id: true, weekNo: true, status: true, late: true, fileName: true, fileType: true, sizeBytes: true, note: true, submittedAt: true, reviewNote: true, reviewedAt: true } },
         },
       },
@@ -95,7 +95,7 @@ export async function getProgram(id: string) {
     },
     assignments: p.assignments.map((a) => ({
       id: a.id, status: a.status, assignedAt: a.assignedAt.toISOString(),
-      student: { id: a.student.id, studentCode: a.student.studentCode, fullName: a.student.fullName, email: a.student.email, institution: a.student.institution.name, batch: a.student.batch.batchCode, activated: !!a.student.portalUser },
+      student: { id: a.student.id, studentCode: a.student.studentCode, fullName: a.student.fullName, email: a.student.email, institution: a.student.institution.name, partner: a.student.institution.isPartner, batch: a.student.batch.batchCode, activated: !!a.student.portalUser },
       grid: weekGrid(p.startDate, weeks, a.reports, now),
       reports: a.reports.map((r) => ({ ...r, submittedAt: r.submittedAt.toISOString(), reviewedAt: r.reviewedAt?.toISOString() ?? null })),
     })),
@@ -209,15 +209,19 @@ export async function reportFile(reportId: string, who: { adminId?: string; stud
   return r;
 }
 
-/** Candidate students for assignment (search by name/email/code; profile % shown). */
-export async function assignCandidates(programId: string, q: string) {
+/** Candidate students for assignment (search by name/email/code). Partner-college students come first (INT-4). */
+export async function assignCandidates(programId: string, q: string, partnerOnly = false) {
   const term = q.trim().replace(/[\\%_]/g, (c) => "\\" + c);
   const assigned = new Set((await db.internshipAssignment.findMany({ where: { programId, status: { in: ACTIVE } }, select: { studentId: true } })).map((a) => a.studentId));
   const rows = await db.student.findMany({
-    where: { deletedAt: null, ...(term ? { OR: [{ fullName: { contains: term, mode: "insensitive" } }, { email: { contains: term.toLowerCase() } }, { studentCode: { contains: term, mode: "insensitive" } }] } : {}) },
-    orderBy: { fullName: "asc" },
+    where: {
+      deletedAt: null,
+      ...(partnerOnly ? { institution: { isPartner: true } } : {}),
+      ...(term ? { OR: [{ fullName: { contains: term, mode: "insensitive" } }, { email: { contains: term.toLowerCase() } }, { studentCode: { contains: term, mode: "insensitive" } }] } : {}),
+    },
+    orderBy: [{ institution: { isPartner: "desc" } }, { fullName: "asc" }],
     take: 50,
-    select: { id: true, studentCode: true, fullName: true, institution: { select: { name: true } }, batch: { select: { batchCode: true } }, portalUser: { select: { id: true } } },
+    select: { id: true, studentCode: true, fullName: true, institution: { select: { name: true, isPartner: true } }, batch: { select: { batchCode: true } }, portalUser: { select: { id: true } } },
   });
-  return rows.map((r) => ({ id: r.id, studentCode: r.studentCode, fullName: r.fullName, institution: r.institution.name, batch: r.batch.batchCode, activated: !!r.portalUser, assigned: assigned.has(r.id) }));
+  return rows.map((r) => ({ id: r.id, studentCode: r.studentCode, fullName: r.fullName, institution: r.institution.name, partner: r.institution.isPartner, batch: r.batch.batchCode, activated: !!r.portalUser, assigned: assigned.has(r.id) }));
 }

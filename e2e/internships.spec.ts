@@ -36,7 +36,7 @@ test("INT-09 / CP-01 admin creates a program and assigns a student; student plan
   const as = ap.getByRole("dialog", { name: "Assign students" });
   await as.getByLabel("Search by name, email or student code").fill(STUDENT.email);
   await expect(as.getByTestId("candidate-table").locator("tbody tr")).toHaveCount(1);
-  await as.getByRole("checkbox").check();
+  await as.getByTestId("candidate-table").getByRole("checkbox").check();
   await as.getByRole("button", { name: "Assign 1" }).click();
   await expect(ap.getByTestId("assignment-table").locator("tbody tr")).toHaveCount(1);
   const code = (await ap.getByTestId("assignment-table").locator("tbody tr .mono").first().textContent())!.trim();
