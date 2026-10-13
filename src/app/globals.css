@@ -85,6 +85,10 @@ html.no-glass .glass, html.no-glass .glass-strong { background: var(--surface); 
 .ss-trigger { display: flex; align-items: center; text-align: left; }
 .ss-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ss-placeholder { color: var(--text-muted); }
+/* Glass cards (backdrop-filter) are separate layers, so a later card would paint over an open list.
+   The card that holds an open dropdown is lifted above its siblings while the list is open. */
+:is(.glass, .glass-strong, .card, fieldset):has(.ss[data-open]) { position: relative; z-index: 30; }
+.ss-panel[data-up] { top: auto; bottom: calc(100% + 4px); }
 .ss-panel { position: absolute; z-index: 60; left: 0; right: 0; top: calc(100% + 4px); min-width: 14rem; background: var(--surface); border: 1px solid var(--stroke); border-radius: var(--r-xl); box-shadow: var(--shadow-pop); padding: 0.35rem; }
 .ss-search { width: 100%; box-sizing: border-box; font: inherit; font-size: 0.86rem; padding: 0.4rem 0.6rem; border: 1px solid var(--stroke); border-radius: var(--r-lg); background: var(--bg-soft); color: var(--text); -webkit-appearance: none; appearance: none; }
 .ss-search:focus { outline: 2px solid var(--dos-accent); outline-offset: 0; }

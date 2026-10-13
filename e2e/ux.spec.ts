@@ -49,6 +49,22 @@ test("UX-09 long or growing lists are searchable dropdowns; short fixed lists st
     await expect(page.getByLabel(label, { exact: true }), label).toHaveAttribute("aria-haspopup", "listbox");
   await expect(page.locator("select#gender")).toHaveCount(1);
 
+  // Not hidden behind the next card: the bottom of the open list is really on top (screenshot bug 2026-10-13).
+  for (const label of ["Degree", "Institution", "DOS Club batch"]) {
+    const t = page.getByLabel(label, { exact: true });
+    await t.click();
+    const list = t.locator("xpath=..").locator(".ss-panel");
+    await expect(list).toBeVisible();
+    const onTop = await list.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      const hit = document.elementFromPoint(r.left + r.width / 2, r.bottom - 6);
+      return !!hit && el.contains(hit);
+    });
+    expect(onTop, `${label} list is covered by another element`).toBe(true);
+    expect(await list.getByRole("option").first().textContent(), "required field lists real options first").not.toBe("Choose…");
+    await page.keyboard.press("Escape");
+  }
+
   const trigger = page.getByLabel("Target role (Skills Ontology)", { exact: true });
   await trigger.click();
   const panel = trigger.locator("xpath=..").locator(".ss-panel");

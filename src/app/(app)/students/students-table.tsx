@@ -612,7 +612,7 @@ function StatusDialog({ open, onOpenChange, count, statuses, onConfirm }: { open
       <div style={{ display: "grid", gap: "1rem" }}>
         <div className="field">
           <label className="label req" htmlFor="bulk-status">New status</label>
-          <Select id="bulk-status" growing value={statusId} onChange={setStatusId} placeholder="Choose…" options={statuses.map((s) => ({ value: s.id, label: s.label }))} />
+          <Select id="bulk-status" growing required value={statusId} onChange={setStatusId} placeholder="Choose…" options={statuses.map((s) => ({ value: s.id, label: s.label }))} />
         </div>
         <div className="field">
           <label className="label" htmlFor="bulk-reason">Reason (optional, saved in the audit log)</label>

@@ -63,7 +63,7 @@ export async function manualKey(page: Page) {
 /**
  * Pick from the searchable dropdown (UX-4), the way a person does: open it, type, click the option.
  * `pick.label` searches then clicks the exact option text; `pick.text` clicks the first option containing it;
- * `pick.index` counts like <select> (0 = the empty choice); `pick.value` matches the option's value.
+ * `pick.index` is the nth option in the list (optional fields list their empty choice first); `pick.value` matches the option's value.
  */
 export async function choose(scope: Page | Locator, label: string, pick: { label?: string; text?: string; index?: number; value?: string }, exact = false) {
   const trigger = scope.getByLabel(label, { exact });

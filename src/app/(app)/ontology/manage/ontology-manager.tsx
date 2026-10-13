@@ -243,7 +243,7 @@ function SkillDialog({ data, skill, onClose, onDone }: { data: ManageData; skill
           </select>
         </Field>
         <Field id="sk-sub" label="Subcategory" required error={errors.subcategoryId} hint="Need a new one? Add it on the Subcategories tab first.">
-          <Select id="sk-sub" growing value={String(v.subcategoryId)} onChange={(x) => setV({ ...v, subcategoryId: x })} disabled={!v.categoryId} placeholder="Choose…" options={subs.map((s) => ({ value: String(s.id), label: `${s.code} ${s.name}` }))} />
+          <Select id="sk-sub" growing required value={String(v.subcategoryId)} onChange={(x) => setV({ ...v, subcategoryId: x })} disabled={!v.categoryId} placeholder="Choose…" options={subs.map((s) => ({ value: String(s.id), label: `${s.code} ${s.name}` }))} />
         </Field>
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
           <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
@@ -452,7 +452,7 @@ function RoleSkillsDialog({ data, role, onClose, onDone }: { data: ManageData; r
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "end", flexWrap: "wrap" }}>
           <div className="field" style={{ flex: "1 1 18rem" }}>
             <label className="label" htmlFor="add-skill">Add a skill</label>
-            <Select id="add-skill" growing value={pick} onChange={setPick} placeholder="Choose a skill…" options={available.map((s) => ({ value: s.code, label: `${s.code} · ${s.name}` }))} />
+            <Select id="add-skill" growing required value={pick} onChange={setPick} placeholder="Choose a skill…" options={available.map((s) => ({ value: s.code, label: `${s.code} · ${s.name}` }))} />
           </div>
           <button type="button" className="btn btn-secondary" disabled={!pick} onClick={() => { setRows([...rows, { code: pick, level: Math.max(1, Math.min(6, role.levelMin)) }]); setPick(""); }}>
             Add

@@ -16,6 +16,8 @@ type Props = {
   options: SelectOption[];
   /** Label of the empty choice (e.g. "Choose…", "All batches"). Omit when a value is always required. */
   placeholder?: string;
+  /** A value must be chosen: the placeholder shows on the closed field but isn't offered in the list. */
+  required?: boolean;
   /** The list grows as people use the app (master data, roles, admins). Searchable even while short. */
   growing?: boolean;
   /** Form field name: renders a hidden input so plain GET/POST forms keep working. */
@@ -42,7 +44,7 @@ export function Select(p: Props) {
 
 const norm = (s: string) => s.toLowerCase().normalize("NFKD").replace(/[̀-ͯ]/g, "");
 
-function SearchSelect({ id, value, onChange, options, placeholder, name, disabled, invalid, describedBy, ariaLabel, style }: Props) {
+function SearchSelect({ id, value, onChange, options, placeholder, required, name, disabled, invalid, describedBy, ariaLabel, style }: Props) {
   const listId = useId();
   const rootRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -50,15 +52,16 @@ function SearchSelect({ id, value, onChange, options, placeholder, name, disable
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
   const [active, setActive] = useState(0);
+  const [up, setUp] = useState(false);
 
-  const all = useMemo(() => (placeholder !== undefined ? [{ value: "", label: placeholder }, ...options] : options), [options, placeholder]);
+  const all = useMemo(() => (placeholder !== undefined && !required ? [{ value: "", label: placeholder }, ...options] : options), [options, placeholder, required]);
   const shown = useMemo(() => {
     const n = norm(q.trim());
     if (!n) return all;
     const words = n.split(/\s+/);
     return all.filter((o) => o.value !== "" && words.every((w) => norm(o.label).includes(w)));
   }, [all, q]);
-  const current = all.find((o) => o.value === value);
+  const current = options.find((o) => o.value === value) ?? (value === "" && placeholder !== undefined ? { value: "", label: placeholder } : undefined);
   const activeIdx = Math.min(active, Math.max(0, shown.length - 1));
 
   useEffect(() => {
@@ -72,6 +75,9 @@ function SearchSelect({ id, value, onChange, options, placeholder, name, disable
     if (disabled) return;
     setQ(initial);
     setActive(Math.max(0, all.findIndex((o) => o.value === value)));
+    // Open upwards when there isn't room for ~7 options below and there is more room above.
+    const r = btnRef.current?.getBoundingClientRect();
+    if (r) { const below = window.innerHeight - r.bottom, above = r.top; setUp(below < 300 && above > below); }
     setOpen(true); // the search box takes focus as it mounts (autoFocus)
   }
   function choose(v: string) {
@@ -101,7 +107,7 @@ function SearchSelect({ id, value, onChange, options, placeholder, name, disable
   }, [open, activeIdx, listId]);
 
   return (
-    <div className="ss" ref={rootRef}>
+    <div className="ss" ref={rootRef} data-open={open || undefined}>
       {name && <input type="hidden" name={name} value={value} />}
       <button
         ref={btnRef}
@@ -122,7 +128,7 @@ function SearchSelect({ id, value, onChange, options, placeholder, name, disable
         <span id={`${id}-value`} className={current && current.value !== "" ? "ss-value" : "ss-value ss-placeholder"}>{current?.label ?? placeholder ?? "Choose…"}</span>
       </button>
       {open && (
-        <div className="ss-panel">
+        <div className="ss-panel" data-up={up || undefined}>
           <input
             ref={searchRef}
             autoFocus

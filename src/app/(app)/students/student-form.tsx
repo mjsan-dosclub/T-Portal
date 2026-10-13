@@ -106,6 +106,7 @@ export function StudentForm({ options, roles, student }: { options: MasterOption
         value={values[id]}
         onChange={(v) => set(id)({ target: { value: v } })}
         placeholder={required ? "Choose…" : "None"}
+        required={required}
         options={opts.filter((o) => o.isActive || o.id === values[id]).map((o) => ({ value: o.id, label: o.label + (o.isActive ? "" : " (inactive)") }))}
         invalid={!!errors[id]}
         describedBy={errors[id] ? `${id}-error` : undefined}
