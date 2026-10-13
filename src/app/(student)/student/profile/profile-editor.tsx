@@ -5,8 +5,10 @@ import { useState, type FormEvent } from "react";
 import { api } from "@/components/api";
 import { Field } from "@/components/field";
 import { Meter } from "@/components/skills/level-bar";
+import { RolePicker } from "@/components/skills/role-picker";
 import { useToast } from "@/components/toast";
 import type { SectionKey } from "@/lib/completeness";
+import type { RoleOption } from "@/lib/role-search";
 import { GENDER_LABELS, GENDERS } from "@/lib/validation/student";
 import {
   ACCOMPLISHMENT_LABEL, ACCOMPLISHMENT_TYPES, EDUCATION_LABEL, EDUCATION_LEVELS, GRADING, GRADING_LABEL, INDIAN_CITIES, INDIAN_LANGUAGES,
@@ -23,7 +25,7 @@ const SECTION_ANCHOR: Record<SectionKey, string> = {
   certifications: "certifications", accomplishments: "accomplishments", preferences: "preferences", resume: "resume", links: "links",
 };
 
-export function ProfileEditor({ profile, roles, catalog }: { profile: Profile; roles: { id: string; name: string }[]; catalog: Catalog }) {
+export function ProfileEditor({ profile, roles, catalog }: { profile: Profile; roles: RoleOption[]; catalog: Catalog }) {
   const router = useRouter();
   const refresh = () => router.refresh();
   const score = (k: SectionKey) => profile.sections.find((s) => s.key === k);
@@ -311,14 +313,12 @@ function About({ profile, onSaved, headline, summary }: { profile: Profile; onSa
   );
 }
 
-function Preferences({ profile, roles, onSaved, score }: { profile: Profile; roles: { id: string; name: string }[]; onSaved: () => void; score: S }) {
+function Preferences({ profile, roles, onSaved, score }: { profile: Profile; roles: RoleOption[]; onSaved: () => void; score: S }) {
   const save = useSave();
   const p = profile.preferences;
   const [v, setV] = useState({ ...p, expectedCtcLpa: p.expectedCtcLpa ?? "", availableFrom: p.availableFrom ?? "" });
-  const [pickRole, setPickRole] = useState("");
   const [loc, setLoc] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const roleName = new Map(roles.map((r) => [r.id, r.name]));
   const toggle = <T extends string>(list: T[], x: T) => (list.includes(x) ? list.filter((y) => y !== x) : [...list, x]);
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -329,20 +329,7 @@ function Preferences({ profile, roles, onSaved, score }: { profile: Profile; rol
   return (
     <form id="preferences" className="glass card" onSubmit={submit} noValidate aria-labelledby="preferences-h" style={{ display: "grid", gap: "0.9rem", scrollMarginTop: "1rem" }}>
       <SectionHead id="preferences" title="Career preferences" score={score} />
-      <div className="field">
-        <label className="label" htmlFor="pr-role">Preferred roles (up to 3)</label>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-          <select id="pr-role" className="select" value={pickRole} onChange={(e) => setPickRole(e.target.value)}>
-            <option value="">Choose a role…</option>
-            {roles.filter((r) => !v.preferredRoleIds.includes(r.id)).map((r) => (<option key={r.id} value={r.id}>{r.name}</option>))}
-          </select>
-          <button type="button" className="btn btn-secondary" disabled={!pickRole || v.preferredRoleIds.length >= 3} onClick={() => { setV({ ...v, preferredRoleIds: [...v.preferredRoleIds, pickRole] }); setPickRole(""); }}>Add</button>
-        </div>
-        <div style={{ display: "flex", gap: "0.3rem", flexWrap: "wrap" }}>
-          {v.preferredRoleIds.map((id) => (<button key={id} type="button" className="chip tone-accent" style={{ cursor: "pointer" }} aria-label={`Remove ${roleName.get(id)}`} onClick={() => setV({ ...v, preferredRoleIds: v.preferredRoleIds.filter((x) => x !== id) })}>{roleName.get(id) ?? "Role"} ✕</button>))}
-        </div>
-        {errors.preferredRoleIds && <span className="field-error" role="alert">{errors.preferredRoleIds}</span>}
-      </div>
+      <RolePicker id="pr-role" label="Preferred roles (up to 3)" roles={roles} selected={v.preferredRoleIds} onChange={(ids) => setV({ ...v, preferredRoleIds: ids })} max={3} error={errors.preferredRoleIds} />
       <div className="field">
         <label className="label" htmlFor="pr-loc">Preferred locations (up to 5)</label>
         <div style={{ display: "flex", gap: "0.5rem" }}>

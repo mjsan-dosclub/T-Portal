@@ -58,7 +58,8 @@ test("INT-09 / CP-01 admin creates a program and assigns a student; student plan
   // CP-01: the career plan is its own page; the profile no longer has the target-role picker
   const nav = page.getByRole("navigation", { name: "Student" });
   await nav.getByRole("link", { name: "Career plan" }).click();
-  await page.getByLabel("Target role (the job you're aiming for)").selectOption({ label: "Enterprise Architect" });
+  await page.getByRole("combobox", { name: "Target role (the job you're aiming for)" }).fill("enterprise arch");
+  await page.getByRole("option", { name: /Enterprise Architect/ }).click();
   await page.getByRole("button", { name: "Save role" }).click();
   await expect(page.getByTestId("gap-row")).toHaveCount(5);
   await expect(page.getByTestId("cp-summary")).toContainText("of 5 required skills met");

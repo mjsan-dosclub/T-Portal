@@ -3,14 +3,16 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { GapTable } from "@/components/skills/gap-table";
+import { RolePicker } from "@/components/skills/role-picker";
 import { SkillPicker } from "@/components/skills/skill-picker";
+import type { RoleOption } from "@/lib/role-search";
 import { LevelBar, Meter, ReadinessChip } from "@/components/skills/level-bar";
 import type { Profile } from "@/server/profile";
 import { useSave } from "../profile/profile-editor";
 import type { Catalog } from "../profile/list-section";
 
 // Career plan (CP-1): target role, skill gap, other framework skills and the role roadmap. Separate from profile completeness.
-export function CareerPlan({ profile, roles, catalog }: { profile: Profile; roles: { id: string; name: string }[]; catalog: Catalog }) {
+export function CareerPlan({ profile, roles, catalog }: { profile: Profile; roles: RoleOption[]; catalog: Catalog }) {
   const router = useRouter();
   const refresh = () => router.refresh();
   const g = profile.gap;
@@ -52,19 +54,17 @@ export function CareerPlan({ profile, roles, catalog }: { profile: Profile; role
   );
 }
 
-function TargetRole({ profile, roles, onSaved }: { profile: Profile; roles: { id: string; name: string }[]; onSaved: () => void }) {
+function TargetRole({ profile, roles, onSaved }: { profile: Profile; roles: RoleOption[]; onSaved: () => void }) {
   const save = useSave();
   const [roleId, setRoleId] = useState(profile.targetRole?.id ?? "");
+  const t = profile.targetRole;
+  // A retired target role isn't in the active list; keep it so its chip shows a name.
+  const options = t && !roles.some((r) => r.id === t.id) ? [...roles, { id: t.id, name: t.name, category: t.category, levelMin: t.levelMin, levelMax: t.levelMax }] : roles;
   return (
     <div style={{ display: "grid", gap: "0.4rem" }}>
-      <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "end" }}>
-        <div className="field" style={{ flex: "1 1 18rem" }}>
-          <label className="label" htmlFor="role">Target role (the job you&apos;re aiming for)</label>
-          <select id="role" className="select" value={roleId} onChange={(e) => setRoleId(e.target.value)}>
-            <option value="">Choose a role…</option>
-            {roles.map((r) => (<option key={r.id} value={r.id}>{r.name}</option>))}
-          </select>
-        </div>
+      {/* Search box on its own line; its hint would otherwise push the button out of line (UX-3). */}
+      <RolePicker id="role" label="Target role (the job you're aiming for)" single roles={options} selected={roleId ? [roleId] : []} onChange={(ids) => setRoleId(ids[0] ?? "")} hint="Search with job words, e.g. developer, tester, data, cloud. Pick one, then save." />
+      <div>
         <button type="button" className="btn btn-primary" disabled={roleId === (profile.targetRole?.id ?? "")} onClick={async () => { if ((await save("/api/student/me/target-role", { roleId: roleId || null }, "Target role saved")).ok) onSaved(); }}>
           Save role
         </button>
@@ -94,11 +94,9 @@ function OtherSkills({ profile, catalog, onSaved }: { profile: Profile; catalog:
           ))}
         </ul>
       )}
+      <SkillPicker id="os-skill" label="Skill" single catalog={catalog.filter((c) => !required.has(c.code))} selected={code ? [code] : []} onChange={(c) => setCode(c[0] ?? "")} hint="Search with everyday words, then set your level below." />
       <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "end" }}>
-        <div style={{ flex: "2 1 18rem", minWidth: 0 }}>
-          <SkillPicker id="os-skill" label="Skill" single catalog={catalog.filter((c) => !required.has(c.code))} selected={code ? [code] : []} onChange={(c) => setCode(c[0] ?? "")} hint="Search with everyday words, then set your level." />
-        </div>
-        <div className="field" style={{ flex: "0 1 8rem" }}>
+        <div className="field" style={{ flex: "0 1 10rem" }}>
           <label className="label" htmlFor="os-level">Your level</label>
           <select id="os-level" className="select" value={level} onChange={(e) => setLevel(Number(e.target.value))}>
             {[0, 1, 2, 3, 4, 5, 6].map((l) => (<option key={l} value={l}>L{l}</option>))}

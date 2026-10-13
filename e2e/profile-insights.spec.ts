@@ -26,7 +26,8 @@ test("PRF-08 / ATT-04 / UX-02 student builds a profile; admin verifies a level a
 
   // Profile: role, self-ratings, project
   await page.getByRole("navigation", { name: "Student" }).getByRole("link", { name: "Career plan" }).click();
-  await page.getByLabel("Target role (the job you're aiming for)").selectOption({ label: "Enterprise Architect" });
+  await page.getByRole("combobox", { name: "Target role (the job you're aiming for)" }).fill("enterprise arch");
+  await page.getByRole("option", { name: /Enterprise Architect/ }).click();
   await page.getByRole("button", { name: "Save role" }).click();
   await expect(page.getByTestId("gap-row")).toHaveCount(5);
   await page.getByLabel("Your level for Solution architecture").selectOption("4");

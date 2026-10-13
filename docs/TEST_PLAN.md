@@ -248,6 +248,9 @@
 | UX-03 | Skill search: everyday words | Tool and topic words (python, figma, power bi, ethical hacking) find the right framework skills and say which word matched | U |
 | UX-04 | Skill search: ranking | Name matches rank above keyword-only matches; already-chosen skills are excluded; empty search shows popular fresher skills | U |
 | UX-05 | Keyword map grounded | Every code in the keyword map and starter list is an active ontology skill | I |
+| UX-06 | Role search: job words | "tester" finds QA / SDET Engineer, "designer" UX Designer, "developer" Software and Mobile Engineer (says which word matched); entry-level roles rank above leadership; empty search shows entry-level roles only | U |
+| UX-07 | Role word map grounded | Every role name in the job-word map is an active ontology role | I |
+| UX-08 | Browser: role picker | Career preferences: student searches "tester", sees "Entry-level friendly", picks it, adds a second role with Enter; Career plan target role uses the same search | E |
 
 ## 9. Security & privacy (SEC). M7, plus continuously.
 

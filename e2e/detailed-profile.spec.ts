@@ -5,7 +5,7 @@ import { freshCode, manualKey, statePath } from "./util";
 const STUDENT = { email: "student7@example.test", phone: "90000 10006" };
 const PW = "detailed-profile-password";
 
-test("PRF-16 student fills personal, education, certification and preferences; % chips and overall % rise; admin sees the full profile", async ({ page, browser }) => {
+test("PRF-16 / UX-08 student fills personal, education, certification and preferences; % chips and overall % rise; admin sees the full profile", async ({ page, browser }) => {
   await page.goto("/student/activate");
   await page.getByLabel("Email you registered with DOS Club").fill(STUDENT.email);
   await page.getByLabel("Mobile number you registered with DOS Club").fill(STUDENT.phone);
@@ -57,10 +57,19 @@ test("PRF-16 student fills personal, education, certification and preferences; %
   await expect(page.getByTestId("score-certifications")).toHaveText(/100%/);
 
   // Preferences
-  await page.getByLabel("Preferred roles (up to 3)").selectOption({ index: 1 });
-  await page.locator("#preferences").getByRole("button", { name: "Add" }).first().click();
+  // UX-08: role search with everyday job words; entry-level roles marked
+  const roles = page.getByRole("combobox", { name: "Preferred roles (up to 3)" });
+  await roles.fill("tester");
+  const qa = page.getByRole("option", { name: /QA \/ SDET Engineer/ });
+  await expect(qa).toContainText("matches “tester”");
+  await expect(qa).toContainText("Entry-level friendly");
+  await qa.click();
+  await roles.fill("developer");
+  await roles.press("Enter");
+  await expect(page.getByRole("button", { name: "Remove QA / SDET Engineer" })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^Remove .*(Engineer|Developer)$/ })).toHaveCount(2);
   await page.getByLabel("Preferred locations (up to 5)").fill("Chennai");
-  await page.locator("#preferences").getByRole("button", { name: "Add" }).nth(1).click();
+  await page.locator("#preferences").getByRole("button", { name: "Add" }).click();
   await page.getByLabel("Full-time job").check();
   await page.getByLabel("Hybrid").check();
   await page.getByLabel("Available to join from").fill("2027-06-01");

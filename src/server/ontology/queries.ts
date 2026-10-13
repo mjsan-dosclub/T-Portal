@@ -63,5 +63,6 @@ export async function listWorkshops() {
 
 /** Target-role picker: active roles, plus the student's current role even if it has since been retired (ONT-16). */
 export async function roleOptions(includeId?: string | null) {
-  return db.ontRole.findMany({ where: { OR: [{ isActive: true }, ...(includeId ? [{ id: includeId }] : [])] }, orderBy: { name: "asc" }, select: { id: true, name: true } });
+  const rows = await db.ontRole.findMany({ where: { OR: [{ isActive: true }, ...(includeId ? [{ id: includeId }] : [])] }, orderBy: { name: "asc" }, select: { id: true, name: true, levelMin: true, levelMax: true, category: { select: { name: true } } } });
+  return rows.map((r) => ({ id: r.id, name: r.name, levelMin: r.levelMin, levelMax: r.levelMax, category: r.category.name }));
 }
