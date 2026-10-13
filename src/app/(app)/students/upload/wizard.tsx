@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { Select } from "@/components/select";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { api, downloadGet } from "@/components/api";
@@ -237,18 +238,15 @@ export function UploadWizard({ options, initialJobId, recent }: { options: Maste
                         <div key={v.key} style={{ display: "grid", gridTemplateColumns: "minmax(8rem, 1fr) auto minmax(12rem, 1.4fr)", gap: "0.75rem", alignItems: "center" }}>
                           <span className="chip tone-deep" style={{ justifySelf: "start" }}>&ldquo;{v.value}&rdquo;</span>
                           <span aria-hidden="true">→</span>
-                          <select
-                            className="select"
-                            aria-label={`Map ${header} "${v.value}"`}
+                          <Select
+                            id={`map-${header}-${v.key}`.replace(/[^\w-]/g, "_")}
+                            growing
+                            ariaLabel={`Map ${header} "${v.value}"`}
                             value={mapping[header]?.[v.key] ?? ""}
-                            onChange={(e) => setMapping((m) => ({ ...m, [header]: { ...(m[header] ?? {}), [v.key]: e.target.value } }))}
-                          >
-                            <option value="">Choose…</option>
-                            {options[MASTER_FOR[header]!].filter((o) => o.isActive).map((o) => (
-                              <option key={o.id} value={o.id}>{o.label}</option>
-                            ))}
-                            <option value="__reject">Reject (leave as error)</option>
-                          </select>
+                            onChange={(x) => setMapping((m) => ({ ...m, [header]: { ...(m[header] ?? {}), [v.key]: x } }))}
+                            placeholder="Choose…"
+                            options={[...options[MASTER_FOR[header]!].filter((o) => o.isActive).map((o) => ({ value: o.id, label: o.label })), { value: "__reject", label: "Reject (leave as error)" }]}
+                          />
                         </div>
                       ))}
                     </div>

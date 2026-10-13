@@ -80,6 +80,21 @@ html.no-glass .glass, html.no-glass .glass-strong { background: var(--surface); 
 .textarea { min-height: 5rem; resize: vertical; }
 .month-field { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 0.5rem; }
 
+/* Searchable dropdown (UX-4): looks like a closed .select; opens a compact search + one-line list. */
+.ss { position: relative; min-width: 0; }
+.ss-trigger { display: flex; align-items: center; text-align: left; }
+.ss-value { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ss-placeholder { color: var(--text-muted); }
+.ss-panel { position: absolute; z-index: 60; left: 0; right: 0; top: calc(100% + 4px); min-width: 14rem; background: var(--surface); border: 1px solid var(--stroke); border-radius: var(--r-xl); box-shadow: var(--shadow-pop); padding: 0.35rem; }
+.ss-search { width: 100%; box-sizing: border-box; font: inherit; font-size: 0.86rem; padding: 0.4rem 0.6rem; border: 1px solid var(--stroke); border-radius: var(--r-lg); background: var(--bg-soft); color: var(--text); -webkit-appearance: none; appearance: none; }
+.ss-search:focus { outline: 2px solid var(--dos-accent); outline-offset: 0; }
+.ss-list { list-style: none; margin: 0.3rem 0 0; padding: 0; max-height: 15rem; overflow-y: auto; }
+.ss-opt { padding: 0.38rem 0.6rem; border-radius: var(--r-lg); font-size: 0.88rem; cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ss-opt[data-active] { background: var(--primary-wash); }
+.ss-opt[aria-selected="true"] { font-weight: 600; color: var(--dos-accent-dark); }
+.ss-opt[aria-selected="true"]::after { content: " ✓"; }
+.ss-empty { padding: 0.5rem 0.6rem; font-size: 0.85rem; color: var(--text-muted); }
+
 /* Skill picker (UX-2) */
 .skill-picker { min-width: 0; }
 .sp-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.35rem; }
@@ -95,7 +110,7 @@ html.no-glass .glass, html.no-glass .glass-strong { background: var(--surface); 
 .sp-via { color: var(--dos-accent-dark); font-weight: 600; }
 .sp-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.35; }
 .input:hover, .select:hover, .textarea:hover { border-color: var(--dos-accent); }
-.input[aria-invalid="true"], .select[aria-invalid="true"], .textarea[aria-invalid="true"] { border-color: var(--dos-deep); border-width: 2px; }
+.input[aria-invalid="true"], .select[aria-invalid="true"], .select[data-invalid="true"], .textarea[aria-invalid="true"] { border-color: var(--dos-deep); border-width: 2px; }
 .field-error { display: flex; gap: 0.35rem; align-items: flex-start; font-size: 0.8rem; font-weight: 600; color: var(--dos-deep); }
 .field-error::before { content: "⚠"; }
 .req::after { content: " *"; color: var(--dos-accent-dark); }

@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { freshCode, manualKey, statePath } from "./util";
+import { choose, freshCode, manualKey, statePath } from "./util";
 
 // Fake dev-seed student: index 4 → student5@example.test, +919000010004.
 const STUDENT = { email: "student5@example.test", phone: "90000 10004" };
@@ -73,9 +73,8 @@ test("PRF-08 / ATT-04 / UX-02 student builds a profile; admin verifies a level a
   await expect(ap.getByTestId("toast").filter({ hasText: "Verified levels saved" })).toBeVisible();
 
   await ap.goto("/attendance");
-  const batchValue = await ap.getByLabel("DOS Club batch").locator("option", { hasText: `${batch} (` }).first().getAttribute("value");
-  await ap.getByLabel("DOS Club batch").selectOption(batchValue!);
-  await ap.getByLabel("Workshop day").selectOption("20");
+  await choose(ap, "DOS Club batch", { text: `${batch} (` });
+  await choose(ap, "Workshop day", { value: "20" });
   await expect(ap.getByTestId("attendance-sheet")).toBeVisible();
   await ap.getByRole("button", { name: "Mark all present" }).click();
   await ap.getByTestId("save-attendance").click();
@@ -101,7 +100,7 @@ test.describe("insights", () => {
     await expect(page.getByTestId("heatmap")).toBeVisible();
     await expect(page.getByTestId("top-roles")).toBeVisible();
     await expect(page.getByTestId("attendance-by-batch")).toBeVisible();
-    await page.getByLabel("Batch", { exact: true }).selectOption({ index: 1 });
+    await choose(page, "Batch", { index: 1 }, true);
     await page.getByRole("button", { name: "Apply" }).click();
     await expect(page).toHaveURL(/batch=[0-9a-f-]{36}/);
     expect(page.url()).not.toMatch(/@|%40/); // only ids in the URL

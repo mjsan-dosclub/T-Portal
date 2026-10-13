@@ -1,6 +1,6 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test } from "@playwright/test";
-import { statePath } from "./util";
+import { choose, statePath } from "./util";
 
 test.describe("Ontology maintenance (E2E)", () => {
   test.use({ storageState: statePath("ADMIN") });
@@ -13,7 +13,7 @@ test.describe("Ontology maintenance (E2E)", () => {
     await dlg.getByLabel("Skill name").fill("Bharat stack integration");
     await dlg.getByLabel("Description").fill("Integrating UPI, DigiLocker and Aadhaar-based e-KYC APIs into products.");
     await dlg.getByLabel("Category", { exact: true }).selectOption({ index: 2 });
-    await dlg.getByLabel("Subcategory").selectOption({ index: 1 });
+    await choose(dlg, "Subcategory", { index: 1 });
     await dlg.getByRole("button", { name: "Add skill" }).click();
     await expect(page.getByTestId("toast")).toContainText("BHSC added");
 

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/components/api";
+import { Select } from "@/components/select";
 import { EmptyState, SkeletonRows } from "@/components/states";
 import { useToast } from "@/components/toast";
 
@@ -60,16 +61,11 @@ export function AttendanceManager({ batches, workshops, editable }: { batches: {
       <section className="glass card" style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "end", padding: "1rem 1.25rem" }}>
         <div className="field" style={{ flex: "1 1 12rem" }}>
           <label className="label" htmlFor="at-batch">DOS Club batch</label>
-          <select id="at-batch" className="select" value={batchId} onChange={(e) => { setBatchId(e.target.value); setWorkshopN(0); }}>
-            {batches.map((b) => (<option key={b.id} value={b.id}>{b.code} ({b.students} students)</option>))}
-          </select>
+          <Select id="at-batch" growing value={batchId} onChange={(v) => { setBatchId(v); setWorkshopN(0); }} options={batches.map((b) => ({ value: b.id, label: `${b.code} (${b.students} students)` }))} />
         </div>
         <div className="field" style={{ flex: "2 1 18rem" }}>
           <label className="label" htmlFor="at-day">Workshop day</label>
-          <select id="at-day" className="select" value={workshopN} onChange={(e) => setWorkshopN(Number(e.target.value))}>
-            <option value={0}>Overview of all {workshops.length} days</option>
-            {workshops.map((w) => (<option key={w.n} value={w.n}>Day {w.n}: {w.title}</option>))}
-          </select>
+          <Select id="at-day" value={String(workshopN)} onChange={(v) => setWorkshopN(Number(v))} options={[{ value: "0", label: `Overview of all ${workshops.length} days` }, ...workshops.map((w) => ({ value: String(w.n), label: `Day ${w.n}: ${w.title}` }))]} />
         </div>
       </section>
 

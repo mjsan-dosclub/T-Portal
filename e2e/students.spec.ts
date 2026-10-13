@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { statePath } from "./util";
+import { choose, statePath } from "./util";
 
 test.use({ storageState: statePath("ADMIN") });
 
@@ -12,7 +12,7 @@ test.describe("Students datatable (E2E)", () => {
     await expect(rows).toHaveCount(50);
     await page.getByRole("button", { name: "Next" }).click();
     await expect(page.getByTestId("result-count")).toContainText("page 2 of 3");
-    await page.getByLabel("Batch").selectOption({ label: "2026-B1" });
+    await choose(page, "Batch", { label: "2026-B1" });
     await expect(page.getByTestId("result-count")).toContainText("page 1 of");
     // Restore the saved preference and wait until the server has it, so later tests start from 25 rows.
     const saved = page.waitForResponse((r) => r.url().endsWith("/api/me/table-prefs") && r.request().method() === "PUT" && r.ok());
@@ -129,11 +129,11 @@ test.describe("Students datatable (E2E)", () => {
     await page.getByLabel("Full name").fill("Kavya Ramesh");
     await page.getByLabel("Email").fill("kavya.ramesh@example.test");
     await page.getByLabel("Mobile").fill("90000 55501");
-    await page.getByLabel("Institution").selectOption({ index: 1 });
-    await page.getByLabel("Degree").selectOption({ label: "B.E." });
-    await page.getByLabel("Department").selectOption({ index: 1 });
+    await choose(page, "Institution", { index: 1 });
+    await choose(page, "Degree", { label: "B.E." });
+    await choose(page, "Department", { index: 1 });
     await page.getByLabel("Graduation year").fill(String(new Date().getFullYear() + 1));
-    await page.getByLabel("DOS Club batch").selectOption({ label: "2026-B1" });
+    await choose(page, "DOS Club batch", { label: "2026-B1" });
     await page.getByRole("button", { name: "Add student" }).click();
     await expect(page.getByTestId("toast")).toContainText(/Added DOS-2026-\d{5}/);
     await page.goto("/students/new");

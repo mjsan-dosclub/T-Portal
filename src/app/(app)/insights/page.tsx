@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FormSelect } from "@/components/select";
 import { db } from "@/lib/db";
 import { READINESS_LABEL } from "@/lib/gap";
 import { insights, readyList } from "@/server/insights";
@@ -50,17 +51,11 @@ export default async function InsightsPage({ searchParams }: PageProps<"/insight
       <form className="glass card" style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", alignItems: "end", padding: "1rem 1.25rem" }} aria-label="Filters">
         <div className="field" style={{ flex: "1 1 12rem" }}>
           <label className="label" htmlFor="in-batch">Batch</label>
-          <select id="in-batch" name="batch" className="select" defaultValue={f.batchId ?? ""}>
-            <option value="">All batches</option>
-            {batches.map((b) => (<option key={b.id} value={b.id}>{b.batchCode}</option>))}
-          </select>
+          <FormSelect id="in-batch" name="batch" growing defaultValue={f.batchId ?? ""} placeholder="All batches" options={batches.map((b) => ({ value: b.id, label: b.batchCode }))} />
         </div>
         <div className="field" style={{ flex: "2 1 16rem" }}>
           <label className="label" htmlFor="in-inst">Institution</label>
-          <select id="in-inst" name="institution" className="select" defaultValue={f.institutionId ?? ""}>
-            <option value="">All institutions</option>
-            {institutions.map((i) => (<option key={i.id} value={i.id}>{i.name}</option>))}
-          </select>
+          <FormSelect id="in-inst" name="institution" growing defaultValue={f.institutionId ?? ""} placeholder="All institutions" options={institutions.map((i) => ({ value: i.id, label: i.name }))} />
         </div>
         <button type="submit" className="btn btn-primary">Apply</button>
         {(f.batchId || f.institutionId) && <Link className="btn btn-ghost" href="/insights">Clear</Link>}

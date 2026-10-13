@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { api } from "@/components/api";
 import { Field } from "@/components/field";
+import { Select } from "@/components/select";
 import { Modal } from "@/components/modal";
 import { useToast } from "@/components/toast";
 import { GENDER_LABELS, GENDERS } from "@/lib/validation/student";
@@ -98,17 +99,17 @@ export function StudentForm({ options, roles, student }: { options: MasterOption
 
   const sel = (id: string, label: string, opts: { id: string; label: string; isActive: boolean }[], required = true) => (
     <Field id={id} label={label} required={required} error={errors[id]}>
-      <select id={id} className="select" value={values[id]} onChange={set(id)} aria-invalid={!!errors[id]} aria-describedby={errors[id] ? `${id}-error` : undefined}>
-        <option value="">{required ? "Choose…" : "None"}</option>
-        {opts
-          .filter((o) => o.isActive || o.id === values[id])
-          .map((o) => (
-            <option key={o.id} value={o.id}>
-              {o.label}
-              {o.isActive ? "" : " (inactive)"}
-            </option>
-          ))}
-      </select>
+      {/* Master lists grow over time → searchable (UX-4). */}
+      <Select
+        id={id}
+        growing
+        value={values[id]}
+        onChange={(v) => set(id)({ target: { value: v } })}
+        placeholder={required ? "Choose…" : "None"}
+        options={opts.filter((o) => o.isActive || o.id === values[id]).map((o) => ({ value: o.id, label: o.label + (o.isActive ? "" : " (inactive)") }))}
+        invalid={!!errors[id]}
+        describedBy={errors[id] ? `${id}-error` : undefined}
+      />
     </Field>
   );
   const txt = (id: string, label: string, props: Partial<React.InputHTMLAttributes<HTMLInputElement>> = {}, required = false, hint?: string) => (
@@ -182,12 +183,7 @@ export function StudentForm({ options, roles, student }: { options: MasterOption
           {sel("statusId", "Status", options.statuses)}
           {sel("colourTeamId", "Colour team", options.colourTeams, false)}
           <Field id="targetRoleId" label="Target role (Skills Ontology)" error={errors.targetRoleId}>
-            <select id="targetRoleId" className="select" value={values.targetRoleId} onChange={set("targetRoleId")}>
-              <option value="">None</option>
-              {roles.map((r) => (
-                <option key={r.id} value={r.id}>{r.name}</option>
-              ))}
-            </select>
+            <Select id="targetRoleId" growing value={values.targetRoleId} onChange={(v) => set("targetRoleId")({ target: { value: v } })} placeholder="None" options={roles.map((r) => ({ value: r.id, label: r.name }))} />
           </Field>
         </>,
       )}

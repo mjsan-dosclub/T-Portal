@@ -15,7 +15,7 @@ test.use({
 
 async function boxes(page: Page, scope: string) {
   return page.locator(scope).evaluate((root) =>
-    [...root.querySelectorAll<HTMLElement>("input.input:not([type=checkbox]):not([type=file]), select.select")]
+    [...root.querySelectorAll<HTMLElement>("input.input:not([type=checkbox]):not([type=file]), select.select, button.select")]
       .filter((el) => el.offsetParent !== null && !el.closest(".dtable"))
       .map((el) => {
         const cs = getComputedStyle(el);
@@ -39,4 +39,40 @@ test("UX-01 form fields line up: dropdowns, text, number and date boxes share he
   expect(Math.max(...heights) - Math.min(...heights), JSON.stringify(heights)).toBeLessThanOrEqual(2);
   expect([...new Set(all.map((b) => b.pl))]).toHaveLength(1);
   expect(all.filter((b) => b.tag === "SELECT").every((b) => b.appearance === "none")).toBe(true);
+  expect(all.some((b) => b.tag === "BUTTON[button]"), "searchable dropdowns measured too").toBe(true);
+});
+
+test("UX-09 long or growing lists are searchable dropdowns; short fixed lists stay plain (Chrome and Safari)", async ({ page }) => {
+  await page.goto("/students/new");
+  // Growing master lists → searchable; short fixed list (gender) → native select
+  for (const label of ["Institution", "Degree", "Department", "DOS Club batch", "Status", "Colour team", "Target role (Skills Ontology)"])
+    await expect(page.getByLabel(label, { exact: true }), label).toHaveAttribute("aria-haspopup", "listbox");
+  await expect(page.locator("select#gender")).toHaveCount(1);
+
+  const trigger = page.getByLabel("Target role (Skills Ontology)", { exact: true });
+  await trigger.click();
+  const panel = trigger.locator("xpath=..").locator(".ss-panel");
+  const search = panel.getByRole("combobox", { name: "Search options" });
+  await expect(search).toBeFocused();
+  const before = await panel.getByRole("option").count();
+  expect(before).toBeGreaterThan(15);
+  await search.fill("cloud eng");
+  await expect(panel.getByRole("option")).toHaveText(["Cloud Engineer"]); // every word must match
+  await search.fill("zzzz");
+  await expect(panel.getByText("No matches")).toBeVisible();
+  await search.fill("data");
+  await search.press("ArrowDown");
+  await search.press("Enter");
+  await expect(panel).toBeHidden();
+  await expect(trigger).toBeFocused(); // focus returns to the field
+  await expect(trigger).toContainText("Data");
+  // Escape closes without changing the value; clicking outside closes too
+  const chosen = await trigger.getAttribute("data-value");
+  await trigger.press("Enter");
+  await page.keyboard.press("Escape");
+  await expect(panel).toBeHidden();
+  await expect(trigger).toHaveAttribute("data-value", chosen!);
+  await trigger.click();
+  await page.locator("h1").first().click(); // click outside
+  await expect(panel).toBeHidden();
 });

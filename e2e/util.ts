@@ -1,6 +1,6 @@
 import { readFileSync, writeFileSync, existsSync } from "node:fs";
 import { generate } from "otplib";
-import { expect, type Page } from "@playwright/test";
+import { expect, type Locator, type Page } from "@playwright/test";
 
 export type Role = "SUPER_ADMIN" | "ADMIN" | "VIEWER";
 export const creds = () => JSON.parse(readFileSync("e2e/.auth/creds.json", "utf8")) as Record<Role, { email: string; password: string }>;
@@ -58,4 +58,25 @@ export async function manualKey(page: Page) {
   const el = page.getByTestId("manual-key");
   await expect(el).toHaveText(/^[A-Z2-7 ]{16,}$/, { timeout: 15_000 });
   return (await el.textContent())!.replace(/\s/g, "");
+}
+
+/**
+ * Pick from the searchable dropdown (UX-4), the way a person does: open it, type, click the option.
+ * `pick.label` searches then clicks the exact option text; `pick.text` clicks the first option containing it;
+ * `pick.index` counts like <select> (0 = the empty choice); `pick.value` matches the option's value.
+ */
+export async function choose(scope: Page | Locator, label: string, pick: { label?: string; text?: string; index?: number; value?: string }, exact = false) {
+  const trigger = scope.getByLabel(label, { exact });
+  await trigger.click();
+  const panel = trigger.locator("xpath=..").locator(".ss-panel");
+  await expect(panel).toBeVisible();
+  if (pick.label !== undefined) {
+    await panel.getByRole("combobox", { name: "Search options" }).fill(pick.label);
+    await panel.getByRole("option", { name: pick.label, exact: true }).click();
+  } else if (pick.text !== undefined) {
+    await panel.getByRole("combobox", { name: "Search options" }).fill(pick.text);
+    await panel.getByRole("option").filter({ hasText: pick.text }).first().click();
+  } else if (pick.value !== undefined) await panel.locator(`[role=option][data-value="${pick.value}"]`).click();
+  else await panel.getByRole("option").nth(pick.index ?? 0).click();
+  await expect(panel).toBeHidden();
 }

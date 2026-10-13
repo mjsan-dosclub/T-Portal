@@ -38,8 +38,11 @@ test.describe("UI / accessibility", () => {
     await page.keyboard.press("Enter");
     await expect(page.getByRole("dialog", { name: "Update status" })).toBeVisible();
     await expect(page.getByLabel("New status")).toBeFocused();
-    await page.keyboard.type("Alumni"); // type-to-select works on every platform's native <select>
-    await expect(page.getByLabel("New status")).toHaveValue(/[0-9a-f-]{36}/);
+    await page.keyboard.type("Alumni"); // typing on the searchable dropdown opens it and searches (UX-4)
+    await expect(page.getByRole("option", { name: "Alumni" })).toBeVisible();
+    await page.keyboard.press("Enter");
+    await expect(page.getByLabel("New status")).toHaveAttribute("data-value", /[0-9a-f-]{36}/);
+    await expect(page.getByLabel("New status")).toBeFocused();
     await tabTo(page, /Reason/);
     await page.keyboard.type("Keyboard-only check");
     await tabTo(page, /^Update 25$/);

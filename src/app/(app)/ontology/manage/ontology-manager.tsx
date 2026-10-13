@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { Select } from "@/components/select";
 import { useMemo, useState, type FormEvent } from "react";
 import { api } from "@/components/api";
 import { Field } from "@/components/field";
@@ -242,12 +243,7 @@ function SkillDialog({ data, skill, onClose, onDone }: { data: ManageData; skill
           </select>
         </Field>
         <Field id="sk-sub" label="Subcategory" required error={errors.subcategoryId} hint="Need a new one? Add it on the Subcategories tab first.">
-          <select id="sk-sub" className="select" value={v.subcategoryId} onChange={(e) => setV({ ...v, subcategoryId: e.target.value })} disabled={!v.categoryId}>
-            <option value="">Choose…</option>
-            {subs.map((s) => (
-              <option key={s.id} value={s.id}>{s.code} {s.name}</option>
-            ))}
-          </select>
+          <Select id="sk-sub" growing value={String(v.subcategoryId)} onChange={(x) => setV({ ...v, subcategoryId: x })} disabled={!v.categoryId} placeholder="Choose…" options={subs.map((s) => ({ value: String(s.id), label: `${s.code} ${s.name}` }))} />
         </Field>
         <div style={{ display: "flex", justifyContent: "flex-end", gap: "0.5rem" }}>
           <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
@@ -456,10 +452,7 @@ function RoleSkillsDialog({ data, role, onClose, onDone }: { data: ManageData; r
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "end", flexWrap: "wrap" }}>
           <div className="field" style={{ flex: "1 1 18rem" }}>
             <label className="label" htmlFor="add-skill">Add a skill</label>
-            <select id="add-skill" className="select" value={pick} onChange={(e) => setPick(e.target.value)}>
-              <option value="">Choose a skill…</option>
-              {available.map((s) => (<option key={s.code} value={s.code}>{s.code} · {s.name}</option>))}
-            </select>
+            <Select id="add-skill" growing value={pick} onChange={setPick} placeholder="Choose a skill…" options={available.map((s) => ({ value: s.code, label: `${s.code} · ${s.name}` }))} />
           </div>
           <button type="button" className="btn btn-secondary" disabled={!pick} onClick={() => { setRows([...rows, { code: pick, level: Math.max(1, Math.min(6, role.levelMin)) }]); setPick(""); }}>
             Add

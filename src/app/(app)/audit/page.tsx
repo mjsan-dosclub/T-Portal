@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { FormSelect } from "@/components/select";
 import { requirePageAdmin } from "@/server/page-auth";
 import { queryAudit } from "@/server/reports";
 import { EmptyState } from "@/components/states";
@@ -23,10 +24,7 @@ export default async function AuditPage({ searchParams }: PageProps<"/audit">) {
       <form className="glass card" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(10rem, 1fr))", gap: "0.75rem", alignItems: "end", padding: "1rem 1.25rem" }}>
         <div className="field">
           <label className="label" htmlFor="a-actor">Actor</label>
-          <select id="a-actor" name="actor" className="select" defaultValue={f.actorId ?? ""}>
-            <option value="">Anyone</option>
-            {r.actors.map((a) => (<option key={a.id} value={a.id}>{a.name}</option>))}
-          </select>
+          <FormSelect id="a-actor" name="actor" growing defaultValue={f.actorId ?? ""} placeholder="Anyone" options={r.actors.map((a) => ({ value: a.id, label: a.name }))} />
         </div>
         <div className="field">
           <label className="label" htmlFor="a-entity">Entity</label>

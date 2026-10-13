@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { statePath } from "./util";
+import { choose, statePath } from "./util";
 
 test.use({ storageState: statePath("ADMIN") });
 
@@ -22,7 +22,7 @@ test.describe("Upload wizard (E2E)", () => {
     await expect(page.getByTestId("count-valid")).toHaveText("1");
     await expect(page.getByTestId("count-errors")).toHaveText("2");
     await expect(page.getByTestId("mapping-step")).toContainText("Computer Sci & Engg");
-    await page.getByLabel('Map department "Computer Sci & Engg"').selectOption({ label: "Computer Science and Engineering" });
+    await choose(page, 'Map department "Computer Sci & Engg"', { label: "Computer Science and Engineering" });
     await page.getByRole("button", { name: "Apply mapping & re-check" }).click();
     await expect(page.getByTestId("count-valid")).toHaveText("2");
     await expect(page.getByTestId("download-errors")).toBeVisible();

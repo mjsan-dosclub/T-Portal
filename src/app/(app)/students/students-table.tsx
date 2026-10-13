@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { api, downloadPost } from "@/components/api";
 import { Drawer, Modal } from "@/components/modal";
+import { Select } from "@/components/select";
 import { EmptyState, ErrorState, SkeletonRows, StatusChip } from "@/components/states";
 import { useToast } from "@/components/toast";
 import type { MasterOptions } from "@/server/masters";
@@ -257,7 +258,7 @@ export function StudentsTable({ options, role, canExport, initialHidden, initial
           <FilterSelect id="f-batch" label="Batch" value={query.batchId} onChange={(v) => setFilter("batchId", v)} options={options.batches} />
           <FilterSelect id="f-team" label="Team" value={query.colourTeamId} onChange={(v) => setFilter("colourTeamId", v)} options={options.colourTeams} />
           <FilterSelect id="f-status" label="Status" value={query.statusId} onChange={(v) => setFilter("statusId", v)} options={options.statuses} />
-          <FilterSelect id="f-year" label="Grad. year" value={query.graduationYear} onChange={(v) => setFilter("graduationYear", v)} options={years.map((y) => ({ id: String(y), label: String(y), isActive: true }))} />
+          <FilterSelect id="f-year" label="Grad. year" value={query.graduationYear} onChange={(v) => setFilter("graduationYear", v)} options={years.map((y) => ({ id: String(y), label: String(y), isActive: true }))} growing={false} />
         </div>
         {anyFilter && (
           <div>
@@ -540,19 +541,11 @@ export function StudentsTable({ options, role, canExport, initialHidden, initial
   );
 }
 
-function FilterSelect({ id, label, value, onChange, options }: { id: string; label: string; value: string; onChange: (v: string) => void; options: { id: string; label: string; isActive: boolean }[] }) {
+function FilterSelect({ id, label, value, onChange, options, growing = true }: { id: string; label: string; value: string; onChange: (v: string) => void; options: { id: string; label: string; isActive: boolean }[]; growing?: boolean }) {
   return (
     <div className="field">
       <label htmlFor={id} className="hint" style={{ fontWeight: 600 }}>{label}</label>
-      <select id={id} className="select" value={value} onChange={(e) => onChange(e.target.value)} style={{ minHeight: "2.3rem", padding: "0.3rem 0.6rem" }}>
-        <option value="">All</option>
-        {options.map((o) => (
-          <option key={o.id} value={o.id}>
-            {o.label}
-            {o.isActive ? "" : " (inactive)"}
-          </option>
-        ))}
-      </select>
+      <Select id={id} growing={growing} value={value} onChange={onChange} placeholder="All" style={{ minHeight: "2.3rem", padding: "0.3rem 2.2rem 0.3rem 0.6rem" }} options={options.map((o) => ({ value: o.id, label: o.label + (o.isActive ? "" : " (inactive)") }))} />
     </div>
   );
 }
@@ -619,12 +612,7 @@ function StatusDialog({ open, onOpenChange, count, statuses, onConfirm }: { open
       <div style={{ display: "grid", gap: "1rem" }}>
         <div className="field">
           <label className="label req" htmlFor="bulk-status">New status</label>
-          <select id="bulk-status" className="select" value={statusId} onChange={(e) => setStatusId(e.target.value)}>
-            <option value="">Choose…</option>
-            {statuses.map((s) => (
-              <option key={s.id} value={s.id}>{s.label}</option>
-            ))}
-          </select>
+          <Select id="bulk-status" growing value={statusId} onChange={setStatusId} placeholder="Choose…" options={statuses.map((s) => ({ value: s.id, label: s.label }))} />
         </div>
         <div className="field">
           <label className="label" htmlFor="bulk-reason">Reason (optional, saved in the audit log)</label>

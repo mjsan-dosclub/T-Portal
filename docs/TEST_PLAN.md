@@ -251,6 +251,7 @@
 | UX-06 | Role search: job words | "tester" finds QA / SDET Engineer, "designer" UX Designer, "developer" Software and Mobile Engineer (says which word matched); entry-level roles rank above leadership; empty search shows entry-level roles only | U |
 | UX-07 | Role word map grounded | Every role name in the job-word map is an active ontology role | I |
 | UX-08 | Browser: role picker | Career preferences: student searches "tester", sees "Entry-level friendly", picks it, adds a second role with Enter; Career plan target role uses the same search | E |
+| UX-09 | Searchable dropdowns (admin) | Lists with more than 15 options or that grow with use (masters, roles, admins) open a compact search + one-line list; every typed word must match; arrows/Enter pick, Escape and outside click close without changing the value, focus returns to the field; short fixed lists stay native. Chrome and Safari | E |
 
 ## 9. Security & privacy (SEC). M7, plus continuously.
 
