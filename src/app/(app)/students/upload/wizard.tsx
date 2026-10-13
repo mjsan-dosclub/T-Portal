@@ -297,7 +297,7 @@ export function UploadWizard({ options, initialJobId, recent }: { options: Maste
                       <td style={{ whiteSpace: "nowrap" }}>
                         <span className={`chip ${r.status === "VALID" ? "tone-primary" : r.status === "ERROR" ? "tone-deep" : "tone-accent"}`}>{STATUS_LABEL[r.status]}</span>
                         {r.status === "DUPLICATE_DB" && job.status === "PREVIEW" && (
-                          <select className="select" aria-label={`Decision for row ${r.rowNo}`} style={{ minHeight: "1.9rem", padding: "0.1rem 0.4rem", marginTop: "0.3rem", fontSize: "0.8rem" }} value={r.decision ?? "skip"} onChange={(e) => decide(e.target.value as "skip" | "update", [r.rowNo])}>
+                          <select className="select" aria-label={`Decision for row ${r.rowNo}`} style={{ minHeight: "1.9rem", padding: "0.1rem 1.8rem 0.1rem 0.4rem", backgroundPosition: "right 0.45rem center", marginTop: "0.3rem", fontSize: "0.8rem" }} value={r.decision ?? "skip"} onChange={(e) => decide(e.target.value as "skip" | "update", [r.rowNo])}>
                             <option value="skip">Skip</option>
                             <option value="update">Update existing</option>
                           </select>

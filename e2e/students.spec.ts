@@ -14,7 +14,10 @@ test.describe("Students datatable (E2E)", () => {
     await expect(page.getByTestId("result-count")).toContainText("page 2 of 3");
     await page.getByLabel("Batch").selectOption({ label: "2026-B1" });
     await expect(page.getByTestId("result-count")).toContainText("page 1 of");
-    await page.getByLabel("Rows").selectOption("25"); // restore preference
+    // Restore the saved preference and wait until the server has it, so later tests start from 25 rows.
+    const saved = page.waitForResponse((r) => r.url().endsWith("/api/me/table-prefs") && r.request().method() === "PUT" && r.ok());
+    await page.getByLabel("Rows").selectOption("25");
+    await saved;
   });
 
   test("STU-18 hidden columns persist for the admin across sessions", async ({ page, browser }) => {

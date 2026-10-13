@@ -60,12 +60,12 @@ export function GapTable({ profile, mode, saveUrl, onSaved }: { profile: Profile
               return (
                 <tr key={r.code} data-testid="gap-row">
                   <td style={{ minWidth: "14rem" }}>
-                    <code className="mono chip tone-deep">{r.code}</code> {r.name}
+                    {mode === "admin" && <code className="mono chip tone-deep">{r.code}</code>} {r.name}
                   </td>
                   <td className="mono">L{r.required}</td>
                   <td>
                     {mode === "student" ? (
-                      <select className="select" style={{ minHeight: "2rem", padding: "0.15rem 0.5rem", width: "9rem" }} aria-label={`Your level for ${r.name}`} value={edits[r.code] ?? 0} onChange={(e) => setEdits({ ...edits, [r.code]: Number(e.target.value) })}>
+                      <select className="select" style={{ minHeight: "2rem", padding: "0.15rem 2rem 0.15rem 0.5rem", backgroundPosition: "right 0.5rem center", width: "9rem" }} aria-label={`Your level for ${r.name}`} value={edits[r.code] ?? 0} onChange={(e) => setEdits({ ...edits, [r.code]: Number(e.target.value) })}>
                         {LEVELS.map((l) => (<option key={l} value={l}>{levelName(l)}</option>))}
                       </select>
                     ) : (
@@ -74,7 +74,7 @@ export function GapTable({ profile, mode, saveUrl, onSaved }: { profile: Profile
                   </td>
                   <td>
                     {mode === "admin" ? (
-                      <select className="select" style={{ minHeight: "2rem", padding: "0.15rem 0.5rem", width: "9rem" }} aria-label={`Verified level for ${r.name}`} value={edits[r.code] ?? ""} onChange={(e) => setEdits({ ...edits, [r.code]: e.target.value === "" ? null : Number(e.target.value) })}>
+                      <select className="select" style={{ minHeight: "2rem", padding: "0.15rem 2rem 0.15rem 0.5rem", backgroundPosition: "right 0.5rem center", width: "9rem" }} aria-label={`Verified level for ${r.name}`} value={edits[r.code] ?? ""} onChange={(e) => setEdits({ ...edits, [r.code]: e.target.value === "" ? null : Number(e.target.value) })}>
                         <option value="">Not verified</option>
                         {LEVELS.map((l) => (<option key={l} value={l}>{levelName(l)}</option>))}
                       </select>

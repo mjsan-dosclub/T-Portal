@@ -12,7 +12,7 @@ export default async function StudentProfilePage() {
   return (
     <div style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr)", gap: "1.25rem" }}>
       <StudentNav name={me.fullName} />
-      <ProfileEditor profile={profile} roles={roles} catalog={catalog.map((c) => ({ code: c.code, name: c.name, category: c.subcategory.category.name }))} />
+      <ProfileEditor profile={profile} roles={roles} catalog={catalog.map((c) => ({ code: c.code, name: c.name, category: c.subcategory.category.name, description: c.description }))} />
     </div>
   );
 }

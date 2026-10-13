@@ -206,6 +206,6 @@ export async function deleteProject(studentId: string, projectId: string, actorI
 
 /** Active skills for pickers (grouped by category for the UI). */
 export async function skillCatalog() {
-  return db.ontSkill.findMany({ where: { isActive: true }, orderBy: [{ subcategory: { categoryId: "asc" } }, { code: "asc" }], select: { code: true, name: true, subcategory: { select: { category: { select: { id: true, name: true } } } } } });
+  return db.ontSkill.findMany({ where: { isActive: true }, orderBy: [{ subcategory: { categoryId: "asc" } }, { code: "asc" }], select: { code: true, name: true, description: true, subcategory: { select: { category: { select: { id: true, name: true } } } } } });
 }
 

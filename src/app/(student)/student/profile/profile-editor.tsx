@@ -30,7 +30,7 @@ export function ProfileEditor({ profile, roles, catalog }: { profile: Profile; r
   const nameOf = new Map(catalog.map((c) => [c.code, c.name]));
   const chips = (codes: unknown) => (
     <div style={{ display: "flex", gap: "0.3rem", flexWrap: "wrap", marginTop: "0.3rem" }}>
-      {((codes as string[]) ?? []).map((c) => <span key={c} className="chip tone-accent" title={nameOf.get(c)}>{c}</span>)}
+      {((codes as string[]) ?? []).map((c) => <span key={c} className="chip tone-accent">{nameOf.get(c) ?? c}</span>)}
     </div>
   );
 

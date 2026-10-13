@@ -17,6 +17,8 @@ export default defineConfig({
   projects: [
     { name: "setup", testMatch: /auth\.setup\.ts/ },
     { name: "chromium", use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } }, dependencies: ["setup"], testIgnore: /auth\.setup\.ts/ },
+    // UX-01: Safari's engine. Only the cross-browser layout spec runs here.
+    { name: "webkit", use: { ...devices["Desktop Safari"], viewport: { width: 1280, height: 800 } }, dependencies: ["setup"], testMatch: /ux\.spec\.ts/ },
   ],
   webServer: {
     command: `npx next start -p ${PORT}`,

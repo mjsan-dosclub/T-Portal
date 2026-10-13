@@ -28,3 +28,6 @@ next-env.d.ts
 
 # Supabase CA certificate (public, but keep it out of the repo)
 *.crt
+
+# local UX screenshots
+/.ux/

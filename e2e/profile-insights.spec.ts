@@ -6,7 +6,7 @@ import { freshCode, manualKey, statePath } from "./util";
 const STUDENT = { email: "student5@example.test", phone: "90000 10004" };
 const PW = "profile-student-password";
 
-test("PRF-08 / ATT-04 student builds a profile; admin verifies a level and marks attendance; student sees both", async ({ page, browser }) => {
+test("PRF-08 / ATT-04 / UX-02 student builds a profile; admin verifies a level and marks attendance; student sees both", async ({ page, browser }) => {
   // Student: first access + authenticator
   await page.goto("/student/activate");
   await page.getByLabel("Email you registered with DOS Club").fill(STUDENT.email);
@@ -39,10 +39,23 @@ test("PRF-08 / ATT-04 student builds a profile; admin verifies a level and marks
   await dlg.getByLabel("Title").fill("College event portal");
   await dlg.getByLabel("What did you build and what was your part?").fill("Designed the architecture and APIs for our symposium registrations.");
   await dlg.getByLabel("Link (GitHub, demo…)").fill("https://github.com/example/event-portal");
-  await dlg.getByLabel("Skills used (up to 10)").selectOption({ label: "Solution architecture (ARCH)" });
-  await dlg.getByRole("button", { name: "Add", exact: true }).click();
+  // UX-02: type-to-search skill picker with everyday words; names, not codes
+  await dlg.getByRole("combobox", { name: "Skills used (up to 10)" }).fill("microservices");
+  const opt = dlg.getByRole("option", { name: /Solution architecture/ });
+  await expect(opt).toContainText("matches “microservices”");
+  await opt.click();
+  await expect(dlg.getByRole("button", { name: "Remove Solution architecture" })).toBeVisible();
+  await dlg.getByRole("combobox", { name: "Skills used (up to 10)" }).fill("python");
+  await dlg.getByRole("combobox", { name: "Skills used (up to 10)" }).press("Enter"); // keyboard pick of the top match
+  await expect(dlg.getByRole("button", { name: "Remove Programming/software development" })).toBeVisible();
+  await expect(dlg.getByText(/\bARCH\b|\bPROG\b/)).toHaveCount(0);
+  // UX-01: month fields are Month + Year dropdowns
+  await dlg.getByLabel("Started: month").selectOption({ label: "Jun" });
+  await dlg.getByLabel("Started: year").selectOption("2025");
   await dlg.getByRole("button", { name: "Save" }).click();
   await expect(page.getByTestId("list-projects")).toContainText("College event portal");
+  await expect(page.getByTestId("list-projects")).toContainText("Jun 2025");
+  await expect(page.getByTestId("list-projects")).toContainText("Solution architecture");
   await expect(page.getByTestId("completeness")).not.toHaveText("0%");
 
   // Admin: verify ARCH at L3 and mark attendance for the student's batch, day 20

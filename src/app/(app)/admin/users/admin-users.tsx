@@ -41,7 +41,7 @@ export function AdminUsers({ admins, meId }: { admins: Admin[]; meId: string }) 
                   <td>{a.email}</td>
                   <td>
                     <label className="sr-only" htmlFor={`role-${a.id}`}>Role for {a.name}</label>
-                    <select id={`role-${a.id}`} className="select" style={{ minHeight: "2rem", padding: "0.2rem 0.5rem" }} value={a.role} disabled={a.id === meId} onChange={(e) => patch(a, { role: e.target.value })}>
+                    <select id={`role-${a.id}`} className="select" style={{ minHeight: "2rem", padding: "0.2rem 2rem 0.2rem 0.5rem", backgroundPosition: "right 0.5rem center" }} value={a.role} disabled={a.id === meId} onChange={(e) => patch(a, { role: e.target.value })}>
                       {Object.entries(ROLE_LABEL).map(([k, l]) => (<option key={k} value={k}>{l}</option>))}
                     </select>
                   </td>

@@ -18,7 +18,7 @@ export default async function CareerPlanPage() {
           Pick the role you&apos;re aiming for, rate yourself on the skills it needs and follow the roadmap. This is your plan; it isn&apos;t part of your job-portal profile.
         </p>
       </header>
-      <CareerPlan profile={profile} roles={roles} catalog={catalog.map((c) => ({ code: c.code, name: c.name, category: c.subcategory.category.name }))} />
+      <CareerPlan profile={profile} roles={roles} catalog={catalog.map((c) => ({ code: c.code, name: c.name, category: c.subcategory.category.name, description: c.description }))} />
     </div>
   );
 }

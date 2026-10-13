@@ -243,6 +243,11 @@
 | UI-05 | Visual review vs. tokens at 1280 / 1440 / 768 px | Matches spec; screenshots attached | M |
 | UI-06 | Tamil text in table, drawer and form | No tofu boxes or clipping | M |
 | UI-07 | Text contrast on glass cards over the brightest blob position | ≥ 4.5:1 for body, ≥ 3:1 for large text/UI (computed in test) | E |
+| UX-01 | Safari (WebKit): form fields | Dropdowns, text, date, number and file fields share height, padding and border with Chrome; month fields are month + year dropdowns (desktop Safari has no month picker) | E |
+| UX-02 | Browser: skill picker | Student types "python" in *Skills used*, sees "Programming/software development" with "matches python", picks it, sees the name (not a code) as a chip; works from the keyboard | E |
+| UX-03 | Skill search: everyday words | Tool and topic words (python, figma, power bi, ethical hacking) find the right framework skills and say which word matched | U |
+| UX-04 | Skill search: ranking | Name matches rank above keyword-only matches; already-chosen skills are excluded; empty search shows popular fresher skills | U |
+| UX-05 | Keyword map grounded | Every code in the keyword map and starter list is an active ontology skill | I |
 
 ## 9. Security & privacy (SEC). M7, plus continuously.
 

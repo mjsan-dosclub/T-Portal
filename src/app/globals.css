@@ -66,8 +66,34 @@ html.no-glass .glass, html.no-glass .glass-strong { background: var(--surface); 
 .field { display: flex; flex-direction: column; gap: 0.35rem; }
 .label { font-size: 0.82rem; font-weight: 600; color: var(--dos-deep); }
 .hint { font-size: 0.78rem; color: var(--text-muted); }
-.input, .select, .textarea { width: 100%; min-height: 2.6rem; padding: 0.55rem 0.85rem; border-radius: var(--r-xl); border: 1px solid var(--stroke); background: var(--surface); color: var(--text); font-size: 0.92rem; }
+/* UX-1: identical boxes in Safari, Chrome and Firefox. Safari ignores padding/height on native selects and
+   pads date fields differently, so native appearance is turned off and every box gets the same metrics. */
+.input, .select, .textarea { width: 100%; min-height: 2.6rem; padding: 0.55rem 0.85rem; border-radius: var(--r-xl); border: 1px solid var(--stroke); background-color: var(--surface); color: var(--text); font: inherit; font-size: 0.92rem; line-height: 1.35; box-sizing: border-box; -webkit-appearance: none; appearance: none; }
+.select { padding-right: 2.4rem; cursor: pointer; text-overflow: ellipsis; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='%230C3346' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 8l5 5 5-5'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 0.85rem center; background-size: 1rem; }
+.select::-ms-expand { display: none; }
+.input[type="date"], .input[type="month"] { display: block; min-height: 2.6rem; }
+.input::-webkit-date-and-time-value { text-align: left; min-height: 1.35em; }
+.input::-webkit-datetime-edit { padding: 0; }
+.input[type="number"] { -moz-appearance: textfield; }
+.input[type="file"] { padding: 0.45rem 0.6rem; line-height: 1.6; }
+.input::placeholder, .textarea::placeholder { color: var(--text-muted); opacity: 1; }
 .textarea { min-height: 5rem; resize: vertical; }
+.month-field { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: 0.5rem; }
+
+/* Skill picker (UX-2) */
+.skill-picker { min-width: 0; }
+.sp-chips { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.35rem; }
+.sp-chip { cursor: pointer; white-space: normal; text-align: left; }
+.sp-box { display: grid; gap: 0.35rem; }
+.sp-list { list-style: none; margin: 0; padding: 0.35rem; max-height: 17rem; overflow-y: auto; border: 1px solid var(--stroke); border-radius: var(--r-xl); background: var(--surface); box-shadow: var(--shadow-pop); }
+.sp-head { padding: 0.35rem 0.6rem 0.2rem; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+.sp-empty { padding: 0.6rem; font-size: 0.85rem; color: var(--text-muted); }
+.sp-opt { display: grid; gap: 0.1rem; padding: 0.5rem 0.65rem; border-radius: var(--r-lg); cursor: pointer; }
+.sp-opt[aria-selected="true"] { background: var(--primary-wash); outline: 1px solid var(--dos-accent); }
+.sp-name { font-weight: 600; font-size: 0.9rem; color: var(--text); }
+.sp-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; gap: 0.4rem; flex-wrap: wrap; }
+.sp-via { color: var(--dos-accent-dark); font-weight: 600; }
+.sp-desc { font-size: 0.78rem; color: var(--text-muted); line-height: 1.35; }
 .input:hover, .select:hover, .textarea:hover { border-color: var(--dos-accent); }
 .input[aria-invalid="true"], .select[aria-invalid="true"], .textarea[aria-invalid="true"] { border-color: var(--dos-deep); border-width: 2px; }
 .field-error { display: flex; gap: 0.35rem; align-items: flex-start; font-size: 0.8rem; font-weight: 600; color: var(--dos-deep); }

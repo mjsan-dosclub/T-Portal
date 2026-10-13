@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { GapTable } from "@/components/skills/gap-table";
+import { SkillPicker } from "@/components/skills/skill-picker";
 import { LevelBar, Meter, ReadinessChip } from "@/components/skills/level-bar";
 import type { Profile } from "@/server/profile";
 import { useSave } from "../profile/profile-editor";
@@ -87,19 +88,15 @@ function OtherSkills({ profile, catalog, onSaved }: { profile: Profile; catalog:
         <ul style={{ listStyle: "none", padding: 0, display: "grid", gap: "0.4rem" }}>
           {profile.otherSkills.map((s) => (
             <li key={s.code} style={{ display: "flex", gap: "0.6rem", alignItems: "center", flexWrap: "wrap" }}>
-              <code className="mono chip tone-deep">{s.code}</code> {s.name}
+              <span style={{ fontWeight: 600 }}>{s.name}</span>
               <span style={{ marginLeft: "auto" }}><LevelBar current={s.verified ?? s.self} label={s.verified != null ? `L${s.verified} ✓` : `L${s.self}`} /></span>
             </li>
           ))}
         </ul>
       )}
       <div style={{ display: "flex", gap: "0.6rem", flexWrap: "wrap", alignItems: "end" }}>
-        <div className="field" style={{ flex: "2 1 16rem" }}>
-          <label className="label" htmlFor="os-skill">Skill</label>
-          <select id="os-skill" className="select" value={code} onChange={(e) => setCode(e.target.value)}>
-            <option value="">Choose a skill…</option>
-            {catalog.filter((c) => !required.has(c.code)).map((c) => (<option key={c.code} value={c.code}>{c.name} ({c.code}) · {c.category}</option>))}
-          </select>
+        <div style={{ flex: "2 1 18rem", minWidth: 0 }}>
+          <SkillPicker id="os-skill" label="Skill" single catalog={catalog.filter((c) => !required.has(c.code))} selected={code ? [code] : []} onChange={(c) => setCode(c[0] ?? "")} hint="Search with everyday words, then set your level." />
         </div>
         <div className="field" style={{ flex: "0 1 8rem" }}>
           <label className="label" htmlFor="os-level">Your level</label>
